@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 11:20:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/06 22:18:08 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/14 09:51:18 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,5 +20,10 @@
 # define NO_ENV "minishell: Failed to initialize environment"
 # define GETCWD "minishell: Failed to get current working directory"
 # define NO_WD "minishell: Failed to get working directory"
+# define NO_PROMPT "minishell: Failed to create prompt"
+# define NO_USER "minishell: Failed to get user"
+# define NO_HOME "minishell: Failed to get home directory"
+# define NO_ALLOC "minishell: Failed to add allocation"
+# define QUOTES "minishell: Quotes not closed"
 
 #endif

@@ -6,7 +6,7 @@
 #    By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/01/05 20:17:26 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/01/14 14:56:19 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,11 +23,10 @@ LIB_DIR = ./libft/
 LIBFT	= ./libft/libft.a
 
 SRC		= main.c \
-		  init_shell.c \
-		  init_env.c \
-		  init_wd.c \
+		  init.c \
 		  errors.c \
 		  clean.c \
+		  lst_utils.c \
 
 SRCS	= $(addprefix $(SRC_DIR), $(SRC))
 OBJS	= $(addprefix $(OBJ_DIR), $(SRC:.c=.o))

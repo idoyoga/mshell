@@ -6,74 +6,53 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 11:11:54 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/07 14:28:16 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/14 14:50:24 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
-/* 
- * Free single env node
+/*
+**	Alloc tracker, used to keep track of all allocated memory
 */
 
-void	free_env_node(t_env **node)
+bool alloc_tracker_add(t_alloc *tracker, void *ptr)
 {
-	if (!node || !*node)
-		return ;
-	free((*node)->key);
-	free((*node)->value);
-	free(*node);
-	*node = NULL;
+	if (!ptr || !tracker || tracker->count >= tracker->capacity)
+		return (false);
+	tracker->allocs[tracker->count++] = ptr;
+	return (true);
 }
 
 /*
- * Free env list in case create_env_node fails midway through init_env.
- * This function is also called in clean_shell.
+** Free all allocated memory in one function - that's at least the idea :)
 */
 
-void	free_env_list(t_env **env_list)
-{
-	t_env	*current;
-	t_env	*next;
-
-	if (!env_list || !*env_list)
-		return ;
-	current = *env_list;
-	while (current)
-	{
-		next = current->next;
-		free_env_node(&current);
-		current = next;
-	}
-	*env_list = NULL;
-}
-/*
- * Free all allocated memory in shell struct, including special case for env
-*/
-
-static void	free_allocs(t_shell *shell)
+static void free_allocs(t_alloc *tracker)
 {
 	int	i;
 
+	if (!tracker || !tracker->allocs)
+		return ;
 	i = -1;
-	while (++i < shell->alloc_count)
-	{
-		if (shell->allocs[i])
-		{
-			if (shell->allocs[i] == (void *)shell->env)
-				free_env_list((t_env **)&shell->allocs[i]);
-			else
-				ft_free(&shell->allocs[i]);
-		}
-	}
-	free(shell->allocs);
-	shell->allocs = NULL;
-	shell->alloc_count = 0;
+	while (++i < tracker->count)
+    {
+        if (tracker->allocs[i])
+            free(tracker->allocs[i]);
+    }
+    free(tracker->allocs);
+    tracker->allocs = NULL;
+    tracker->count = 0;
+    tracker->capacity = 0;
 }
+
+/*
+** Clean up the shell struct, more functions might be added here
+*/
 
 void	clean_shell(t_shell *shell)
 {
 	if (!shell)
 		return ;
-	free_allocs(shell);
+	free_allocs(&shell->alloc_tracker);
 }
