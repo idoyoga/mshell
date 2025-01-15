@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/14 10:19:28 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/15 10:40:08 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,8 @@ static bool	init_list(t_shell *shell, t_lst **node, void *data)
 {
 	if (!data)
 		return (false);
-	(*node) = malloc(sizeof(t_lst));
-	alloc_tracker_add(&(shell->alloc_tracker), *node);
-	if (*node == NULL)
+	*node = (t_lst *)wrap_malloc(&(shell->alloc_tracker), sizeof(t_lst));
+	if (!(*node))
 		return (false);
 	(*node)->data = data;
 	(*node)->next = NULL;
@@ -47,7 +46,7 @@ bool	append_node(t_shell *shell, t_lst **lst, void *data)
 		node->prev = node;
 		node->next = node;
 	}
-	else 
+	else
 	{
 		node->prev = (*lst)->prev;
 		node->next = (*lst);

@@ -6,18 +6,48 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/14 14:55:56 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/15 17:27:30 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
 /*
+** Initialize allocation tracker and adapt initial capacity based on
+** the environment size.
+*/
+
+static bool	init_alloc_tracker(t_alloc *tracker, char **env)
+{
+	int	i;
+	int	initial_capacity;
+
+	i = 0;
+	if (env)
+	{
+		while (env[i])
+			i++;
+		initial_capacity = i * 2;
+	}
+	else
+		initial_capacity = DEFAULT_ALLOC_CAPACITY;
+	if (!tracker || initial_capacity <= 0)
+		return (false);
+	tracker->allocs = ft_calloc(initial_capacity, sizeof(void *));
+	if (!tracker->allocs)
+		return (error(NULL, NO_ALLOC, false));
+	tracker->count = 0;
+	tracker->capacity = initial_capacity;
+	tracker->initialized = true;
+	return (true);
+}
+
+/*
 ** Initialize work_dir (PWD) and old_work_dir (OLDPWD), should also work with
 ** incomplete environment (PWD unset). Used also for cd builtin later.
 */
 
-static bool init_work_dirs(t_shell *shell)
+static bool	init_work_dirs(t_shell *shell)
 {
 	char	*cwd;
 	char	*tmp;
@@ -64,8 +94,7 @@ static bool	init_env(t_shell *shell, char **env)
 	while (env[++i])
 	{
 		tmp = ft_strdup(env[i]);
-		alloc_tracker_add(&(shell->alloc_tracker), tmp);
-		if (!tmp)
+		if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp))
 			return (error(NULL, NO_MEM, 1));
 		if (!append_node(shell, &list, tmp))
 			return (error(NULL, NO_MEM, 1));
@@ -73,36 +102,6 @@ static bool	init_env(t_shell *shell, char **env)
 	shell->env = list;
 	shell->env_count = i;
 	return (false);
-}
-
-/*
-** Create the prompt string, which consists of the user name and the path.
-*/
-
-static char *create_prompt(t_shell *shell)
-{
-	char	*prompt;
-	char	*work_dir;
-	size_t	len;
-	size_t	total_len;
-
-	work_dir = shell->work_dir;
-	shell->home_dir = getenv("HOME");
-	if (!shell->home_dir)
-		return (error(shell, NO_HOME, 1), NULL);
-	len = ft_strlen(shell->home_dir);
-	if (ft_strncmp(shell->home_dir, work_dir, len) == 0)
-		work_dir += len;
-	total_len = ft_strlen(shell->user) + ft_strlen(work_dir) + 6;
-	prompt = ft_calloc(sizeof(char), total_len);
-	alloc_tracker_add(&(shell->alloc_tracker), prompt);
-	if (!prompt)
-		return (error(shell, NO_MEM, 1), NULL);
-	ft_strlcpy(prompt, shell->user, total_len);
-	ft_strlcat(prompt, ":~", total_len);
-	ft_strlcat(prompt, work_dir, total_len);
-	ft_strlcat(prompt, "$ ", total_len);
-	return (prompt);
 }
 
 /*
@@ -124,17 +123,14 @@ static int	prompt(t_shell *shell)
 }
 
 /*
-** Initialize the shell struct, allocate memory for the alloc tracker and
-** set all values to 0. If any of the initialization functions fail, return
-** an error and exit with status 1.
+** Initialize shell struct with allocation tracker, environment variables 
+** and working directory
 */
 
 bool	init_shell(t_shell *shell, char **env)
 {
 	ft_memset(shell, 0, sizeof(t_shell));
-	shell->alloc_tracker.allocs = ft_calloc(MAX_ALLOCS, sizeof(void *));
-	shell->alloc_tracker.capacity = MAX_ALLOCS;
-	if (!shell->alloc_tracker.allocs)
+	if (!init_alloc_tracker(&(shell->alloc_tracker), env))
 		return (error(NULL, NO_ALLOC, 1));
 	if (init_work_dirs(shell))
 		return (error(NULL, NO_WD, 1));

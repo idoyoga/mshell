@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/14 14:50:24 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/15 17:37:17 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # define CMD_NOT_FOUND 127
 # define CMD_NOT_EXEC 126
-# define MAX_ALLOCS 1000
+# define DEFAULT_ALLOC_CAPACITY 100
 
 # include <stdio.h>
 # include <unistd.h>
@@ -43,9 +43,9 @@ typedef enum e_token_type
 	REDIR_OUT,
 	REDIR_APPEND,
 	HEREDOC,
-}	tok_type;
+}	t_tok_type;
 
-typedef struct	s_lst
+typedef struct s_lst
 {
 	void			*data;
 	struct s_lst	*next;
@@ -54,9 +54,9 @@ typedef struct	s_lst
 
 typedef struct s_cmd
 {
-	char	*cmd;
-	char	**args;
-	int		argc;
+	char			*cmd;
+	char			**args;
+	int				argc;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }	t_cmd;
@@ -65,16 +65,22 @@ typedef struct s_token
 {
 	char			*content;
 	int				status;
-	tok_type		type;
+	t_tok_type		type;
 	struct s_token	*next;
 	struct s_token	*prev;
 }	t_token;
 
+/*
+**	Meta-tracking allocations, used to keep track of all allocated memory
+**	including the shell struct itself.
+*/
+
 typedef struct s_alloc_tracker
 {
-    void	**allocs;
-    int		count;
-    int		capacity;
+	void	**allocs;
+	int		count;
+	int		capacity;
+	bool	initialized;
 }	t_alloc;
 
 typedef struct s_shell
@@ -94,11 +100,13 @@ typedef struct s_shell
 	pid_t	pid;
 }	t_shell;
 
-// --------------  clean  --------------------------------------- //
+// --------------  alloc  --------------------------------------- //
 bool	alloc_tracker_add(t_alloc *tracker, void *ptr);
-void	clean_shell(t_shell *shell);
-//
-// --------------  errors  -------------------------------------- //
+void	*wrap_malloc(t_alloc *tracker, size_t size);
+void	*wrap_calloc(t_alloc *tracker, size_t count, size_t size);
+void	free_allocs(t_alloc *tracker);
+
+// --------------  main  ---------------------------------------- //
 bool	error(t_shell *shell, char *error, int status);
 
 // --------------  init_shell  ---------------------------------- //
@@ -107,5 +115,8 @@ bool	init_shell(t_shell *shell, char **env);
 // --------------  lst_utils  ----------------------------------- //
 bool	append_node(t_shell *shell, t_lst **lst, void *data);
 size_t	lst_len(t_lst *lst);
+
+// --------------  utils  --------------------------------------- //
+char	*create_prompt(t_shell *shell);
 
 #endif
