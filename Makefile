@@ -6,7 +6,7 @@
 #    By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/01/14 14:56:19 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/01/20 20:08:17 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME	= minishell
 
 CC		= cc
 CFLAGS	= -Werror -Wall -Wextra -g
-LDFLAGS = 
+LDFLAGS = -l readline
 
 INC_DIR = ./inc/
 SRC_DIR = ./src/
@@ -24,9 +24,8 @@ LIBFT	= ./libft/libft.a
 
 SRC		= main.c \
 		  init.c \
-		  errors.c \
-		  clean.c \
-		  lst_utils.c \
+		  alloc.c \
+		  env_utils.c \
 
 SRCS	= $(addprefix $(SRC_DIR), $(SRC))
 OBJS	= $(addprefix $(OBJ_DIR), $(SRC:.c=.o))

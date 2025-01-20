@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 11:20:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/14 09:51:18 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/20 20:00:31 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,7 @@
 # define NO_HOME "minishell: Failed to get home directory"
 # define NO_ALLOC "minishell: Failed to add allocation"
 # define QUOTES "minishell: Quotes not closed"
+# define NO_RESIZE "minishell: Failed to resize allocation tracker"
+# define NO_TRACK "minishell: Failed to initialize allocation tracker"
 
 #endif

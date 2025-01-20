@@ -6,7 +6,7 @@
 #    By: dplotzl <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/02 16:05:14 by dplotzl           #+#    #+#              #
-#    Updated: 2025/01/06 17:27:16 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/01/20 20:10:50 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,7 +55,8 @@ SRC 	= ft_atoi.c \
 		  ft_tolower.c \
 		  ft_toupper.c \
 		  ft_strcmp.c \
-		  ft_free.c
+		  ft_free.c \
+		  ft_isblank.c
 
 SRCS	= $(addprefix $(SRC_DIR), $(SRC))
 OBJS	= $(addprefix $(OBJ_DIR), $(SRC:.c=.o))
