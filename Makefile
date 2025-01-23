@@ -6,7 +6,7 @@
 #    By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/01/23 13:08:26 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/01/23 14:57:12 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,10 @@ SRC		= main.c \
 		  alloc_utils.c \
 		  init.c \
 		  env_utils.c \
+		  lexer.c \
+		  parse_utils.c \
+		  token.c \
+		  token_utils.c \
 
 SRCS	= $(addprefix $(SRC_DIR), $(SRC))
 OBJS	= $(addprefix $(OBJ_DIR), $(SRC:.c=.o))

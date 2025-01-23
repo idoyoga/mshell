@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 11:20:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/20 20:00:31 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/23 14:35:38 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,5 +27,16 @@
 # define QUOTES "minishell: Quotes not closed"
 # define NO_RESIZE "minishell: Failed to resize allocation tracker"
 # define NO_TRACK "minishell: Failed to initialize allocation tracker"
+# define OPEN_PIPE "minishell: Pipe not closed"
+# define START_PIPE "minishell: Input cannot start with pipe"
+# define END_PIPE "minishell: Input cannot end with pipe"
+# define CONSEC_PIPES "minishell: Consecutive pipes not allowed"
+# define CONSEC_REDIR "minishell: Consecutive redirections not allowed"
+# define UNEXP_TOKEN "minishell: Syntax error near unexpected token"
+# define NEWL "minishell: Newline not allowed"
+# define NO_REPLACE "minishell: Failed to replace environment variables"
+# define NO_CMD "minishell: No command to execute"
+# define BACKSLASH "minishell: Backslash is not interpreted"
+# define SEMICOLON "minishell: Semicolon is not interpreted"
 
 #endif

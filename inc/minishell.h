@@ -113,7 +113,25 @@ bool	add_env_var(t_shell *shell, t_env **lst, char *data);
 char	*create_prompt(t_shell *shell);
 int		env_var_count(char **env);
 
+// --------------  lexer  --------------------------------------- //
+char	*handle_quotes(char *input);
+bool	check_quotes(char *input);
+bool	lexer(t_shell *shell, char *input);
+
 // --------------  main  ---------------------------------------- //
 bool	error(t_shell *shell, char *error, int status);
 
+// --------------  parse_utils  --------------------------------- //
+char	*skip_blanks(char *input);
+char	*handle_quotes(char *input);
+
+// --------------  token  --------------------------------------- //
+bool	parse_token_list(t_shell *shell, t_tok **lst, char *input);
+
+// --------------  token_utils  --------------------------------- //
+t_t_typ	get_special_type(char *str);
+int		get_special_length(char *str);
+int		get_token_length(char *input, bool *is_quoted);
+void	parse_token(char *input, char *content, int len);
+bool	add_token(t_shell *shell, t_tok **lst, char *content, t_t_typ type);
 #endif

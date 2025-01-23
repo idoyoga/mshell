@@ -6,7 +6,11 @@ set(SOURCES
 	src/alloc_utils.c
 	src/env_utils.c
 	src/init.c
+	src/lexer.c
 	src/main.c
+	src/parse_utils.c
+	src/token.c
+	src/token_utils.c
 )
 
 # Include directories
