@@ -6,15 +6,13 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/20 19:58:33 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/23 13:08:26 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-# define CMD_NOT_FOUND 127
-# define CMD_NOT_EXEC 126
 # define DEFAULT_ALLOC_CAPACITY 100
 
 # include <stdio.h>
@@ -77,6 +75,7 @@ typedef struct s_tok
 typedef struct s_alloc_tracker
 {
 	void	**allocs;
+	int		*flags;
 	int		count;
 	int		capacity;
 	bool	initialized;
@@ -88,7 +87,6 @@ typedef struct s_shell
 	t_env	*env;			// Environment variables
 	t_tok	*tokens;		// Token list
 	t_alloc	alloc_tracker;	// Memory tracker
-	int		env_count;
 	int		status;
 	char	*prompt;
 	char	*cmd_input;
@@ -100,10 +98,12 @@ typedef struct s_shell
 }	t_shell;
 
 // --------------  alloc  --------------------------------------- //
-bool	alloc_tracker_add(t_alloc *tracker, void *ptr);
+bool	alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array);
+void	free_allocs(t_alloc *tracker);
+
+// --------------  alloc_utils  --------------------------------- //
 void	*wrap_malloc(t_alloc *tracker, size_t size);
 void	*wrap_calloc(t_alloc *tracker, size_t count, size_t size);
-void	free_allocs(t_alloc *tracker);
 
 // --------------  init  ---------------------------------------- //
 bool	init_shell(t_shell *shell, char **env);
@@ -111,6 +111,7 @@ bool	init_shell(t_shell *shell, char **env);
 // --------------  env_utils  ----------------------------------- //
 bool	add_env_var(t_shell *shell, t_env **lst, char *data);
 char	*create_prompt(t_shell *shell);
+int		env_var_count(char **env);
 
 // --------------  main  ---------------------------------------- //
 bool	error(t_shell *shell, char *error, int status);

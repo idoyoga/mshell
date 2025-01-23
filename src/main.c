@@ -6,11 +6,11 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/20 20:09:39 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/23 13:10:52 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "minishell.h"
 
 static bool	blank_line(char *input)
 {
@@ -32,7 +32,7 @@ static void	minishell(t_shell *shell)
 	while (1)
 	{
 		shell->cmd_input = readline(shell->prompt);
-		alloc_tracker_add(&(shell->alloc_tracker), shell->cmd_input);
+		alloc_tracker_add(&(shell->alloc_tracker), shell->cmd_input, 0);
 		if (!shell->cmd_input)
 			break ;
 		if (blank_line(shell->cmd_input))
@@ -40,7 +40,6 @@ static void	minishell(t_shell *shell)
 		add_history(shell->cmd_input);
 		if (ft_strcmp(shell->cmd_input, "exit") == 0)
 			break ;
-		// TODO: tokenization etc.
 	}
 	rl_clear_history();
 }
@@ -57,8 +56,8 @@ static void	clean_shell(t_shell *shell)
 }
 
 /*
-** Print error message and clean up shell struct (if shell is not NULL),
-** then return either true (error) or false (no error).
+**	Print error message and clean up shell struct (if shell is not NULL),
+**	then return either true (error) or false (no error).
 */
 
 bool	error(t_shell *shell, char *error, int status)

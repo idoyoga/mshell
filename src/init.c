@@ -6,11 +6,11 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/20 20:07:03 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/22 21:08:29 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "minishell.h"
 
 /*
 ** Initialize allocation tracker and adapt initial capacity based on
@@ -19,23 +19,24 @@
 
 static bool	init_alloc_tracker(t_alloc *tracker, char **env)
 {
-	int	i;
 	int	initial_capacity;
 
-	i = 0;
 	if (env)
-	{
-		while (env[i])
-			i++;
-		initial_capacity = i * 2;
-	}
+		initial_capacity = (env_var_count(env) * 2);
 	else
 		initial_capacity = DEFAULT_ALLOC_CAPACITY;
 	if (!tracker || initial_capacity <= 0)
 		return (false);
 	tracker->allocs = ft_calloc(initial_capacity, sizeof(void *));
-	if (!tracker->allocs)
+	tracker->flags = ft_calloc(initial_capacity, sizeof(int));
+	if (!tracker->allocs || !tracker->flags)
+	{
+		free(tracker->allocs);
+		free(tracker->flags);
+		tracker->allocs = NULL;
+		tracker->flags = NULL;
 		return (error(NULL, NO_ALLOC, false));
+	}
 	tracker->count = 0;
 	tracker->capacity = initial_capacity;
 	tracker->initialized = true;
@@ -53,25 +54,25 @@ static bool	init_work_dirs(t_shell *shell)
 	char	*tmp;
 
 	tmp = ft_strdup("OLDPWD");
-	if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp))
+	if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp, 0))
 		return (error(NULL, NO_MEM, false));
 	if (!add_env_var(shell, &(shell->env), tmp))
 		return (error(NULL, NO_MEM, false));
 	cwd = getcwd(NULL, 0);
-	if (!cwd || !alloc_tracker_add(&(shell->alloc_tracker), cwd))
+	if (!cwd || !alloc_tracker_add(&(shell->alloc_tracker), cwd, 0))
 		return (error(NULL, GETCWD, false));
 	tmp = ft_strjoin("PWD=", cwd);
-	if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp))
+	if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp, 0))
 		return (error(NULL, NO_MEM, false));
 	if (!add_env_var(shell, &(shell->env), tmp))
 		return (error(NULL, NO_MEM, false));
 	shell->work_dir = ft_strdup(cwd);
 	if (!shell->work_dir
-		|| !alloc_tracker_add(&(shell->alloc_tracker), shell->work_dir))
+		|| !alloc_tracker_add(&(shell->alloc_tracker), shell->work_dir, 0))
 		return (error(NULL, NO_MEM, false));
 	shell->old_work_dir = ft_strdup("");
 	if (!shell->old_work_dir
-		|| !alloc_tracker_add(&(shell->alloc_tracker), shell->old_work_dir))
+		|| !alloc_tracker_add(&(shell->alloc_tracker), shell->old_work_dir, 0))
 		return (error(NULL, NO_MEM, false));
 	return (true);
 }
@@ -91,17 +92,16 @@ static bool	init_env(t_shell *shell, char **env)
 	if (!env || !(*env))
 		return (error(NULL, NO_ENV, false));
 	lst = NULL;
-	i = -false;
+	i = -1;
 	while (env[++i])
 	{
 		tmp = ft_strdup(env[i]);
-		if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp))
+		if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp, 0))
 			return (error(NULL, NO_MEM, false));
 		if (!add_env_var(shell, &lst, tmp))
 			return (error(NULL, NO_MEM, false));
 	}
 	shell->env = lst;
-	shell->env_count = i;
 	return (true);
 }
 
