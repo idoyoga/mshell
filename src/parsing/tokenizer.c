@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/07 13:28:21 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/07 14:59:43 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,8 @@ bool	tokenize_input(t_shell *shell, char *input)
 	if (invalid_syntax(input) || check_unclosed_quotes(shell, input))
 		return (false);
 	if (!expand_dollar_variables(shell, &input))
+		return (false);
+	if (!tokenize(shell, &shell->tokens, input))
 		return (false);
 	return (false);
 }
