@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:24:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/23 13:27:11 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/07 14:05:59 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static bool	alloc_tracker_resize(t_alloc *tracker, int new_capacity)
 		free(new_flags);
 		new_allocs = NULL;
 		new_flags = NULL;
-		return (error(NULL, NO_RESIZE, false));
+		error_exit(NULL, NO_RESIZE, EXIT_FAILURE);
 	}
 	ft_memmove(new_allocs, tracker->allocs, tracker->count * sizeof(void *));
 	ft_memmove(new_flags, tracker->flags, tracker->count * sizeof(int));
@@ -50,19 +50,19 @@ static bool	alloc_tracker_resize(t_alloc *tracker, int new_capacity)
 **	0 = single allocation, 1 = array allocation
 */
 
-bool	alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array)
+void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array)
 {
 	if (!ptr || !tracker || !tracker->initialized)
-		return (false);
+		return (NULL);
 	if (tracker->count >= tracker->capacity)
 	{
 		if (!alloc_tracker_resize(tracker, tracker->capacity * 2))
-			return (error(NULL, NO_RESIZE, false));
+			return (NULL);
 	}
 	tracker->allocs[tracker->count] = ptr;
 	tracker->flags[tracker->count] = is_array;
 	tracker->count++;
-	return (true);
+	return (ptr);
 }
 
 /*

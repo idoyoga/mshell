@@ -13,10 +13,10 @@
 #include "minishell.h"
 
 /*
-**	Get the type of a special token
+**	Identify type of special tokens (operators)
 */
 
-t_t_typ	get_special_type(char *str)
+t_t_typ	identify_special_token(char *str)
 {
 	if (!ft_strncmp(str, "<<", 2))
 		return (HEREDOC);
@@ -28,11 +28,11 @@ t_t_typ	get_special_type(char *str)
 		return (REDIR_OUT);
 	if (!ft_strncmp(str, "|", 1))
 		return (PIPE);
-	return (WORD);
+	return (END);
 }
 
 /*
-**	Get the length of a special token
+**	Get length of special tokens (operators)
 */
 
 int	get_special_length(char *str)
@@ -46,25 +46,27 @@ int	get_special_length(char *str)
 }
 
 /*
-**	Get the length of the token
+**	Get length of a token
 */
 
-int	get_token_length(char *input, bool *is_quoted)
+int	get_token_length(char *input, int *quote)
 {
 	int		len;
-	char	current_quote;
 
 	len = 0;
-	*is_quoted = false;
+	*quote = 0;
 	while (input[len] && !get_special_length(input + len)
 		&& !ft_isblank(input[len]))
 	{
 		if (input[len] == '\'' || input[len] == '"')
 		{
-			*is_quoted = true;
-			current_quote = input[len++];
-			while (input[len] && input[len] != current_quote)
-				len++;
+			(*quote)++;
+			if (input[len++] == '"')
+				while (input[len] && input[len] != '"')
+					len++;
+			else
+				while (input[len] && input[len] != '\'')
+					len++;
 			if (input[len])
 				len++;
 		}
@@ -75,62 +77,45 @@ int	get_token_length(char *input, bool *is_quoted)
 }
 
 /*
-** Parse token content while handling quotes
+**	Allocate and initialise a new token node
 */
 
-void	parse_token(char *input, char *content, int len)
+static	t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 {
-	char	current_quote;
-	int		i;
-	int		j;
+	t_tok	*token;
 
-	i = 0;
-	j = 0;
-	while (j < len)
-	{
-		if (input[j] == '\'' || input[j] == '"')
-		{
-			current_quote = input[j++];
-			while (j < len && input[j] != current_quote)
-				content[i++] = input[j++];
-			if (j < len)
-				j++;
-		}
-		else
-			content[i++] = input[j++];
-	}
-	content[i] = '\0';
+	token = safe_malloc(shell, sizeof(t_tok));
+	if (!token)
+		error_exit(shell, NO_MEM, EXIT_FAILURE);
+	token->content = content;
+	token->file = NULL;
+	token->type = type;
+	token->next = NULL;
+	token->prev = NULL;
+	return (token);
 }
 
 /*
-**	Add a token node to the token list
+**	Add a new token node to the end of the list
 */
 
-bool	add_token(t_shell *shell, t_tok **lst, char *content, t_t_typ type)
+t_tok	*add_token(t_shell *shell, t_tok **lst, char *content, t_t_typ type)
 {
-	t_tok	*node;
+	t_tok	*token;
 
-	if (!content)
-		return (false);
-	node = (t_tok *)wrap_malloc(&(shell->alloc_tracker), sizeof(t_tok));
-	if (!node)
-		return (error(NULL, NO_MEM, false));
-	node->content = content;
-	node->type = type;
-	node->next = NULL;
-	node->prev = NULL;
+	token = init_token(shell, content, type);
 	if (!(*lst))
 	{
-		(*lst) = node;
-		node->prev = node;
-		node->next = node;
+		(*lst) = token;
+		token->prev = token;
+		token->next = token;
 	}
 	else
 	{
-		node->prev = (*lst)->prev;
-		node->next = (*lst);
-		(*lst)->prev->next = node;
-		(*lst)->prev = node;
+		token->prev = (*lst)->prev;
+		token->next = (*lst);
+		(*lst)->prev->next = token;
+		(*lst)->prev = token;
 	}
-	return (true);
+	return (token);
 }

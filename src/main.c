@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/23 13:10:52 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/07 13:06:32 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,41 +38,10 @@ static void	minishell(t_shell *shell)
 		if (blank_line(shell->cmd_input))
 			continue ;
 		add_history(shell->cmd_input);
-		if (ft_strcmp(shell->cmd_input, "exit") == 0)
-			break ;
+		if (!tokenize_input(shell, shell->cmd_input))
+			continue ;
 	}
 	rl_clear_history();
-}
-
-/*
-**	Clean up the shell struct, more functions might be added here
-*/
-
-static void	clean_shell(t_shell *shell)
-{
-	if (!shell)
-		return ;
-	free_allocs(&shell->alloc_tracker);
-}
-
-/*
-**	Print error message and clean up shell struct (if shell is not NULL),
-**	then return either true (error) or false (no error).
-*/
-
-bool	error(t_shell *shell, char *error, int status)
-{
-	if (error && *error)
-	{
-		write(2, error, ft_strlen(error));
-		write(2, "\n", 1);
-	}
-	if (shell)
-		clean_shell(shell);
-	if (status != 0)
-		return (true);
-	else
-		return (false);
 }
 
 int	main(int ac, char **av, char **env)
@@ -81,9 +50,9 @@ int	main(int ac, char **av, char **env)
 
 	(void)av;
 	if (ac > 1)
-		return (error(NULL, INV_ARGS, 1));
+		return (error(INV_ARGS, 1));
 	if (!init_shell(&shell, env))
-		return (error(&shell, NO_SHELL, 1));
+		return (error(NO_SHELL, 1));
 	minishell(&shell);
 	clean_shell(&shell);
 	return (0);

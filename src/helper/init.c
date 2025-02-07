@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/22 21:08:29 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/07 13:27:16 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 ** the environment size.
 */
 
-static bool	init_alloc_tracker(t_alloc *tracker, char **env)
+static bool	init_alloc_tracker(t_shell *shell, char **env)
 {
 	int	initial_capacity;
 
@@ -25,21 +25,21 @@ static bool	init_alloc_tracker(t_alloc *tracker, char **env)
 		initial_capacity = (env_var_count(env) * 2);
 	else
 		initial_capacity = DEFAULT_ALLOC_CAPACITY;
-	if (!tracker || initial_capacity <= 0)
+	if (!shell || initial_capacity <= 0)
 		return (false);
-	tracker->allocs = ft_calloc(initial_capacity, sizeof(void *));
-	tracker->flags = ft_calloc(initial_capacity, sizeof(int));
-	if (!tracker->allocs || !tracker->flags)
+	shell->alloc_tracker.allocs = ft_calloc(initial_capacity, sizeof(void *));
+	shell->alloc_tracker.flags = ft_calloc(initial_capacity, sizeof(int));
+	if (!shell->alloc_tracker.allocs || !shell->alloc_tracker.flags)
 	{
-		free(tracker->allocs);
-		free(tracker->flags);
-		tracker->allocs = NULL;
-		tracker->flags = NULL;
-		return (error(NULL, NO_ALLOC, false));
+		free(shell->alloc_tracker.allocs);
+		free(shell->alloc_tracker.flags);
+		shell->alloc_tracker.allocs = NULL;
+		shell->alloc_tracker.flags = NULL;
+		error_exit(shell, NO_ALLOC, EXIT_FAILURE);
 	}
-	tracker->count = 0;
-	tracker->capacity = initial_capacity;
-	tracker->initialized = true;
+	shell->alloc_tracker.count = 0;
+	shell->alloc_tracker.capacity = initial_capacity;
+	shell->alloc_tracker.initialized = true;
 	return (true);
 }
 
@@ -53,27 +53,25 @@ static bool	init_work_dirs(t_shell *shell)
 	char	*cwd;
 	char	*tmp;
 
-	tmp = ft_strdup("OLDPWD");
-	if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp, 0))
-		return (error(NULL, NO_MEM, false));
-	if (!add_env_var(shell, &(shell->env), tmp))
-		return (error(NULL, NO_MEM, false));
+	tmp = safe_strdup(shell, "OLDPWD");
+	if (!tmp)
+		return (error(NO_MEM, false));
+	if (!add_env_var(shell, &shell->env, tmp))
+		return (error(NO_MEM, false));
 	cwd = getcwd(NULL, 0);
-	if (!cwd || !alloc_tracker_add(&(shell->alloc_tracker), cwd, 0))
-		return (error(NULL, GETCWD, false));
-	tmp = ft_strjoin("PWD=", cwd);
-	if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp, 0))
-		return (error(NULL, NO_MEM, false));
-	if (!add_env_var(shell, &(shell->env), tmp))
-		return (error(NULL, NO_MEM, false));
-	shell->work_dir = ft_strdup(cwd);
-	if (!shell->work_dir
-		|| !alloc_tracker_add(&(shell->alloc_tracker), shell->work_dir, 0))
-		return (error(NULL, NO_MEM, false));
-	shell->old_work_dir = ft_strdup("");
-	if (!shell->old_work_dir
-		|| !alloc_tracker_add(&(shell->alloc_tracker), shell->old_work_dir, 0))
-		return (error(NULL, NO_MEM, false));
+	if (!cwd || !alloc_tracker_add(&shell->alloc_tracker, cwd, 0))
+		return (error(GETCWD, false));
+	tmp = safe_strjoin(shell, "PWD=", cwd);
+	if (!tmp)
+		return (error(NO_MEM, false));
+	if (!add_env_var(shell, &shell->env, tmp))
+		return (error(NO_MEM, false));
+	shell->work_dir = safe_strdup(shell, cwd);
+	if (!shell->work_dir)
+		return (error(NO_MEM, false));
+	shell->old_work_dir = safe_strdup(shell, "");
+	if (!shell->old_work_dir)
+		return (error(NO_MEM, false));
 	return (true);
 }
 
@@ -90,18 +88,19 @@ static bool	init_env(t_shell *shell, char **env)
 	int		i;
 
 	if (!env || !(*env))
-		return (error(NULL, NO_ENV, false));
+		return (error(NO_ENV, false));
 	lst = NULL;
 	i = -1;
 	while (env[++i])
 	{
-		tmp = ft_strdup(env[i]);
-		if (!tmp || !alloc_tracker_add(&(shell->alloc_tracker), tmp, 0))
-			return (error(NULL, NO_MEM, false));
+		tmp = safe_strdup(shell, env[i]);
+		if (!tmp)
+			error_exit(shell, NO_MEM, EXIT_FAILURE);
 		if (!add_env_var(shell, &lst, tmp))
-			return (error(NULL, NO_MEM, false));
+			return (error(NO_MEM, false));
 	}
 	shell->env = lst;
+	shell->env_count = i;
 	return (true);
 }
 
@@ -110,16 +109,16 @@ static bool	init_env(t_shell *shell, char **env)
 ** return an error and exit with status false.
 */
 
-static bool	prompt(t_shell *shell)
+static bool	init_prompt(t_shell *shell)
 {
 	shell->user = getenv("USER");
 	if (!shell->user)
-		return (error(NULL, NO_USER, false));
+		return (error(NO_USER, false));
 	if (!shell->work_dir)
-		return (error(NULL, NO_MEM, false));
+		return (error(NO_WD, false));
 	shell->prompt = create_prompt(shell);
 	if (!shell->prompt)
-		return (error(NULL, NO_MEM, false));
+		return (error(NO_PROMPT, false));
 	return (true);
 }
 
@@ -131,13 +130,13 @@ static bool	prompt(t_shell *shell)
 bool	init_shell(t_shell *shell, char **env)
 {
 	ft_memset(shell, 0, sizeof(t_shell));
-	if (!init_alloc_tracker(&(shell->alloc_tracker), env))
-		return (error(NULL, NO_ALLOC, false));
+	if (!init_alloc_tracker(shell, env))
+		return (error(NO_ALLOC, false));
 	if (!init_work_dirs(shell))
-		return (error(NULL, NO_WD, false));
+		return (error(NO_WD, false));
 	if (!init_env(shell, env))
-		return (error(NULL, NO_ENV, false));
-	if (!prompt(shell))
-		return (error(NULL, NO_PROMPT, false));
+		return (error(NO_ENV, false));
+	if (!init_prompt(shell))
+		return (error(NO_PROMPT, false));
 	return (true);
 }
