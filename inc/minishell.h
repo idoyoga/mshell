@@ -128,6 +128,9 @@ bool	append_char_to_str(t_shell *shell, char **output, int *index, char *c);
 // --------------  init  -------------------------------------------------- //
 bool	init_shell(t_shell *shell, char **env);
 
+// --------------  token  ------------------------------------------------- //
+bool	tokenize(t_shell *shell, t_tok **lst, char *input);
+
 // --------------  tokenizer  --------------------------------------------- //
 char	*trim_quotes(t_shell *shell, char *src, int len);
 void	update_quote_state(bool *d_quote, bool *s_quote, char c);

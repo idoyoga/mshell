@@ -30,6 +30,7 @@ SRC		=	helper/alloc.c \
 			helper/init.c \
 			helper/token_utils.c \
 			parsing/expander.c \
+			parsing/token.c \
 			parsing/tokenizer.c \
 			main.c \
 
