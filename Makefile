@@ -24,11 +24,14 @@ HEADER 	=	inc/minishell.h
 
 SRC		=	helper/alloc.c \
 			helper/alloc_helper.c \
+			helper/cmd_utils.c \
 			helper/env_utils.c \
 			helper/error.c \
 			helper/expander_utils.c \
 			helper/init.c \
 			helper/token_utils.c \
+			parsing/cmd_parser.c \
+			parsing/cmd_redir.c \
 			parsing/expander.c \
 			parsing/token.c \
 			parsing/tokenizer.c \

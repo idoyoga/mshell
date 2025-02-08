@@ -108,6 +108,15 @@ void	*safe_calloc(t_shell *shell, size_t count, size_t size);
 char	*safe_strdup(t_shell *shell, const char *src);
 char	*safe_strjoin(t_shell *shell, const char *s1, const char *s2);
 
+// --------------  cmd_parser  -------------------------------------------- //
+bool	parse_commands(t_shell *shell);
+
+// --------------  cmd_redir  --------------------------------------------- //
+bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd);
+
+// --------------  cmd_utils  --------------------------------------------- //
+t_cmd	*add_cmd(t_shell *shell, t_cmd **lst);
+
 // --------------  env_utils  --------------------------------------------- //
 t_env	*add_env_var(t_shell *shell, t_env **lst, char *data);
 char	*create_prompt(t_shell *shell);

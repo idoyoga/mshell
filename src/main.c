@@ -32,7 +32,6 @@ static void	minishell(t_shell *shell)
 	while (1)
 	{
 		shell->cmd_input = readline(shell->prompt);
-		alloc_tracker_add(&(shell->alloc_tracker), shell->cmd_input, 0);
 		if (!shell->cmd_input)
 			break ;
 		if (blank_line(shell->cmd_input))

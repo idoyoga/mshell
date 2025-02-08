@@ -53,7 +53,6 @@ static bool	expand_exit_status(t_shell *shell, char **output)
 	status_str = ft_itoa(shell->status);
 	if (!status_str || !alloc_tracker_add(&shell->alloc_tracker, status_str, 0))
 		return (error(NO_MEM, false));
-	free(*output);
 	new_str = safe_strjoin(shell, *output, status_str);
 	if (!new_str)
 		return (error(NO_MEM, false));

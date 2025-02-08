@@ -121,6 +121,8 @@ bool	tokenize(t_shell *shell, t_tok **lst, char *input)
 	{
 		while (ft_isblank(*input))
 			input++;
+		if (!*input)
+			break ;
 		if (!extract_token_content(shell, lst, &input))
 			return (false);
 		if (!validate_pipe_syntax(prev_token, lst))

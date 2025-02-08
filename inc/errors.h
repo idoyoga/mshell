@@ -38,5 +38,8 @@
 # define NO_CMD "minishell: No command to execute"
 # define BACKSLASH "minishell: Backslash is not interpreted"
 # define SEMICOLON "minishell: Semicolon is not interpreted"
+# define FILE_ERR "minishell: Failed to open file"
+# define PIPE_ERR "minishell: Failed to create pipe"
+# define SYNT_ERR "minishell: Syntax error"
 
 #endif
