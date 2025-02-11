@@ -6,7 +6,7 @@
 #    By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/01/20 20:08:17 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/01/23 13:08:26 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,8 +23,9 @@ LIB_DIR = ./libft/
 LIBFT	= ./libft/libft.a
 
 SRC		= main.c \
-		  init.c \
 		  alloc.c \
+		  alloc_utils.c \
+		  init.c \
 		  env_utils.c \
 
 SRCS	= $(addprefix $(SRC_DIR), $(SRC))

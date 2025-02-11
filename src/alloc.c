@@ -6,11 +6,11 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:24:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/18 10:14:20 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/23 13:27:11 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "minishell.h"
 
 /*
 **	Dynamically resize the allocation tracker if the capacity is reached.
@@ -19,15 +19,26 @@
 static bool	alloc_tracker_resize(t_alloc *tracker, int new_capacity)
 {
 	void	**new_allocs;
+	int		*new_flags;
 
 	if (!tracker || new_capacity <= tracker->capacity)
 		return (false);
 	new_allocs = ft_calloc(new_capacity, sizeof(void *));
-	if (!new_allocs)
+	new_flags = ft_calloc(new_capacity, sizeof(int));
+	if (!new_allocs || !new_flags)
+	{
+		free(new_allocs);
+		free(new_flags);
+		new_allocs = NULL;
+		new_flags = NULL;
 		return (error(NULL, NO_RESIZE, false));
+	}
 	ft_memmove(new_allocs, tracker->allocs, tracker->count * sizeof(void *));
+	ft_memmove(new_flags, tracker->flags, tracker->count * sizeof(int));
 	free(tracker->allocs);
+	free(tracker->flags);
 	tracker->allocs = new_allocs;
+	tracker->flags = new_flags;
 	tracker->capacity = new_capacity;
 	return (true);
 }
@@ -36,9 +47,10 @@ static bool	alloc_tracker_resize(t_alloc *tracker, int new_capacity)
 **	Alloc tracker, used to keep track of all allocated memory.
 **	Resizes the allocation tracker if initial capacity is reached, 
 **	doubling its capacity.
+**	0 = single allocation, 1 = array allocation
 */
 
-bool	alloc_tracker_add(t_alloc *tracker, void *ptr)
+bool	alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array)
 {
 	if (!ptr || !tracker || !tracker->initialized)
 		return (false);
@@ -47,48 +59,45 @@ bool	alloc_tracker_add(t_alloc *tracker, void *ptr)
 		if (!alloc_tracker_resize(tracker, tracker->capacity * 2))
 			return (error(NULL, NO_RESIZE, false));
 	}
-	tracker->allocs[tracker->count++] = ptr;
+	tracker->allocs[tracker->count] = ptr;
+	tracker->flags[tracker->count] = is_array;
+	tracker->count++;
 	return (true);
 }
 
 /*
-**	Wrapper for malloc, automatically register allocations with the tracker
+**	Free all elements of a char ** array
 */
 
-void	*wrap_malloc(t_alloc *tracker, size_t size)
+static void	free_array(char **array)
 {
-	void	*ptr;
+	int	i;
 
-	if (!tracker || size == 0)
-		return (NULL);
-	ptr = malloc(size);
-	if (!ptr || !alloc_tracker_add(tracker, ptr))
+	if (!array)
+		return ;
+	i = -1;
+	while (array[++i])
 	{
-		if (ptr)
-			free(ptr);
-		return (NULL);
+		free(array[i]);
+		array[i] = NULL;
 	}
-	return (ptr);
 }
 
 /*
-**	Wrapper for calloc, automatically register allocations with the tracker
+**	Helper function for free_allocs
 */
 
-void	*wrap_calloc(t_alloc *tracker, size_t count, size_t size)
+static void	free_tracker_allocs(t_alloc *tracker, int index)
 {
-	void	*ptr;
+	char	**array;
 
-	if (!tracker || count == 0 || size == 0)
-		return (NULL);
-	ptr = ft_calloc(count, size);
-	if (!ptr || !alloc_tracker_add(tracker, ptr))
+	if (tracker->flags[index] == 1)
 	{
-		if (ptr)
-			free(ptr);
-		return (NULL);
+		array = (char **)tracker->allocs[index];
+		free_array(array);
 	}
-	return (ptr);
+	free(tracker->allocs[index]);
+	tracker->allocs[index] = NULL;
 }
 
 /*
@@ -97,7 +106,7 @@ void	*wrap_calloc(t_alloc *tracker, size_t count, size_t size)
 
 void	free_allocs(t_alloc *tracker)
 {
-	int	i;
+	int		i;
 
 	if (!tracker || !tracker->allocs || !tracker->initialized)
 		return ;
@@ -105,13 +114,12 @@ void	free_allocs(t_alloc *tracker)
 	while (++i < tracker->count)
 	{
 		if (tracker->allocs[i])
-		{
-			free(tracker->allocs[i]);
-			tracker->allocs[i] = NULL;
-		}
+			free_tracker_allocs(tracker, i);
 	}
 	free(tracker->allocs);
+	free(tracker->flags);
 	tracker->allocs = NULL;
+	tracker->flags = NULL;
 	tracker->count = 0;
 	tracker->capacity = 0;
 	tracker->initialized = false;

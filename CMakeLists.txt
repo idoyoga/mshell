@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 project(minishell LANGUAGES C)
 
 set(SOURCES
-	src/main.c
-	src/init.c
 	src/alloc.c
+	src/alloc_utils.c
 	src/env_utils.c
+	src/init.c
+	src/main.c
 )
 
 # Include directories

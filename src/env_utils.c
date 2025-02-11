@@ -6,11 +6,11 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/20 17:03:21 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/01/22 20:44:34 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "minishell.h"
 
 /*
 **	Allocate and initialise new env node
@@ -70,7 +70,7 @@ char	*create_prompt(t_shell *shell)
 	work_dir = shell->work_dir;
 	shell->home_dir = getenv("HOME");
 	if (!shell->home_dir)
-		return (error(shell, NO_HOME, 1), NULL);
+		return (error(NULL, NO_HOME, 1), NULL);
 	len = ft_strlen(shell->home_dir);
 	if (ft_strncmp(shell->home_dir, work_dir, len) == 0 && work_dir[len] == '/')
 		work_dir += len;
@@ -78,10 +78,20 @@ char	*create_prompt(t_shell *shell)
 	prompt = (char *)wrap_calloc(&shell->alloc_tracker, total_len,
 			sizeof(char));
 	if (!prompt)
-		return (error(shell, NO_MEM, EXIT_FAILURE), NULL);
+		return (error(NULL, NO_MEM, 1), NULL);
 	ft_strlcpy(prompt, shell->user, total_len);
 	ft_strlcat(prompt, ":~", total_len);
 	ft_strlcat(prompt, work_dir, total_len);
 	ft_strlcat(prompt, "$ ", total_len);
 	return (prompt);
+}
+
+int	env_var_count(char **env)
+{
+	int	i;
+
+	i = 0;
+	while (env[i])
+		i++;
+	return (i);
 }
