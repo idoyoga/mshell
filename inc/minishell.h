@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/23 13:08:26 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/07 14:37:17 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,8 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
-# include <errno.h>
 # include <sys/types.h>
 # include <sys/wait.h>
-# include <signal.h>
 # include <fcntl.h>
 # include <sys/stat.h>
 # include <dirent.h>
@@ -34,13 +32,14 @@
 
 typedef enum e_token_type
 {
-	PIPE,
+	END,
 	REDIR_IN,
+	HEREDOC,
 	REDIR_OUT,
 	REDIR_APPEND,
-	HEREDOC,
-	WORD,
-	END
+	PIPE,
+	CMD,
+	ARG
 }	t_t_typ;
 
 typedef struct s_env
@@ -54,7 +53,8 @@ typedef struct s_cmd
 {
 	char			*cmd;
 	char			**args;
-	int				argc;
+	int				fd_in;
+	int				fd_out;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }	t_cmd;
@@ -62,6 +62,7 @@ typedef struct s_cmd
 typedef struct s_tok
 {
 	char			*content;
+	char			*file;
 	t_t_typ			type;
 	struct s_tok	*next;
 	struct s_tok	*prev;
@@ -87,51 +88,55 @@ typedef struct s_shell
 	t_env	*env;			// Environment variables
 	t_tok	*tokens;		// Token list
 	t_alloc	alloc_tracker;	// Memory tracker
-	int		status;
-	char	*prompt;
-	char	*cmd_input;
-	char	*home_dir;
-	char	*work_dir;
-	char	*old_work_dir;
-	char	*user;
-	pid_t	pid;
+	int		env_count;		// Environment variable count
+	int		status;			// Exit status
+	char	*prompt;		// Prompt string
+	char	*cmd_input;		// Command input
+	char	*home_dir;		// Home directory
+	char	*work_dir;		// Current working directory
+	char	*old_work_dir;	// Previous working directory
+	char	*user;			// User name
 }	t_shell;
 
-// --------------  alloc  --------------------------------------- //
-bool	alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array);
+// --------------  alloc  ------------------------------------------------- //
+void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array);
 void	free_allocs(t_alloc *tracker);
 
-// --------------  alloc_utils  --------------------------------- //
-void	*wrap_malloc(t_alloc *tracker, size_t size);
-void	*wrap_calloc(t_alloc *tracker, size_t count, size_t size);
+// --------------  alloc_helper  ------------------------------------------ //
+void	*safe_malloc(t_shell *shell, size_t size);
+void	*safe_calloc(t_shell *shell, size_t count, size_t size);
+char	*safe_strdup(t_shell *shell, const char *src);
+char	*safe_strjoin(t_shell *shell, const char *s1, const char *s2);
 
-// --------------  init  ---------------------------------------- //
-bool	init_shell(t_shell *shell, char **env);
-
-// --------------  env_utils  ----------------------------------- //
-bool	add_env_var(t_shell *shell, t_env **lst, char *data);
+// --------------  env_utils  --------------------------------------------- //
+t_env	*add_env_var(t_shell *shell, t_env **lst, char *data);
 char	*create_prompt(t_shell *shell);
 int		env_var_count(char **env);
 
-// --------------  lexer  --------------------------------------- //
-char	*handle_quotes(char *input);
-bool	check_quotes(char *input);
-bool	lexer(t_shell *shell, char *input);
+// --------------  error  ------------------------------------------------- //
+bool	error(const char *error_msg, int status);
+void	error_exit(t_shell *shell, const char *error_msg, int exit_status);
+void	clean_shell(t_shell *shell);
 
-// --------------  main  ---------------------------------------- //
-bool	error(t_shell *shell, char *error, int status);
+// --------------  expander  ---------------------------------------------- //
+bool	expand_dollar_variables(t_shell *shell, char **input);
 
-// --------------  parse_utils  --------------------------------- //
-char	*skip_blanks(char *input);
-char	*handle_quotes(char *input);
+// --------------  expander_helper  --------------------------------------- //
+int		find_env_variable(t_shell *shell, char *input, int *index);
+bool	append_char_to_str(t_shell *shell, char **output, int *index, char *c);
 
-// --------------  token  --------------------------------------- //
-bool	parse_token_list(t_shell *shell, t_tok **lst, char *input);
+// --------------  init  -------------------------------------------------- //
+bool	init_shell(t_shell *shell, char **env);
 
-// --------------  token_utils  --------------------------------- //
-t_t_typ	get_special_type(char *str);
+// --------------  tokenizer  --------------------------------------------- //
+char	*trim_quotes(t_shell *shell, char *src, int len);
+void	update_quote_state(bool *d_quote, bool *s_quote, char c);
+bool	tokenize_input(t_shell *shell, char *input);
+
+// --------------  token_utils  ------------------------------------------- //
+t_t_typ	identify_special_token(char *str);
 int		get_special_length(char *str);
-int		get_token_length(char *input, bool *is_quoted);
-void	parse_token(char *input, char *content, int len);
-bool	add_token(t_shell *shell, t_tok **lst, char *content, t_t_typ type);
+int		get_token_length(char *input, int *quote);
+t_tok	*add_token(t_shell *shell, t_tok **lst, char *content, t_t_typ type);
+
 #endif

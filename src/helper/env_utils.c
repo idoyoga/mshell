@@ -16,44 +16,47 @@
 **	Allocate and initialise new env node
 */
 
-static bool	init_node(t_shell *shell, t_env **node, char *data)
+static t_env	*init_env(t_shell *shell, char *data)
 {
+	t_env	*env;
+
 	if (!data)
-		return (false);
-	*node = (t_env *)wrap_malloc(&(shell->alloc_tracker), sizeof(t_env));
-	if (!(*node))
-		return (false);
-	(*node)->data = data;
-	(*node)->next = NULL;
-	(*node)->prev = NULL;
-	return (true);
+		return (NULL);
+	env = safe_malloc(shell, sizeof(t_env));
+	if (!env)
+		error_exit(shell, NO_MEM, EXIT_FAILURE);
+	env->data = data;
+	env->next = NULL;
+	env->prev = NULL;
+	return (env);
 }
 
 /*
-**	Append a new node to the end of the list. If the list is empty,
+**	Add a new node to the end of the list. If the list is empty,
 **	the new node will be the first node and made circular.
 */
 
-bool	add_env_var(t_shell *shell, t_env **lst, char *data)
+t_env	*add_env_var(t_shell *shell, t_env **lst, char *data)
 {
-	t_env	*node;
+	t_env	*env;
 
-	if (!data || !init_node(shell, &node, data))
-		return (false);
+	env = init_env(shell, data);
+	if (!env)
+		return (NULL);
 	if (!(*lst))
 	{
-		(*lst) = node;
-		node->prev = node;
-		node->next = node;
+		(*lst) = env;
+		env->prev = env;
+		env->next = env;
 	}
 	else
 	{
-		node->prev = (*lst)->prev;
-		node->next = (*lst);
-		(*lst)->prev->next = node;
-		(*lst)->prev = node;
+		env->prev = (*lst)->prev;
+		env->next = (*lst);
+		(*lst)->prev->next = env;
+		(*lst)->prev = env;
 	}
-	return (true);
+	return (env);
 }
 
 /*
@@ -70,15 +73,14 @@ char	*create_prompt(t_shell *shell)
 	work_dir = shell->work_dir;
 	shell->home_dir = getenv("HOME");
 	if (!shell->home_dir)
-		return (error(NULL, NO_HOME, 1), NULL);
+		return (error(NO_HOME, 1), NULL);
 	len = ft_strlen(shell->home_dir);
 	if (ft_strncmp(shell->home_dir, work_dir, len) == 0 && work_dir[len] == '/')
 		work_dir += len;
 	total_len = ft_strlen(shell->user) + ft_strlen(work_dir) + 6;
-	prompt = (char *)wrap_calloc(&shell->alloc_tracker, total_len,
-			sizeof(char));
+	prompt = safe_calloc(shell, total_len, sizeof(char));
 	if (!prompt)
-		return (error(NULL, NO_MEM, 1), NULL);
+		error_exit(shell, NO_MEM, EXIT_FAILURE);
 	ft_strlcpy(prompt, shell->user, total_len);
 	ft_strlcat(prompt, ":~", total_len);
 	ft_strlcat(prompt, work_dir, total_len);
