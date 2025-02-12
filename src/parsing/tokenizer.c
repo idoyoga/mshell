@@ -109,5 +109,6 @@ bool	tokenize_input(t_shell *shell, char *input)
 		return (false);
 	if (!tokenize(shell, &shell->tokens, input))
 		return (false);
-	return (false);
-}
+	if (!parse_commands(shell))
+		return (false);
+	}
