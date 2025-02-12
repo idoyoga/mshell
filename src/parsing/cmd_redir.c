@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 21:01:09 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/12 21:35:53 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		fd = &cmd->fd_out;
 	if (*fd >= 3)
 		close(*fd);
+	// should we reset fd to -2 here?
 	if (!token->next || is_operator_token(token))
 		return (false);
 	*fd = open_file(shell, token->next->content, token->type);
