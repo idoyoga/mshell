@@ -61,7 +61,7 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		fd = &cmd->fd_in;
 	else
 		fd = &cmd->fd_out;
-	if (*fd >= 0)
+	if (*fd >= 3)
 		close(*fd);
 	if (!token->next || is_operator_token(token))
 		return (false);
