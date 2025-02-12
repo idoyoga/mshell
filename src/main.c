@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/07 13:06:32 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/12 20:59:35 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,10 @@ static void	minishell(t_shell *shell)
 		add_history(shell->cmd_input);
 		if (!tokenize_input(shell, shell->cmd_input))
 			continue ;
+		if (shell->cmd != NULL)
+			execute(shell);
+		free(shell->cmd_input);
+		shell->cmd_input = NULL;
 	}
 	rl_clear_history();
 }

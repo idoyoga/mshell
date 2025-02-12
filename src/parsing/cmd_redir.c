@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_redir.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/08 16:41:16 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/12 21:01:09 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,8 @@ static int	open_file(t_shell *shell, char *file, t_t_typ type)
 		flags = O_WRONLY | O_CREAT | O_APPEND;
 	else if (type == REDIR_IN)
 		flags = O_RDONLY;
+	else
+		flags = 0;
 	/* else if (type == HEREDOC) */
 	/* 	return (here_doc(shell, shell->tokens->next->content)); */
 	fd = open(file, flags, 0644);

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+         #
+#    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/02/07 14:37:17 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/02/12 20:15:00 by xgossing         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,10 +35,21 @@ SRC		=	helper/alloc.c \
 			parsing/expander.c \
 			parsing/token.c \
 			parsing/tokenizer.c \
+			execution/execute.c \
+			builtins/dispatch.c \
+			builtins/cd.c \
+			builtins/echo.c \
+			builtins/env.c \
+			builtins/exit.c \
+			builtins/export.c \
+			builtins/pwd.c \
+			builtins/unset.c \
 			main.c \
 
 SRCS	=	$(addprefix $(SRC_DIR), $(SRC))
 OBJS	=	$(patsubst $(SRC_DIR)%, $(OBJ_DIR)%, $(SRCS:.c=.o))
+
+MAKEFLAGS	+= --jobs
 
 all: $(NAME)
 
@@ -53,17 +64,18 @@ $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 
 $(LIBFT): $(OBJS)
-	@make --no-print-directory -C $(LIB_DIR)
+	@$(MAKE) --no-print-directory -C $(LIB_DIR)
 
 clean:
 	@rm -rf $(OBJ_DIR)
-	@make -sC $(LIB_DIR) clean
+	@$(MAKE) -sC $(LIB_DIR) clean
 
 fclean: clean
 	@rm -f $(NAME)
-	@make -sC $(LIB_DIR) fclean
+	@$(MAKE) -sC $(LIB_DIR) fclean
 
-re: fclean all
+re: fclean
+	$(MAKE) all
 
 .PHONY: all clean fclean re
 

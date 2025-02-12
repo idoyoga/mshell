@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/07 14:59:43 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/12 19:57:19 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static bool	invalid_syntax(char *input)
 	{
 		if (*input == '\\' && (*(input + 1) == '$' || *(input + 1) == '\0'))
 			return (error(BACKSLASH, true));
-		if (*input == ';' && (*(input +1) == ' ' || *(input + 1) == '\0'))
+		if (*input == ';' && (*(input + 1) == ' ' || *(input + 1) == '\0'))
 			return (error(SEMICOLON, true));
 		input++;
 	}
@@ -111,4 +111,5 @@ bool	tokenize_input(t_shell *shell, char *input)
 		return (false);
 	if (!parse_commands(shell))
 		return (false);
-	}
+	return (true);
+}
