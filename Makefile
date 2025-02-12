@@ -6,7 +6,7 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/02/12 20:15:00 by xgossing         ###   ########.fr        #
+#    Updated: 2025/02/12 21:57:25 by xgossing         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,6 +36,8 @@ SRC		=	helper/alloc.c \
 			parsing/token.c \
 			parsing/tokenizer.c \
 			execution/execute.c \
+			execution/builtin.c \
+			execution/pipeline.c \
 			builtins/dispatch.c \
 			builtins/cd.c \
 			builtins/echo.c \

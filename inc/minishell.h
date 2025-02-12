@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 20:13:30 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/12 21:54:41 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,6 +172,8 @@ t_tok	*add_token(t_shell *shell, t_tok **lst, char *content, t_t_typ type);
 
 // --------------  command runner  ---------------------------------------- //
 void	execute(t_shell *shell);
+void	execute_single_builtin(t_shell *shell, t_b_typ type);
+void	execute_with_pipeline(t_shell *shell, size_t cmd_count);
 
 // --------------  builtins  ---------------------------------------------- //
 t_b_typ	identify_builtin(char *str);
