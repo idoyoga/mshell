@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 21:43:20 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/13 19:02:12 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,9 @@ static void	minishell(t_shell *shell)
 {
 	while (1)
 	{
-		shell->cmd_input = readline(shell->prompt); // we should probably add this to the alloc_tracker, might leak if we exit() somewhere
+		shell->cmd_input = readline(shell->prompt);
+		// When we add alloc_tracker_add for readline here, we get double free
+		// when exiting.
 		if (!shell->cmd_input)
 			break ;
 		if (blank_line(shell->cmd_input))

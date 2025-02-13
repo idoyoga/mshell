@@ -97,7 +97,8 @@ static bool	check_unclosed_quotes(t_shell *shell, const char *input)
 
 /*
 **	Checks first for invalid syntax and unclosed quotes,
-**	then expands dollar variables, tokenizes the input and parses the commands.
+**	then handles environemnt variable expansion, tokenizes the input
+**	and parses the commands.
 */
 
 bool	tokenize_input(t_shell *shell, char *input)
