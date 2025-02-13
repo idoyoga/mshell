@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 19:14:39 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/12 20:43:17 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/13 11:14:05 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ t_b_typ	identify_builtin(char *str)
 	return (_NOT_A_BUILTIN);
 }
 
-void	(*get_builtin(t_b_typ type))(t_shell *sh)
+void	(*get_builtin(t_b_typ type))(t_shell *sh, t_cmd *cmd)
 {
 	size_t	i;
 

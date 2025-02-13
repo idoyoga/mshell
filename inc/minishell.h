@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 21:54:41 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/12 22:19:20 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ typedef struct s_builtin
 {
 	t_b_typ	type;
 	char	*name;
-	void	(*fn)(t_shell *shell);
+	void	(*fn)(t_shell *shell, t_cmd *cmd);
 }	t_bltin;
 
 // --------------  alloc  ------------------------------------------------- //
@@ -177,13 +177,13 @@ void	execute_with_pipeline(t_shell *shell, size_t cmd_count);
 
 // --------------  builtins  ---------------------------------------------- //
 t_b_typ	identify_builtin(char *str);
-void	(*get_builtin(t_b_typ type))(t_shell *);
-void	builtin_echo(t_shell *shell);
-void	builtin_cd(t_shell *shell);
-void	builtin_pwd(t_shell *shell);
-void	builtin_export(t_shell *shell);
-void	builtin_unset(t_shell *shell);
-void	builtin_env(t_shell *shell);
-void	builtin_exit(t_shell *shell);
+void	(*get_builtin(t_b_typ type))(t_shell *, t_cmd *);
+void	builtin_echo(t_shell *shell, t_cmd *cmd);
+void	builtin_cd(t_shell *shell, t_cmd *cmd);
+void	builtin_pwd(t_shell *shell, t_cmd *cmd);
+void	builtin_export(t_shell *shell, t_cmd *cmd);
+void	builtin_unset(t_shell *shell, t_cmd *cmd);
+void	builtin_env(t_shell *shell, t_cmd *cmd);
+void	builtin_exit(t_shell *shell, t_cmd *cmd);
 
 #endif

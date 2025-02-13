@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:51:59 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/12 21:53:06 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/13 13:28:32 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ static void	reset_io(int *fd_copies)
 void	execute_single_builtin(t_shell *shell, t_b_typ type)
 {
 	int		fd_copies[2];
-	void	(*builtin)(t_shell *);
+	void	(*builtin)(t_shell *, t_cmd *);
 
 	fd_copies[STDIN_FILENO] = dup(STDIN_FILENO);
 	if (!fd_copies[STDIN_FILENO])
@@ -59,6 +59,6 @@ void	execute_single_builtin(t_shell *shell, t_b_typ type)
 	}
 	builtin = get_builtin(type);
 	if (builtin != NULL)
-		builtin(shell);
+		builtin(shell, shell->cmd);
 	reset_io(fd_copies);
 }
