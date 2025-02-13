@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_parser.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/08 17:21:24 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/12 20:12:27 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ bool	parse_commands(t_shell *shell)
 	while (current != shell->tokens || !shell->cmd)
 	{
 		if (current->type == CMD || (current->type == ARG
-			&& current->prev->type == PIPE))
+				&& current->prev->type == PIPE))
 		{
 			cmd = add_cmd(shell, &shell->cmd);
 			if (!cmd)

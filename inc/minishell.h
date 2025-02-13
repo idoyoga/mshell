@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/07 14:37:17 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/12 22:19:20 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,18 @@ typedef enum e_token_type
 	CMD,
 	ARG
 }	t_t_typ;
+
+typedef enum e_builtin_type
+{
+	_NOT_A_BUILTIN,
+	ECHO,
+	CD,
+	PWD,
+	EXPORT,
+	UNSET,
+	ENV,
+	EXIT
+}	t_b_typ;
 
 typedef struct s_env
 {
@@ -98,6 +110,13 @@ typedef struct s_shell
 	char	*user;			// User name
 }	t_shell;
 
+typedef struct s_builtin
+{
+	t_b_typ	type;
+	char	*name;
+	void	(*fn)(t_shell *shell, t_cmd *cmd);
+}	t_bltin;
+
 // --------------  alloc  ------------------------------------------------- //
 void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array);
 void	free_allocs(t_alloc *tracker);
@@ -150,5 +169,21 @@ t_t_typ	identify_special_token(char *str);
 int		get_special_length(char *str);
 int		get_token_length(char *input, int *quote);
 t_tok	*add_token(t_shell *shell, t_tok **lst, char *content, t_t_typ type);
+
+// --------------  command runner  ---------------------------------------- //
+void	execute(t_shell *shell);
+void	execute_single_builtin(t_shell *shell, t_b_typ type);
+void	execute_with_pipeline(t_shell *shell, size_t cmd_count);
+
+// --------------  builtins  ---------------------------------------------- //
+t_b_typ	identify_builtin(char *str);
+void	(*get_builtin(t_b_typ type))(t_shell *, t_cmd *);
+void	builtin_echo(t_shell *shell, t_cmd *cmd);
+void	builtin_cd(t_shell *shell, t_cmd *cmd);
+void	builtin_pwd(t_shell *shell, t_cmd *cmd);
+void	builtin_export(t_shell *shell, t_cmd *cmd);
+void	builtin_unset(t_shell *shell, t_cmd *cmd);
+void	builtin_env(t_shell *shell, t_cmd *cmd);
+void	builtin_exit(t_shell *shell, t_cmd *cmd);
 
 #endif

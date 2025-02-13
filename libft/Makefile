@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: dplotzl <marvin@42.fr>                     +#+  +:+       +#+         #
+#    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/04/02 16:05:14 by dplotzl           #+#    #+#              #
-#    Updated: 2025/02/07 13:50:08 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/02/12 16:37:20 by xgossing         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -66,6 +66,8 @@ INC		= -I $(INC_DIR)
 GREEN	= \033[0;92m
 DEF_C	= \033[0;39m
 
+MAKEFLAGS	+= --jobs
+
 all: $(NAME)
 
 $(NAME): $(OBJS)
@@ -85,6 +87,7 @@ clean:
 fclean: clean
 	@rm -f $(NAME)
 
-re: fclean all
+re: fclean
+	$(MAKE) all
 
 .PHONY:	all clean fclean re
