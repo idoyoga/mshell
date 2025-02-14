@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/13 15:26:58 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/13 21:03:37 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,8 @@ static bool	expand_exit_status(t_shell *shell, char **output)
 **	- If the character after the $ is a letter, ? or _, check if it's a variable
 */
 
-static bool	should_expand_dollar(t_shell *shell, const char *input, int i, bool s_quote)
+static bool	should_expand_dollar(t_shell *shell, const char *input, int i,
+									bool s_quote)
 {
 	if (!input[i] || input[i] != '$' || s_quote)
 		return (false);

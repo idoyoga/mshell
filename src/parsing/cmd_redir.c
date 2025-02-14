@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/13 18:41:28 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/13 21:02:14 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ static int	open_file(t_shell *shell, char *file, t_t_typ type)
 		flags = O_WRONLY | O_CREAT | O_APPEND;
 	else if (type == REDIR_IN)
 		flags = O_RDONLY;
-	else if (type == HEREDOC) 
-	 	return (handle_heredoc(shell, file));
+	else if (type == HEREDOC)
+		return (handle_heredoc(shell, file));
 	else
 		flags = 0;
 	fd = open(file, flags, 0644);
@@ -68,7 +68,6 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		close(*fd);
 		*fd = -2;
 	}
-	// should we reset fd to -2 here? -> Oh yes, done!
 	if (!token->next || is_operator_token(token))
 		return (false);
 	*fd = open_file(shell, token->next->content, token->type);
