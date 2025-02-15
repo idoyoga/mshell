@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/13 18:40:42 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/15 11:06:04 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <fcntl.h>
+# include <limits.h>
+# include <signal.h>
 # include <sys/stat.h>
 # include <dirent.h>
 # include <stdbool.h>
@@ -157,7 +159,6 @@ bool	env_variable_exists(t_shell *shell, const char *var_name);
 bool	append_char_to_str(t_shell *shell, char **output, int *index, char *c);
 
 // --------------  heredoc  ----------------------------------------------- //
-void	unlink_all_heredocs(void);
 int		handle_heredoc(t_shell *shell, const char *delimiter);
 
 // --------------  init  -------------------------------------------------- //

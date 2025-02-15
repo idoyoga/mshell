@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 10:47:06 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/13 21:04:28 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/15 11:06:04 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,5 @@ void	handle_heredoc_signal(int sig)
 	{
 		g_signal = 1;
 		write(1, "\n", 1);
-		unlink_all_heredocs();
 	}
 }
