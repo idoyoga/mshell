@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 22:19:20 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/16 19:40:08 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <fcntl.h>
+# include <limits.h>
+# include <signal.h>
 # include <sys/stat.h>
 # include <dirent.h>
 # include <stdbool.h>
@@ -29,6 +31,8 @@
 # include <readline/history.h>
 # include "../libft/inc/libft.h"
 # include "errors.h"
+
+extern volatile sig_atomic_t	g_signal;
 
 typedef enum e_token_type
 {
@@ -88,7 +92,7 @@ typedef struct s_tok
 typedef struct s_alloc_tracker
 {
 	void	**allocs;
-	int		*flags;
+	int		*is_array;
 	int		count;
 	int		capacity;
 	bool	initialized;
@@ -151,10 +155,19 @@ bool	expand_dollar_variables(t_shell *shell, char **input);
 
 // --------------  expander_helper  --------------------------------------- //
 int		find_env_variable(t_shell *shell, char *input, int *index);
+bool	env_variable_exists(t_shell *shell, const char *var_name);
 bool	append_char_to_str(t_shell *shell, char **output, int *index, char *c);
+
+// --------------  heredoc  ----------------------------------------------- //
+int		handle_heredoc(t_shell *shell, const char *delimiter);
 
 // --------------  init  -------------------------------------------------- //
 bool	init_shell(t_shell *shell, char **env);
+
+// --------------  signal  ------------------------------------------------ //
+void	handle_sigint(int sig);
+void	handle_heredoc_sigint(int sig);
+void	setup_signals(void (*handler)(int));
 
 // --------------  token  ------------------------------------------------- //
 bool	tokenize(t_shell *shell, t_tok **lst, char *input);

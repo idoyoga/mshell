@@ -103,8 +103,8 @@ static bool	validate_pipe_syntax(t_tok *prev_token, t_tok **lst)
 }
 
 /*
-**	Tokenize the input string and create a linked list of tokens,
-**	checking for pipe syntax errors
+**	Core function for breaking user input into structured tokens.
+**	Also checking for pipe syntax errors.
 */
 
 bool	tokenize(t_shell *shell, t_tok **lst, char *input)

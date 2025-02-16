@@ -13,7 +13,32 @@
 #include "minishell.h"
 
 /*
-**	Add an argument to the command
+**	Count the number of arguments in the command to determine how much memory
+**	to allocate for the args array.
+*/
+
+static int	count_args(t_shell *shell, t_tok *token)
+{
+	t_tok	*current;
+	int		i;
+
+	i = 0;
+	current = token;
+	if (current->type == CMD || (current->type == ARG
+			&& current->prev->type != PIPE))
+		i++;
+	current = current->next;
+	while (current != shell->tokens && current->type != PIPE)
+	{
+		if (current->type == CMD || current->type == ARG)
+			i++;
+		current = current->next;
+	}
+	return (i);
+}
+
+/*
+**	Add an argument to the command's argument list
 */
 
 static void	add_arg(t_shell *shell, char **args, int *i, char *content)
@@ -25,7 +50,7 @@ static void	add_arg(t_shell *shell, char **args, int *i, char *content)
 }
 
 /*
-**	Check if the argument is valid
+**	Check if a token is a valid command argument
 */
 
 static bool	is_valid_arg(t_shell *shell, t_tok *current)
@@ -40,34 +65,10 @@ static bool	is_valid_arg(t_shell *shell, t_tok *current)
 }
 
 /*
-**	Count the number of arguments in the command
+**	Extract arguments from the token list and store them in an array
 */
 
-static int	count_args(t_shell *shell, t_tok *token)
-{
-	t_tok	*current;
-	int		i;
-
-	i = 0;
-	current = token;
-	if (current->type == CMD || (current->type == ARG \
-			&& current->prev->type != PIPE))
-		i++;
-	current = current->next;
-	while (current != shell->tokens && current->type != PIPE)
-	{
-		if (current->type == CMD || current->type == ARG)
-			i++;
-		current = current->next;
-	}
-	return (i);
-}
-
-/*
-**	Get the arguments of the command
-*/
-
-static char	**populate_args(t_shell *shell, t_tok *token)
+static char	**extract_args(t_shell *shell, t_tok *token)
 {
 	t_tok	*current;
 	char	**args;
@@ -94,7 +95,10 @@ static char	**populate_args(t_shell *shell, t_tok *token)
 }
 
 /*
-**	Main command parsing function
+**	Convert tokenized input into a command list and handle redirections
+**	before execution.
+**	- First iteration: !shell->cmd keeps loop running
+**	- Subsequent iterations: loop continues as long as current != shell->tokens
 */
 
 bool	parse_commands(t_shell *shell)
@@ -117,7 +121,7 @@ bool	parse_commands(t_shell *shell)
 				shell->status = 42;
 				return (false);
 			}
-			cmd->args = populate_args(shell, current);
+			cmd->args = extract_args(shell, current);
 			if (!cmd->args)
 				return (error(NO_MEM, false));
 		}

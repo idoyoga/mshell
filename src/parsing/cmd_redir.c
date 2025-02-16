@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 21:35:53 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/15 12:41:30 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,15 +26,15 @@ static bool	is_operator_token(t_tok *token)
 }
 
 /*
-**	Open the file for redirection (heredoc is not implemented yet)
+**	Open the file for input or output redirection,
+**	O_CLOEXEC closes fd automatically when execve is called
 */
 
-static int	open_file(t_shell *shell, char *file, t_t_typ type)
+static int	open_redirection_file(char *file, t_t_typ type)
 {
 	int		fd;
 	int		flags;
 
-	(void)shell;
 	if (type == REDIR_OUT)
 		flags = O_WRONLY | O_CREAT | O_TRUNC;
 	else if (type == REDIR_APPEND)
@@ -42,17 +42,17 @@ static int	open_file(t_shell *shell, char *file, t_t_typ type)
 	else if (type == REDIR_IN)
 		flags = O_RDONLY;
 	else
-		flags = 0;
-	/* else if (type == HEREDOC) */
-	/* 	return (here_doc(shell, shell->tokens->next->content)); */
+		return (error("Invalid redirection type", -1));
+	flags |= O_CLOEXEC;
 	fd = open(file, flags, 0644);
 	if (fd < 0)
-		perror(file);
+		return (error(FILE_ERR, -1));
 	return (fd);
 }
 
 /*
-**	Process the redirection, assigning the file descriptor
+**	Process the redirection, assigning the correct file descriptor
+**	before execution.
 */
 
 static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
@@ -63,19 +63,26 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		fd = &cmd->fd_in;
 	else
 		fd = &cmd->fd_out;
-	if (*fd >= 3)
-		close(*fd);
-	// should we reset fd to -2 here?
 	if (!token->next || is_operator_token(token))
 		return (false);
-	*fd = open_file(shell, token->next->content, token->type);
-	if (*fd == -1)
-		return (error(FILE_ERR, false));
+	if (token->type == HEREDOC)
+		*fd = handle_heredoc(shell, token->next->content);
+	else
+	{
+		*fd = open_redirection_file(token->next->content, token->type);
+		if (*fd == -1)
+			return (error(FILE_ERR, false));
+	}
+	if (*fd >= 3)
+	{
+		close(*fd);
+		*fd = -2;
+	}
 	return (true);
 }
 
 /*
-**	Handle the redirections, checking for the right tokens
+**	Scan the token list for redirection tokens and apply them to the command
 */
 
 bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd)

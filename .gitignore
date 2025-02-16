@@ -1,0 +1,7 @@
+build/
+obj/
+.cache/
+libft/libft.a
+minishell
+tmp*
+compile_commands.json
