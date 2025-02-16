@@ -6,11 +6,15 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/13 23:10:22 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/16 19:44:47 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+/*
+**	Advances the pointer to the next non-whitespace character
+*/
 
 static bool	blank_line(char *input)
 {
@@ -29,8 +33,10 @@ static bool	blank_line(char *input)
 
 static void	minishell(t_shell *shell)
 {
+	setup_signals(handle_sigint);
 	while (1)
 	{
+		g_signal = 0;
 		shell->cmd_input = readline(shell->prompt);
 		if (!shell->cmd_input)
 			break ;

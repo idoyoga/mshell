@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/15 11:06:04 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/16 19:40:08 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 # include "../libft/inc/libft.h"
 # include "errors.h"
 
-extern sig_atomic_t	g_signal;
+extern volatile sig_atomic_t	g_signal;
 
 typedef enum e_token_type
 {
@@ -165,8 +165,9 @@ int		handle_heredoc(t_shell *shell, const char *delimiter);
 bool	init_shell(t_shell *shell, char **env);
 
 // --------------  signal  ------------------------------------------------ //
-void	handle_signal(int sig);
-void	handle_heredoc_signal(int sig);
+void	handle_sigint(int sig);
+void	handle_heredoc_sigint(int sig);
+void	setup_signals(void (*handler)(int));
 
 // --------------  token  ------------------------------------------------- //
 bool	tokenize(t_shell *shell, t_tok **lst, char *input);
