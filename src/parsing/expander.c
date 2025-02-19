@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/13 21:03:37 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/19 19:38:40 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,28 +16,30 @@
 **	Expands a given environment variable ($VAR) by replacing it with its value.
 */
 
-static bool	expand_env_var(t_shell *shell, char **output, char *var, int len)
+static bool	expand_env_variable(t_shell *shell, char **output, char *input,
+							int *index)
 {
 	t_env	*node;
 	char	*var_value;
 	char	*new_output;
+	int		len;
 
 	node = shell->env;
 	while (node)
 	{
-		if (ft_strncmp(node->data, var, len) == 0 && node->data[len] == '=')
+		len = match_env_variable(input, node->data);
+		if (len > 0)
 		{
 			var_value = node->data + len + 1;
-			break ;
+			new_output = safe_strjoin(shell, *output, var_value);
+			if (!new_output)
+				return (error(NO_MEM, false));
+			*output = new_output;
+			*index += len + 1;
+			return (true);
 		}
 		node = node->next;
 	}
-	if (!node)
-		return (true);
-	new_output = safe_strjoin(shell, *output, var_value);
-	if (!new_output)
-		return (error(NO_MEM, false));
-	*output = new_output;
 	return (true);
 }
 
@@ -45,11 +47,13 @@ static bool	expand_env_var(t_shell *shell, char **output, char *var, int len)
 **	Expands $?, replacing it with the exit status of the last command.
 */
 
-static bool	expand_exit_status(t_shell *shell, char **output)
+static bool	expand_exit_status(t_shell *shell, char **output, char *input,
+								int *index)
 {
 	char	*status_str;
 	char	*new_str;
 
+	(void)input;
 	status_str = ft_itoa(shell->status);
 	if (!status_str || !alloc_tracker_add(&shell->alloc_tracker, status_str, 0))
 		return (error(NO_MEM, false));
@@ -57,54 +61,56 @@ static bool	expand_exit_status(t_shell *shell, char **output)
 	if (!new_str)
 		return (error(NO_MEM, false));
 	*output = new_str;
+	(*index) += 2;
+	return (true);
+}
+
+/*
+**	Handles expanding a $-variable found in the input string:
+**	- If result == 1: expands the environment variable using expand_env_variable.
+**	- If result == 2: expands the exit status using expand_exit_status.
+**	- If result == 0: skips expansion, as the variable does not exist.
+*/
+
+static bool	handle_expansion(t_shell *shell, char **output, char *input,
+								int *index)
+{
+	t_expander	expander[2];
+	int			result;
+
+	if (!input)
+		return (false);
+	expander[0] = expand_env_variable;
+	expander[1] = expand_exit_status;
+	result = find_or_check_env(shell, input, index, false);
+	if (result == 1 || result == 2)
+		return (expander[result - 1](shell, output, &input[*index + 1],
+				index));
 	return (true);
 }
 
 /*
 **	Helper to check if the dollar sign should trigger variable expansion:
-**	- If the character before the $ is alphanumeric, it's not a variable
-**	- If the character after the $ is not a letter, ?, or _, it's not a variable
-**	- If the character after the $ is a letter, ? or _, check if it's a variable
+**	- Skip expansion inside single quotes.
+**	- Skip expansion if the character before '$' is alphanumeric.
+**	- Expand $? as a special variable for exit status.
+**	- Check if the next character is a valid start for an environment variable.
+**	- Use find_or_check_env to verify if the environment variable exists.
 */
 
-static bool	should_expand_dollar(t_shell *shell, const char *input, int i,
+static bool	should_expand_dollar(t_shell *shell, char *input, int i,
 									bool s_quote)
 {
 	if (!input[i] || input[i] != '$' || s_quote)
 		return (false);
 	if (i > 0 && ft_isalnum(input[i - 1]))
 		return (false);
-	if (input[i + 1] && (ft_isalpha(input[i + 1]) || input[i + 1] == '?'
-			|| input[i + 1] == '_'))
+	if (input[i + 1] == '?')
+		return (true);
+	if (!input[i + 1] || (!ft_isalpha(input[i + 1]) && input[i + 1] != '_'))
 		return (false);
-	if (input[i + 1] != '?' && !env_variable_exists(shell, &input[i + 1]))
+	if (find_or_check_env(shell, &input[i + 1], NULL, true) == 0)
 		return (false);
-	return (true);
-}
-
-/*
-**	Handles expanding a $-variable found in the input string:
-**	- If result == 1 -> expand the environment variable
-**	- If result == 2 -> expand the exit status
-*/
-
-static bool	handle_expansion(t_shell *shell, char **output, char *input,
-								int *index)
-{
-	int	start;
-	int	result;
-
-	start = *index;
-	result = find_env_variable(shell, input, index);
-	if (result == 1)
-		return (expand_env_var(shell, output, &input[start + 1],
-				*index - start - 1));
-	else if (result == 2)
-	{
-		(*index) += 2;
-		return (expand_exit_status(shell, output));
-	}
-	(*index)++;
 	return (true);
 }
 
