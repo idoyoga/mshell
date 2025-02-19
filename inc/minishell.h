@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 19:05:48 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/19 19:37:46 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,10 +114,7 @@ typedef struct s_shell
 	char	*user;			// User name
 }	t_shell;
 
-typedef struct s_expander
-{
-	bool	(*fn)(t_shell *shell, char **output, char *input, int *index);
-}	t_expander;
+typedef bool	(*t_expander)(t_shell *shell, char **output, char *input, int *index);
 
 typedef struct s_builtin
 {
