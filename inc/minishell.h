@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/16 19:40:08 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/19 19:05:48 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,11 @@ typedef struct s_shell
 	char	*user;			// User name
 }	t_shell;
 
+typedef struct s_expander
+{
+	bool	(*fn)(t_shell *shell, char **output, char *input, int *index);
+}	t_expander;
+
 typedef struct s_builtin
 {
 	t_b_typ	type;
@@ -153,9 +158,9 @@ void	clean_shell(t_shell *shell);
 // --------------  expander  ---------------------------------------------- //
 bool	expand_dollar_variables(t_shell *shell, char **input);
 
-// --------------  expander_helper  --------------------------------------- //
-int		find_env_variable(t_shell *shell, char *input, int *index);
-bool	env_variable_exists(t_shell *shell, const char *var_name);
+// --------------  expander_utils  ---------------------------------------- //
+int		find_or_check_env(t_shell *shell, char *input, int *index, bool check);
+int		match_env_variable(char *var_name, char *env_entry);
 bool	append_char_to_str(t_shell *shell, char **output, int *index, char *c);
 
 // --------------  heredoc  ----------------------------------------------- //
