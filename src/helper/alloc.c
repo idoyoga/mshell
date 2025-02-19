@@ -34,11 +34,11 @@ static bool	alloc_tracker_resize(t_alloc *tracker, int new_capacity)
 		error_exit(NULL, NO_RESIZE, EXIT_FAILURE);
 	}
 	ft_memmove(new_allocs, tracker->allocs, tracker->count * sizeof(void *));
-	ft_memmove(new_flags, tracker->flags, tracker->count * sizeof(int));
+	ft_memmove(new_flags, tracker->is_array, tracker->count * sizeof(int));
 	free(tracker->allocs);
-	free(tracker->flags);
+	free(tracker->is_array);
 	tracker->allocs = new_allocs;
-	tracker->flags = new_flags;
+	tracker->is_array = new_flags;
 	tracker->capacity = new_capacity;
 	return (true);
 }
@@ -60,7 +60,7 @@ void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array)
 			return (NULL);
 	}
 	tracker->allocs[tracker->count] = ptr;
-	tracker->flags[tracker->count] = is_array;
+	tracker->is_array[tracker->count] = is_array;
 	tracker->count++;
 	return (ptr);
 }
@@ -91,7 +91,7 @@ static void	free_tracker_allocs(t_alloc *tracker, int index)
 {
 	char	**array;
 
-	if (tracker->flags[index] == 1)
+	if (tracker->is_array[index] == 1)
 	{
 		array = (char **)tracker->allocs[index];
 		free_array(array);
@@ -117,9 +117,9 @@ void	free_allocs(t_alloc *tracker)
 			free_tracker_allocs(tracker, i);
 	}
 	free(tracker->allocs);
-	free(tracker->flags);
+	free(tracker->is_array);
 	tracker->allocs = NULL;
-	tracker->flags = NULL;
+	tracker->is_array = NULL;
 	tracker->count = 0;
 	tracker->capacity = 0;
 	tracker->initialized = false;

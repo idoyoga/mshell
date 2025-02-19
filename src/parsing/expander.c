@@ -6,14 +6,14 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/07 13:56:18 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/13 21:03:37 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /*
-**	Expands the environment expand_dollar_variables
+**	Expands a given environment variable ($VAR) by replacing it with its value.
 */
 
 static bool	expand_env_var(t_shell *shell, char **output, char *var, int len)
@@ -42,7 +42,7 @@ static bool	expand_env_var(t_shell *shell, char **output, char *var, int len)
 }
 
 /*
-**	Expands the exit status
+**	Expands $?, replacing it with the exit status of the last command.
 */
 
 static bool	expand_exit_status(t_shell *shell, char **output)
@@ -61,21 +61,31 @@ static bool	expand_exit_status(t_shell *shell, char **output)
 }
 
 /*
-**	Helper to check if the dollar sign should be expanded
+**	Helper to check if the dollar sign should trigger variable expansion:
+**	- If the character before the $ is alphanumeric, it's not a variable
+**	- If the character after the $ is not a letter, ?, or _, it's not a variable
+**	- If the character after the $ is a letter, ? or _, check if it's a variable
 */
 
-static bool	should_expand_dollar(const char *input, int i, bool s_quote)
+static bool	should_expand_dollar(t_shell *shell, const char *input, int i,
+									bool s_quote)
 {
 	if (!input[i] || input[i] != '$' || s_quote)
 		return (false);
+	if (i > 0 && ft_isalnum(input[i - 1]))
+		return (false);
 	if (input[i + 1] && (ft_isalpha(input[i + 1]) || input[i + 1] == '?'
 			|| input[i + 1] == '_'))
-		return (true);
-	return (false);
+		return (false);
+	if (input[i + 1] != '?' && !env_variable_exists(shell, &input[i + 1]))
+		return (false);
+	return (true);
 }
 
 /*
-**	Handles the expansion of the dollar sign
+**	Handles expanding a $-variable found in the input string:
+**	- If result == 1 -> expand the environment variable
+**	- If result == 2 -> expand the exit status
 */
 
 static bool	handle_expansion(t_shell *shell, char **output, char *input,
@@ -95,14 +105,12 @@ static bool	handle_expansion(t_shell *shell, char **output, char *input,
 		return (expand_exit_status(shell, output));
 	}
 	(*index)++;
-	while ((input[*index]) && (ft_isalnum(input[*index])
-			|| input[*index] == '_'))
-		(*index)++;
 	return (true);
 }
 
 /*
-**	Expands the dollar sign variables
+**	Expands all $-variables in the user input. Allows dynamic substitition
+**	of environment variables before command execution.
 */
 
 bool	expand_dollar_variables(t_shell *shell, char **input)
@@ -121,7 +129,7 @@ bool	expand_dollar_variables(t_shell *shell, char **input)
 	while ((*input)[i])
 	{
 		update_quote_state(&d_quote, &s_quote, (*input)[i]);
-		if (should_expand_dollar(*input, i, s_quote))
+		if (should_expand_dollar(shell, *input, i, s_quote))
 		{
 			if (!handle_expansion(shell, &output, *input, &i))
 				return (false);
