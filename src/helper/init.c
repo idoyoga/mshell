@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/13 15:22:34 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/19 22:54:04 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,8 @@
 ** the environment size.
 */
 
-static bool	init_alloc_tracker(t_shell *shell, char **env)
+static bool	init_alloc_tracker(t_shell *shell, int initial_capacity)
 {
-	int	initial_capacity;
-
-	if (env)
-		initial_capacity = (env_var_count(env) * 2);
-	else
-		initial_capacity = DEFAULT_ALLOC_CAPACITY;
 	if (!shell || initial_capacity <= 0)
 		return (false);
 	shell->alloc_tracker.allocs = ft_calloc(initial_capacity, sizeof(void *));
@@ -56,7 +50,7 @@ static bool	init_work_dirs(t_shell *shell)
 	tmp = safe_strdup(shell, "OLDPWD");
 	if (!tmp)
 		return (error(NO_MEM, false));
-	if (!add_env_var(shell, &shell->env, tmp))
+	if (!add_env_variable(shell, &shell->env, tmp))
 		return (error(NO_MEM, false));
 	cwd = getcwd(NULL, 0);
 	if (!cwd || !alloc_tracker_add(&shell->alloc_tracker, cwd, 0))
@@ -64,7 +58,7 @@ static bool	init_work_dirs(t_shell *shell)
 	tmp = safe_strjoin(shell, "PWD=", cwd);
 	if (!tmp)
 		return (error(NO_MEM, false));
-	if (!add_env_var(shell, &shell->env, tmp))
+	if (!add_env_variable(shell, &shell->env, tmp))
 		return (error(NO_MEM, false));
 	shell->work_dir = safe_strdup(shell, cwd);
 	if (!shell->work_dir)
@@ -96,7 +90,7 @@ static bool	init_env(t_shell *shell, char **env)
 		tmp = safe_strdup(shell, env[i]);
 		if (!tmp)
 			error_exit(shell, NO_MEM, EXIT_FAILURE);
-		if (!add_env_var(shell, &lst, tmp))
+		if (!add_env_variable(shell, &lst, tmp))
 			return (error(NO_MEM, false));
 	}
 	shell->env = lst;
@@ -129,8 +123,20 @@ static bool	init_prompt(t_shell *shell)
 
 bool	init_shell(t_shell *shell, char **env)
 {
+	int	initial_capacity;
+	int	i;
+
 	ft_memset(shell, 0, sizeof(t_shell));
-	if (!init_alloc_tracker(shell, env))
+	i = 0;
+	if (env)
+	{
+		while (env[i])
+			i++;
+		initial_capacity = (i * 2);
+	}
+	else
+		initial_capacity = DEFAULT_ALLOC_CAPACITY;
+	if (!init_alloc_tracker(shell, initial_capacity))
 		return (error(NO_ALLOC, false));
 	if (!init_work_dirs(shell))
 		return (error(NO_WD, false));
