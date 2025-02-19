@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 19:37:46 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/19 22:50:36 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,7 @@ typedef struct s_builtin
 
 // --------------  alloc  ------------------------------------------------- //
 void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array);
+void	alloc_tracker_remove(t_alloc *tracker, void *ptr);
 void	free_allocs(t_alloc *tracker);
 
 // --------------  alloc_helper  ------------------------------------------ //
@@ -143,9 +144,9 @@ bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd);
 t_cmd	*add_cmd(t_shell *shell, t_cmd **lst);
 
 // --------------  env_utils  --------------------------------------------- //
-t_env	*add_env_var(t_shell *shell, t_env **lst, char *data);
+t_env	*add_env_variable(t_shell *shell, t_env **lst, char *data);
 char	*create_prompt(t_shell *shell);
-int		env_var_count(char **env);
+bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name);
 
 // --------------  error  ------------------------------------------------- //
 bool	error(const char *error_msg, int status);
