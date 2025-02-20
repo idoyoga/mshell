@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 19:37:46 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/20 19:36:11 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,8 @@ bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd);
 
 // --------------  cmd_utils  --------------------------------------------- //
 t_cmd	*add_cmd(t_shell *shell, t_cmd **lst);
+bool	is_command_start(t_tok *current);
+bool	invalid_redirection(t_tok *token);
 
 // --------------  env_utils  --------------------------------------------- //
 t_env	*add_env_var(t_shell *shell, t_env **lst, char *data);
@@ -150,6 +152,7 @@ int		env_var_count(char **env);
 // --------------  error  ------------------------------------------------- //
 bool	error(const char *error_msg, int status);
 void	error_exit(t_shell *shell, const char *error_msg, int exit_status);
+bool	error_token(t_shell *shell, t_tok *token);
 void	clean_shell(t_shell *shell);
 
 // --------------  expander  ---------------------------------------------- //

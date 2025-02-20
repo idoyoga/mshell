@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 20:12:27 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/20 19:45:25 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,10 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 **	before execution.
 **	- First iteration: !shell->cmd keeps loop running
 **	- Subsequent iterations: loop continues as long as current != shell->tokens
+**	- Check for invalid redirections
+**	- Add commands to the command list
+**	- Handle redirections for each command
+**	- Extract argumetns into the command structure
 */
 
 bool	parse_commands(t_shell *shell)
@@ -110,17 +114,15 @@ bool	parse_commands(t_shell *shell)
 	current = shell->tokens;
 	while (current != shell->tokens || !shell->cmd)
 	{
-		if (current->type == CMD || (current->type == ARG
-				&& current->prev->type == PIPE))
+		if (invalid_redirection(current))
+			return (error_token(shell, current));
+		if (is_command_start(current))
 		{
 			cmd = add_cmd(shell, &shell->cmd);
 			if (!cmd)
 				error(NO_MEM, false);
 			if (!handle_redirection(shell, current, cmd))
-			{
-				shell->status = 42;
-				return (false);
-			}
+				return (shell->status = 42, false);
 			cmd->args = extract_args(shell, current);
 			if (!cmd->args)
 				return (error(NO_MEM, false));
