@@ -6,21 +6,21 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/22 20:44:34 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/19 22:53:14 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /*
-**	Allocate and initialise new env node
+**	Allocate and initialize a new environment variable node.
 */
 
 static t_env	*init_env(t_shell *shell, char *data)
 {
 	t_env	*env;
 
-	if (!data)
+	if (!shell || !data)
 		return (NULL);
 	env = safe_malloc(shell, sizeof(t_env));
 	if (!env)
@@ -32,14 +32,19 @@ static t_env	*init_env(t_shell *shell, char *data)
 }
 
 /*
-**	Add a new node to the end of the list. If the list is empty,
-**	the new node will be the first node and made circular.
+**	Add a new environment variable to our list.
+**	If the list is empty, the new node becomes the first node,
+**	with both 'next' and 'prev' pointing to itself.
+**	Otherwise, the new node is added to the end of the list.
 */
 
-t_env	*add_env_var(t_shell *shell, t_env **lst, char *data)
+t_env	*add_env_variable(t_shell *shell, t_env **lst, char *data)
 {
 	t_env	*env;
+	t_env	*last;
 
+	if (!shell || !lst || !data)
+		return (NULL);
 	env = init_env(shell, data);
 	if (!env)
 		return (NULL);
@@ -51,16 +56,19 @@ t_env	*add_env_var(t_shell *shell, t_env **lst, char *data)
 	}
 	else
 	{
-		env->prev = (*lst)->prev;
+		last = (*lst)->prev;
+		env->prev = last;
 		env->next = (*lst);
-		(*lst)->prev->next = env;
+		last->next = env;
 		(*lst)->prev = env;
 	}
 	return (env);
 }
 
 /*
-**	Create the prompt, using the user and working directory
+**	Create the prompt, using the user and working directory.
+**	Cache shell->home_dir instead of re-assigning it each time.
+**	ft_strlen(work_dir) to ensure that access by work_dir[len] is safe.
 */
 
 char	*create_prompt(t_shell *shell)
@@ -70,12 +78,15 @@ char	*create_prompt(t_shell *shell)
 	size_t	len;
 	size_t	total_len;
 
-	work_dir = shell->work_dir;
+	if (!shell || !shell->user || !shell->work_dir)
+		return (NULL);
 	shell->home_dir = getenv("HOME");
 	if (!shell->home_dir)
-		return (error(NO_HOME, 1), NULL);
+		return (error(NO_HOME, false), NULL);
 	len = ft_strlen(shell->home_dir);
-	if (ft_strncmp(shell->home_dir, work_dir, len) == 0 && work_dir[len] == '/')
+	work_dir = shell->work_dir;
+	if (ft_strlen(work_dir) > len && work_dir[len] == '/'
+		&& ft_strncmp(shell->home_dir, work_dir, len) == 0)
 		work_dir += len;
 	total_len = ft_strlen(shell->user) + ft_strlen(work_dir) + 6;
 	prompt = safe_calloc(shell, total_len, sizeof(char));
@@ -88,12 +99,55 @@ char	*create_prompt(t_shell *shell)
 	return (prompt);
 }
 
-int	env_var_count(char **env)
-{
-	int	i;
+/*
+**	Unlink an environment node from our list.
+**	If the list contains only one node, it is set to NULL.
+*/
 
-	i = 0;
-	while (env[i])
-		i++;
-	return (i);
+static void	unlink_env_node(t_env **lst, t_env *node)
+{
+	if (!lst || !node)
+		return ;
+	if (node == node->next)
+		*lst = NULL;
+	else
+	{
+		node->prev->next = node->next;
+		node->next->prev = node->prev;
+		if (*lst == node)
+			*lst = node->next;
+	}
+}
+
+/*
+**	Remove an environment variable from the list based on its name.
+**	Ensure safe handling of node data and memory deallocation.
+*/
+
+bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name)
+{
+	t_env	*node;
+	size_t	len;
+
+	if (!shell || !lst || !*lst || !var_name)
+		return (false);
+	node = *lst;
+	len = ft_strlen(var_name);
+	while (node)
+	{
+		if (ft_strlen(node->data) > len
+			&& ft_strncmp(node->data, var_name, len) == 0
+			&& (node->data[len] == '=' || !node->data[len]))
+		{
+			unlink_env_node(lst, node);
+			alloc_tracker_remove(&shell->alloc_tracker, node->data);
+			alloc_tracker_remove(&shell->alloc_tracker, node);
+			shell->env_count--;
+			return (true);
+		}
+		node = node->next;
+		if (node == *lst)
+			break ;
+	}
+	return (false);
 }
