@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 14:14:33 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 21:23:41 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,14 +71,10 @@ bool	error_token(t_shell *shell, t_tok *token)
 void	error_cmd(t_shell *shell, const char *cmd_name)
 {
 	char	*err_msg;
-	char	*full_msg;
 
 	err_msg = ft_strjoin_four("minishell: ", cmd_name, ": ", strerror(errno));
 	alloc_tracker_add(&shell->alloc_tracker, err_msg, 0);
 	if (!err_msg)
 		error(NO_MEM, false);
-	full_msg = safe_strjoin(shell, err_msg, "\n");
-	if (!full_msg)
-		error(NO_MEM, false);
-	ft_putstr_fd(full_msg, 2);
+	ft_putendl_fd(err_msg, 2);
 }

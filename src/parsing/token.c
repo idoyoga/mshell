@@ -6,20 +6,25 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/07 14:59:43 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 21:29:10 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /*
-**	Parse a word token (CMD or ARG) and add it to the token list
+**	Parse a word token, trim quotes and assign a token type
+**	This function processes a word token from the input string:
+**	1. Determines the token's length and counts quotes.
+**	2. If trimming the quotes results in an empty token, the function exits early.
+**	3. Calls `determine_token_type()` to classify the token as `CMD` or `ARG`.
+**	4. Adds the token to the token list.
+**	5. Advances the `input` pointer to the next token.
 */
 
 static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input)
 {
 	t_t_typ	token_type;
-	t_tok	*prev_token;
 	char	*content;
 	int		quote_count;
 	int		len;
@@ -28,15 +33,7 @@ static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input)
 	if ((len - (2 * quote_count)) < 0)
 		return (true);
 	content = trim_quotes(shell, *input, len);
-	if (!content)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
-	prev_token = NULL;
-	if (*lst)
-		prev_token = (*lst)->prev;
-	if (!prev_token || prev_token->type == PIPE)
-		token_type = CMD;
-	else
-		token_type = ARG;
+	token_type = determine_token_type(lst);
 	if (!add_token(shell, lst, content, token_type))
 		return (false);
 	*input += len;
@@ -45,6 +42,11 @@ static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input)
 
 /*
 **	Identify and parse special tokens (operators)
+**	1. Gets the token length using `get_special_length()`.
+**	2. Uses `identify_special_token()` to classify the operator type.
+**	3. Duplicates the token content and registers it in `alloc_tracker`.
+**	4. Prevents consecutive redirections (e.g., `echo > < file`).
+**	5. Adds the token to the list and advances the input pointer.
 */
 
 static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input)
@@ -75,6 +77,8 @@ static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input)
 
 /*
 **	Extract the content of the token and add it to the token list
+**	- If the input starts with a special operator, `parse_operator_token()` is called.
+**	- Otherwise, `parse_word_token()` is called.
 */
 
 static bool	extract_token_content(t_shell *shell, t_tok **lst, char **input)
@@ -103,8 +107,13 @@ static bool	validate_pipe_syntax(t_tok *prev_token, t_tok **lst)
 }
 
 /*
-**	Core function for breaking user input into structured tokens.
-**	Also checking for pipe syntax errors.
+**	Core function to tokenize user input in a structured token list.
+*	1. Check for invalid starting `PIPE`.
+**	2. Skips leading whitespace.
+**	3. Calls `extract_token_content()` to extract tokens.
+**	4. Calls `validate_pipe_syntax()` to check for invalid consecutive pipes.
+**	5. Updates `prev_token` to track the last processed token.
+**	6. Ensures that the input does not end with a `PIPE`, returning an error if it does.
 */
 
 bool	tokenize(t_shell *shell, t_tok **lst, char *input)

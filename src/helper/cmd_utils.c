@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 09:51:54 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 21:21:05 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,29 +81,6 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 }
 
 /*
-**	Check if the current token is the start of a new command
-**	A command starts when:
-**	- The token is an ARG that follows an operator, such as:
-**	- A pipe: Indicates the start of a new pipeline command.
-**	- A redirection: Means the next argument is a command.
-*/
-
-bool	is_command_start(t_tok *current)
-{
-	if (current->type == CMD)
-		return (true);
-	if (current->type == ARG && current->prev)
-	{
-		if (current->prev->type == PIPE || current->prev->type == REDIR_IN
-			|| current->prev->type == REDIR_OUT
-			|| current->prev->type == HEREDOC
-			|| current->prev->type == REDIR_APPEND)
-			return (true);
-	}
-	return (false);
-}
-
-/*
 **	Check if a redirection is incorrectly formatted
 **	A redirection is invalid if:
 **	- It is the last token with no argument following it (`echo >` or `cat <`).
@@ -124,4 +101,31 @@ bool	invalid_redirection(t_tok *token)
 	if (token->type == REDIR_APPEND && token->next->type != ARG)
 		return (true);
 	return (false);
+}
+
+/*
+**	Determine whether a token should be CMD or ARG based on the previous token.
+**	- If there is no previous token or if it follows a `PIPE`, it is a `CMD`.
+**	- If it follows a redirection (`<`, `>`, `>>`, `<<`), it is an `ARG`.
+**	- If it follows an `ARG` that itself follows a redirection, it is a `CMD`.
+*/
+
+t_t_typ	determine_token_type(t_tok **lst)
+{
+	t_tok	*prev_token;
+
+	prev_token = NULL;
+	if (*lst)
+		prev_token = (*lst)->prev;
+	if (!prev_token || prev_token->type == PIPE)
+		return (CMD);
+	else if (prev_token->type == REDIR_IN || prev_token->type == REDIR_OUT
+		|| prev_token->type == HEREDOC || prev_token->type == REDIR_APPEND)
+		return (ARG);
+	else if (prev_token->type == ARG && prev_token->prev
+		&& (prev_token->prev->type == REDIR_IN || prev_token->prev->type == REDIR_OUT
+			|| prev_token->prev->type == HEREDOC || prev_token->prev->type == REDIR_APPEND))
+		return (CMD);
+	else
+		return (ARG);
 }

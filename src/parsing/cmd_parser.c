@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 01:33:56 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 21:27:16 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,21 +37,6 @@ static int	count_args(t_shell *shell, t_tok *token)
 		current = current->next;
 	}
 	return (i);
-}
-
-/*
-**	Add an argument to the args array:
-**	- Duplicate the token content safely.
-**	- Increment the argument index.
-**	- Exit with error if memory allocation fails.
-*/
-
-static void	add_arg(t_shell *shell, char **args, int *i, char *content)
-{
-	args[*i] = safe_strdup(shell, content);
-	if (!args[*i])
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
-	(*i)++;
 }
 
 /*
@@ -88,21 +73,42 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 
 	ac = count_args(shell, token);
 	args = safe_malloc(shell, sizeof(char *) * (ac + 1));
-	if (!args)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
 	current = token;
 	i = 0;
 	if (current->type != PIPE && is_valid_arg(shell, current))
-		add_arg(shell, args, &i, current->content);
+		args[i++] = safe_strdup(shell, current->content);
 	current = current->next;
 	while (current != shell->tokens && current->type != PIPE)
 	{
 		if (is_valid_arg(shell, current))
-			add_arg(shell, args, &i, current->content);
+			args[i++] = safe_strdup(shell, current->content);
 		current = current->next;
 	}
 	args[i] = NULL;
 	return (args);
+}
+
+/*
+**	Check if the current token is the start of a new command
+**	A command starts when:
+**	- The token is an ARG that follows an operator, such as:
+**	- A pipe: Indicates the start of a new pipeline command.
+**	- A redirection: Means the next argument is a command.
+*/
+
+static bool	is_command_start(t_tok *current)
+{
+	if (current->type == CMD)
+		return (true);
+	if (current->type == ARG && current->prev)
+	{
+		if (current->prev->type == PIPE || current->prev->type == REDIR_IN
+			|| current->prev->type == REDIR_OUT
+			|| current->prev->type == HEREDOC
+			|| current->prev->type == REDIR_APPEND)
+			return (true);
+	}
+	return (false);
 }
 
 /*
@@ -128,16 +134,12 @@ bool	parse_commands(t_shell *shell)
 		if (is_command_start(current))
 		{
 			cmd = add_cmd(shell, &shell->cmd);
-			if (!cmd)
-				error(NO_MEM, false);
 			if (!handle_redirection(shell, current, cmd))
 			{
 				skip_invalid_command(shell, &current);
 				continue ;
 			}
 			cmd->args = extract_args(shell, current);
-			if (!cmd->args)
-				return (error(NO_MEM, false));
 		}
 		current = current->next;
 	}
