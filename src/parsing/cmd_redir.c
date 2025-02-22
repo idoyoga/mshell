@@ -3,110 +3,138 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_redir.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/15 12:41:30 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 14:06:49 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /*
-**	Check if the next token is an operator token
+**	Return the appropriate flags for open():
+**	- `>` -> Truncate the file and write (`O_TRUNC | O_WRONLY | O_CREAT`).
+**	- `>>`-> Append to the file (`O_APPEND | O_WRONLY | O_CREAT`).
+**	- `<` -> Open file for reading only (`O_RDONLY`).
+**	- `O_CLOEXEC` closes the fd automatically when `execve` is called.
 */
 
-static bool	is_operator_token(t_tok *token)
+static int	get_redirection_flags(t_t_typ type)
 {
-	if (token->next->type == REDIR_IN || token->next->type == REDIR_APPEND
-		|| token->next->type == REDIR_OUT || token->next->type == HEREDOC
-		|| token->next->type == PIPE)
-		return (true);
-	return (false);
+	if (type == REDIR_OUT)
+		return (O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC);
+	else if (type == REDIR_APPEND)
+		return (O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC);
+	else if (type == REDIR_IN)
+		return (O_RDONLY | O_CLOEXEC);
+	return (-1);
 }
 
 /*
-**	Open the file for input or output redirection,
-**	O_CLOEXEC closes fd automatically when execve is called
+**	Open files for input/output redirection
 */
 
 static int	open_redirection_file(char *file, t_t_typ type)
 {
-	int		fd;
-	int		flags;
+	int	flags;
+	int	new_fd;
 
-	if (type == REDIR_OUT)
-		flags = O_WRONLY | O_CREAT | O_TRUNC;
-	else if (type == REDIR_APPEND)
-		flags = O_WRONLY | O_CREAT | O_APPEND;
-	else if (type == REDIR_IN)
-		flags = O_RDONLY;
-	else
-		return (error("Invalid redirection type", -1));
-	flags |= O_CLOEXEC;
-	fd = open(file, flags, 0644);
-	if (fd < 0)
-		return (error(FILE_ERR, -1));
-	return (fd);
+	flags = get_redirection_flags(type);
+	if (flags == -1)
+		return (error("Invalid redirection\n", -1));
+	new_fd = open(file, flags, 0644);
+	if (new_fd == -1)
+		return (-1);
+	return (new_fd);
 }
 
 /*
-**	Process the redirection, assigning the correct file descriptor
-**	before execution.
+**	Process each redirection token:
+**	- Assign correct file descriptors for input/output.
+**	- If `<<`, call `handle_heredoc`, otherwise call `open_redirection_file`.
+**	- If successful, assign the new fd to `cmd->fd_in` or `cmd->fd_out`.
+**	- If an old fd was already open, it is closed before assigning the new one.
 */
 
 static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 {
 	int	*fd;
+	int	old_fd;
+	int	new_fd;
 
 	if (token->type == REDIR_IN || token->type == HEREDOC)
 		fd = &cmd->fd_in;
-	else
+	else if (token->type == REDIR_OUT || token->type == REDIR_APPEND)
 		fd = &cmd->fd_out;
-	if (!token->next || is_operator_token(token))
-		return (false);
-	if (token->type == HEREDOC)
-		*fd = handle_heredoc(shell, token->next->content);
 	else
+		return (false);
+	old_fd = *fd;
+	if (token->type == HEREDOC)
+		new_fd = handle_heredoc(shell, token->next->content);
+	else
+		new_fd = open_redirection_file(token->next->content, token->type);
+	if (new_fd == -1)
 	{
-		*fd = open_redirection_file(token->next->content, token->type);
-		if (*fd == -1)
-			return (error(FILE_ERR, false));
+		error_cmd(shell, token->next->content);
+		return (false);
 	}
-	if (*fd >= 3)
+	if (old_fd >= 3)
+		close(old_fd);
+	*fd = new_fd;
+	return (true);
+}
+
+/*
+**	Process a redirection and track failure
+**	This function acts as a wrapper around `process_redirection`:
+**	- If `process_redirection` fails, `redir_fail` is set to `true`,
+**	  and `cleanup_fds(cmd)` is called to close any open file descriptors.
+*/
+
+static bool	check_redirection(t_shell *shell, t_cmd *cmd, t_tok *token,
+								bool *redir_fail)
+{
+	if (!process_redirection(shell, cmd, token))
 	{
-		close(*fd);
-		*fd = -2;
+		*redir_fail = true;
+		cleanup_fds(cmd);
+		return (false);
 	}
 	return (true);
 }
 
 /*
-**	Scan the token list for redirection tokens and apply them to the command
+**	Process and apply redirections for a command.
+**	- If a redirection fails, the function immediately returns `false`
+**	  to indicate the command should be skipped.
+**	- After processing all redirections, `cleanup_fds(cmd)` ensures
+**	  unnecessary file descriptors are closed.
 */
 
 bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd)
 {
 	t_tok	*current;
+	bool	redir_fail;
 
 	current = token;
+	redir_fail = false;
 	while (current->type == CMD || current->type == ARG)
 	{
 		current = current->next;
 		if (current == shell->tokens)
 			return (true);
 	}
-	while (current->type != PIPE && current != shell->tokens)
+	while (current && current->type != PIPE && current != shell->tokens)
 	{
 		if (current->type == REDIR_IN || current->type == HEREDOC
 			|| current->type == REDIR_OUT || current->type == REDIR_APPEND)
-		{
-			if (!current->next || is_operator_token(current))
+			if (!check_redirection(shell, cmd, current, &redir_fail))
 				return (false);
-			if (!process_redirection(shell, cmd, current))
-				return (false);
-		}
 		current = current->next;
 	}
+	cleanup_fds(cmd);
+	if (redir_fail)
+		return (false);
 	return (true);
 }

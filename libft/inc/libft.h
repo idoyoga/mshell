@@ -6,7 +6,7 @@
 /*   By: dplotzl <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/08 19:17:02 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/16 16:43:47 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 12:44:06 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ char	*ft_substr(char const *s, unsigned int start, size_t len);
 char	*ft_strtrim(char const *s1, char const *set);
 char	**ft_split(char const *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strjoin_four(char const *s1, char const *s2, char const *s3,
+			char const *s4);
 char	*ft_itoa(int n);
 char	*ft_strmapi(char const *s, char (*f)(unsigned int, char));
 void	ft_striteri(char *s, void (*f)(unsigned int, char*));

@@ -3,18 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_parser.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/20 19:45:25 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 01:33:56 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /*
-**	Count the number of arguments in the command to determine how much memory
-**	to allocate for the args array.
+**	Count the number of arguments for a command:
+**	- Start counting if the token is CMD or ARG not preceded by a PIPE.
+**	- Iterate through tokens until PIPE or the start of the token list.
+**	- Return the total number of arguments, including the command itself.
 */
 
 static int	count_args(t_shell *shell, t_tok *token)
@@ -38,7 +40,10 @@ static int	count_args(t_shell *shell, t_tok *token)
 }
 
 /*
-**	Add an argument to the command's argument list
+**	Add an argument to the args array:
+**	- Duplicate the token content safely.
+**	- Increment the argument index.
+**	- Exit with error if memory allocation fails.
 */
 
 static void	add_arg(t_shell *shell, char **args, int *i, char *content)
@@ -50,7 +55,10 @@ static void	add_arg(t_shell *shell, char **args, int *i, char *content)
 }
 
 /*
-**	Check if a token is a valid command argument
+**	Check if a token is a valid argument for a command:
+**	- CMD tokens are always valid arguments.
+**	- ARG tokens are valid if preceded by CMD or another ARG, 
+**	  but not if preceded by PIPE at the start of the token list.
 */
 
 static bool	is_valid_arg(t_shell *shell, t_tok *current)
@@ -65,7 +73,10 @@ static bool	is_valid_arg(t_shell *shell, t_tok *current)
 }
 
 /*
-**	Extract arguments from the token list and store them in an array
+**	Extract arguments from tokens into an array:
+**	- Allocate memory for the array based on the argument count.
+**	- Iterate through tokens and adds valid arguments.
+**	- End the array with NULL for execve compatibility.
 */
 
 static char	**extract_args(t_shell *shell, t_tok *token)
@@ -99,10 +110,10 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 **	before execution.
 **	- First iteration: !shell->cmd keeps loop running
 **	- Subsequent iterations: loop continues as long as current != shell->tokens
-**	- Check for invalid redirections
+**	- Check if current token is start of a command
 **	- Add commands to the command list
 **	- Handle redirections for each command
-**	- Extract argumetns into the command structure
+**	- Extract arguments into the command structure
 */
 
 bool	parse_commands(t_shell *shell)
@@ -114,15 +125,16 @@ bool	parse_commands(t_shell *shell)
 	current = shell->tokens;
 	while (current != shell->tokens || !shell->cmd)
 	{
-		if (invalid_redirection(current))
-			return (error_token(shell, current));
 		if (is_command_start(current))
 		{
 			cmd = add_cmd(shell, &shell->cmd);
 			if (!cmd)
 				error(NO_MEM, false);
 			if (!handle_redirection(shell, current, cmd))
-				return (shell->status = 42, false);
+			{
+				skip_invalid_command(shell, &current);
+				continue ;
+			}
 			cmd->args = extract_args(shell, current);
 			if (!cmd->args)
 				return (error(NO_MEM, false));
