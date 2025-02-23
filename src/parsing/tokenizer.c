@@ -6,14 +6,14 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 21:33:10 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 09:44:45 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /*
-**	Checks for "\" and ";" in the input string and gives an error if found.
+**	Check for "\" and ";" in the input string and give an error if found.
 **	According to the subject, we don't need to handle them.
 */
 
@@ -23,7 +23,7 @@ static bool	invalid_syntax(char *input)
 	{
 		if (*input == '\\' && (*(input + 1) == '$' || *(input + 1) == '\0'))
 			return (error(BACKSLASH, true));
-		if (*input == ';' && (*(input + 1) == ' ' || *(input + 1) == '\0'))
+		if (*input == ';' && (*(input +1) == ' ' || *(input + 1) == '\0'))
 			return (error(SEMICOLON, true));
 		input++;
 	}
@@ -31,7 +31,7 @@ static bool	invalid_syntax(char *input)
 }
 
 /*
-**	Remove quotes from a string
+**	Remove quotes from a string while preserving the content.
 */
 
 char	*trim_quotes(t_shell *shell, char *input, int len)
@@ -42,8 +42,6 @@ char	*trim_quotes(t_shell *shell, char *input, int len)
 	int		j;
 
 	content = safe_malloc(shell, len + 1);
-	if (!content)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
 	i = 0;
 	j = 0;
 	while (i < len)
@@ -64,7 +62,9 @@ char	*trim_quotes(t_shell *shell, char *input, int len)
 }
 
 /*
-**	Updates the state of the quotes.
+**	Update the state of the quotes. If a single quote is found (and not 
+**	inside a double quote), toggle s_quote. If a double quote is found
+**	(and is not inside a single quote), toggle d_quote.
 */
 
 void	update_quote_state(bool *d_quote, bool *s_quote, char c)
@@ -76,7 +76,7 @@ void	update_quote_state(bool *d_quote, bool *s_quote, char c)
 }
 
 /*
-**	Checks for unclosed quotes in the input string.
+**	Check for unclosed quotes in the input string.
 */
 
 static bool	check_unclosed_quotes(t_shell *shell, const char *input)
@@ -96,9 +96,9 @@ static bool	check_unclosed_quotes(t_shell *shell, const char *input)
 }
 
 /*
-**	Checks first for invalid syntax and unclosed quotes,
-**	then handles environemnt variable expansion, tokenizes the input
-**	and parses the commands.
+**	Check first for invalid syntax and unclosed quotes,
+**	then handle environment variable expansion, tokenize the input 
+**	and parse the commands.
 */
 
 bool	tokenize_input(t_shell *shell, char *input)

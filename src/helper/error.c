@@ -6,44 +6,55 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 21:23:41 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 10:34:28 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+static const char	*g_error_msgs[TOTAL];
+
 /*
-**	Prints an error message to stderr and returns true if status is not 0.
+**	Print an error message to stderr and return true if status is not 0.
+**	- If error code is valid, print 'minishell: ' followed by the corresponding
+**	  error message from 'g_error_msgs' to stderr.
+**	- Return 'true' if 'status != 0', otherwise return 'false'.
 */
 
-bool	error(const char *error_msg, int status)
+bool	error(t_error err, int status)
 {
-	if (error_msg && *error_msg)
-	{
-		write(2, error_msg, ft_strlen(error_msg));
-		write(2, "\n", 1);
-	}
-	if (status == 0)
+	if (err < 0 || err >= TOTAL)
 		return (false);
-	else
-		return (true);
+	ft_putstr_fd("minishell: ", 2);
+	ft_putendl_fd((char *)g_error_msgs[err], 2);
+	return (status != 0);
 }
 
 /*
-**	Prints an error message to stderr and exits the program with the given
-**	exit status.
+**	Print an error message and terminate the program.
+**	1. Print 'minishell: '.
+**	2. If 'context' is provided, print 'context: '.
+**	3. Print the corresponding error message from `g_error_msgs`.
+**	4. Append system error message ('strerror(errno)') for additional details.
+**	5. Cleanup the shell before exit with status.
 */
 
-void	error_exit(t_shell *shell, const char *error_msg, int exit_status)
+void	error_exit(t_shell *shell, t_error err, char *context, int status)
 {
-	if (error_msg && *error_msg)
+	if (err < 0 || err >= TOTAL)
+		return ;
+	ft_putstr_fd("minishell: ", 2);
+	if (context && *context)
 	{
-		write(2, error_msg, ft_strlen(error_msg));
-		write(2, "\n", 1);
+		ft_putstr_fd(context, 2);
+		ft_putstr_fd(": ", 2);
 	}
+	ft_putendl_fd((char *)g_error_msgs[err], 2);
+	ft_putstr_fd(": ", 2);
+	ft_putendl_fd(strerror(errno), 2);
 	if (shell)
 		clean_shell(shell);
-	exit(exit_status);
+	exit(status);
 }
 
 /*
@@ -57,10 +68,9 @@ bool	error_token(t_shell *shell, t_tok *token)
 {
 	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
 	if (token->next == shell->tokens)
-		ft_putstr_fd("newline", 2);
+		ft_putendl_fd("newline'", 2);
 	else
-		ft_putstr_fd(token->next->content, 2);
-	ft_putstr_fd("'\n", 2);
+		ft_putendl_fd(token->next->content, 2);
 	return (false);
 }
 
@@ -78,3 +88,36 @@ void	error_cmd(t_shell *shell, const char *cmd_name)
 		error(NO_MEM, false);
 	ft_putendl_fd(err_msg, 2);
 }
+
+/*
+**	Static const char array of predefined error messages.
+**	- Array stores error messages for various shell errors.
+**	- Each message corresponds to an enum error code ('t_error').
+*/
+
+static const char	*g_error_msgs[TOTAL] = {
+	"Too many arguments (max 1)",
+	"Shell initialization failed",
+	"Memory allocation failed",
+	"Failed to initialize environment",
+	"Failed to get current working directory",
+	"Failed to get working directory",
+	"Failed to create prompt",
+	"Failed to get user",
+	"Failed to get home directory",
+	"Failed to add allocation",
+	"Quotes not closed",
+	"Failed to resize allocation tracker",
+	"Failed to initialize allocation tracker",
+	"Input cannot start with pipe",
+	"Input cannot end with pipe",
+	"Consecutive pipes not allowed",
+	"Consecutive redirections not allowed",
+	"No command to execute",
+	"Backslash is not interpreted",
+	"Semicolon is not interpreted",
+	"Failed to open file",
+	"Syntax error",
+	"Invalid redirection type",
+	"Pointer not found in allocation tracker"
+};

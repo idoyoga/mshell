@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 21:21:05 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 10:36:30 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static t_cmd	*init_cmd(t_shell *shell)
 
 	cmd = safe_malloc(shell, sizeof(t_cmd));
 	if (!cmd)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
+		error_exit(shell, NO_MEM, "init_cmd", EXIT_FAILURE);
 	cmd->cmd = NULL;
 	cmd->args = NULL;
 	cmd->fd_in = -2;
@@ -63,7 +63,7 @@ t_cmd	*add_cmd(t_shell *shell, t_cmd **lst)
 
 /*
 **	Skip an invalid command after redirection failure
-**	- If a command has a redirection failure, this function moves `current`
+**	- If a command has a redirection failure, this function moves 'current'
 **	  forward until it reaches a pipe or the end.
 **	- If we reach a  pipe, it ensures the next command is processed.
 */
@@ -83,9 +83,9 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 /*
 **	Check if a redirection is incorrectly formatted
 **	A redirection is invalid if:
-**	- It is the last token with no argument following it (`echo >` or `cat <`).
-**	- It is followed by a token that is not an argument (e.g., `echo > | wc`).
-**	- A `HEREDOC` (`<<`) or `APPEND` (`>>`) does not have an argument after it.
+**	- It is the last token with no argument following it ('echo >' or 'cat <').
+**	- It is followed by a token that is not an argument (e.g., 'echo > | wc').
+**	- A 'HEREDOC' ('<<') or 'APPEND' ('>>') does not have an argument after it.
 */
 
 bool	invalid_redirection(t_tok *token)
@@ -105,9 +105,9 @@ bool	invalid_redirection(t_tok *token)
 
 /*
 **	Determine whether a token should be CMD or ARG based on the previous token.
-**	- If there is no previous token or if it follows a `PIPE`, it is a `CMD`.
-**	- If it follows a redirection (`<`, `>`, `>>`, `<<`), it is an `ARG`.
-**	- If it follows an `ARG` that itself follows a redirection, it is a `CMD`.
+**	- If there is no previous token or if it follows a 'PIPE', it is a 'CMD'.
+**	- If it follows a redirection ('<', '>', '>>', '<<'), it is an 'ARG'.
+**	- If it follows an 'ARG' that itself follows a redirection, it is a 'CMD'.
 */
 
 t_t_typ	determine_token_type(t_tok **lst)
@@ -123,8 +123,10 @@ t_t_typ	determine_token_type(t_tok **lst)
 		|| prev_token->type == HEREDOC || prev_token->type == REDIR_APPEND)
 		return (ARG);
 	else if (prev_token->type == ARG && prev_token->prev
-		&& (prev_token->prev->type == REDIR_IN || prev_token->prev->type == REDIR_OUT
-			|| prev_token->prev->type == HEREDOC || prev_token->prev->type == REDIR_APPEND))
+		&& (prev_token->prev->type == REDIR_IN
+			|| prev_token->prev->type == REDIR_OUT
+			|| prev_token->prev->type == HEREDOC
+			|| prev_token->prev->type == REDIR_APPEND))
 		return (CMD);
 	else
 		return (ARG);

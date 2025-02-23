@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 15:46:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/01/23 14:56:23 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 09:29:35 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ int	get_special_length(char *str)
 }
 
 /*
-**	Get length of a token
+**	Get length of a token while handling quotes
 */
 
 int	get_token_length(char *input, int *quote)
@@ -86,7 +86,7 @@ static	t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 
 	token = safe_malloc(shell, sizeof(t_tok));
 	if (!token)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
+		error_exit(shell, NO_MEM, "init_token", EXIT_FAILURE);
 	token->content = content;
 	token->file = NULL;
 	token->type = type;
