@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:24:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 22:05:02 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 09:23:11 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static bool	alloc_tracker_resize(t_alloc *tracker)
 	{
 		free(new_allocs);
 		free(new_flags);
-		error_exit(NULL, NO_MEM, EXIT_FAILURE);
+		error_exit(tracker->shell, NO_RESIZE, NULL, EXIT_FAILURE);
 	}
 	ft_memmove(new_allocs, tracker->allocs, tracker->count * sizeof(void *));
 	ft_memmove(new_flags, tracker->is_array, tracker->count * sizeof(int));
@@ -51,13 +51,13 @@ static bool	alloc_tracker_resize(t_alloc *tracker)
 
 void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array)
 {
-	if (!ptr || !tracker || !tracker->initialized)
+	if (!ptr || !tracker)
 		return (NULL);
 	if (tracker->count >= tracker->capacity)
 	{
 		if (!alloc_tracker_resize(tracker))
-			return (error(NO_RESIZE, false), NULL);
-	}
+			error_exit(tracker->shell, NO_TRACK, NULL, EXIT_FAILURE);
+				}
 	tracker->allocs[tracker->count] = ptr;
 	tracker->is_array[tracker->count] = is_array;
 	tracker->count++;
@@ -73,7 +73,7 @@ void	alloc_tracker_remove(t_alloc *tracker, void *ptr)
 {
 	int	i;
 
-	if (!tracker || !tracker->initialized || !ptr)
+	if (!tracker || !ptr || tracker->count == 0)
 		return ;
 	i = -1;
 	while (++i < tracker->count)
@@ -88,11 +88,12 @@ void	alloc_tracker_remove(t_alloc *tracker, void *ptr)
 			return ;
 		}
 	}
+	error(NO_REMOVE, false);
 }
 
 /*
 **	Helper function to free memory tracked by the allocation tracker.
-**	If `is_array` is set, frees each element before freeing the main pointer.
+**	If 'is_array' is set, frees each element before freeing the main pointer.
 */
 
 static void	free_tracker_allocs(void *alloc, int is_array)
@@ -120,7 +121,7 @@ void	free_allocs(t_alloc *tracker)
 {
 	int	i;
 
-	if (!tracker || !tracker->allocs || !tracker->initialized)
+	if (!tracker || !tracker->allocs)
 		return ;
 	i = -1;
 	while (++i < tracker->count)

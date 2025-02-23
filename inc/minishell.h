@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 08:51:44 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 09:47:49 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,24 +16,25 @@
 # define DEFAULT_ALLOC_CAPACITY 100
 
 # include <stdio.h>
+# include <fcntl.h>
+# include <errno.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
-# include <fcntl.h>
 # include <limits.h>
 # include <signal.h>
-# include <errno.h>
-# include <sys/types.h>
-# include <sys/wait.h>
-# include <sys/stat.h>
 # include <dirent.h>
 # include <stdbool.h>
+# include <sys/stat.h>
+# include <sys/wait.h>
+# include <sys/types.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include "../libft/inc/libft.h"
-# include "errors.h"
 
 extern volatile sig_atomic_t	g_signal;
+
+typedef struct s_shell	t_shell;
 
 typedef enum e_token_type
 {
@@ -58,6 +59,35 @@ typedef enum e_builtin_type
 	ENV,
 	EXIT
 }	t_b_typ;
+
+typedef enum e_error
+{
+	INV_ARGS,
+	NO_SHELL,
+	NO_MEM,
+	NO_ENV,
+	GETCWD,
+	NO_WD,
+	NO_PROMPT,
+	NO_USER,
+	NO_HOME,
+	NO_ALLOC,
+	QUOTES,
+	NO_RESIZE,
+	NO_TRACK,
+	START_PIPE,
+	END_PIPE,
+	CONSEC_PIPES,
+	CONSEC_REDIR,
+	NO_CMD,
+	BACKSLASH,
+	SEMICOLON,
+	FILE_ERR,
+	SYNTAX,
+	INV_REDIR,
+	NO_REMOVE,
+	TOTAL
+}	t_error;
 
 typedef struct s_env
 {
@@ -92,11 +122,12 @@ typedef struct s_tok
 
 typedef struct s_alloc_tracker
 {
-	void			**allocs;
-	int				*is_array;
-	int				count;
-	int				capacity;
-	bool			initialized;
+	void	**allocs;
+	int		*is_array;
+	int		count;
+	int		capacity;
+	bool	initialized;
+	t_shell	*shell;
 }	t_alloc;
 
 typedef struct s_shell
@@ -157,8 +188,8 @@ char	*create_prompt(t_shell *shell);
 bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name);
 
 // --------------  error  ------------------------------------------------- //
-bool	error(const char *error_msg, int status);
-void	error_exit(t_shell *shell, const char *error_msg, int exit_status);
+bool	error(t_error err, int status);
+void	error_exit(t_shell *shell, t_error err, char *context, int status);
 bool	error_token(t_shell *shell, t_tok *token);
 void	error_cmd(t_shell *shell, const char *cmd_name);
 

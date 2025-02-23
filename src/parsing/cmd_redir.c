@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 14:06:49 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 09:39:43 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 /*
 **	Return the appropriate flags for open():
-**	- `>` -> Truncate the file and write (`O_TRUNC | O_WRONLY | O_CREAT`).
-**	- `>>`-> Append to the file (`O_APPEND | O_WRONLY | O_CREAT`).
-**	- `<` -> Open file for reading only (`O_RDONLY`).
-**	- `O_CLOEXEC` closes the fd automatically when `execve` is called.
+**	- '>' -> Truncate the file and write ('O_TRUNC | O_WRONLY | O_CREAT').
+**	- '>>'-> Append to the file ('O_APPEND | O_WRONLY | O_CREAT').
+**	- '<' -> Open file for reading only ('O_RDONLY').
+**	- 'O_CLOEXEC' closes the fd automatically when 'execve' is called.
 */
 
 static int	get_redirection_flags(t_t_typ type)
@@ -33,6 +33,10 @@ static int	get_redirection_flags(t_t_typ type)
 
 /*
 **	Open files for input/output redirection
+**	1. Call 'get_redirection_flags(type)' to determine the appropriate file mode.
+**	2. If an invalid redirection type is detected, return an error.
+**	3. Use '0644' to open the file with the correct permissions.
+**	4. If the 'open()' call fails, return '-1' (handle error in caller)
 */
 
 static int	open_redirection_file(char *file, t_t_typ type)
@@ -42,7 +46,7 @@ static int	open_redirection_file(char *file, t_t_typ type)
 
 	flags = get_redirection_flags(type);
 	if (flags == -1)
-		return (error("Invalid redirection\n", -1));
+		return (error(INV_REDIR, -1));
 	new_fd = open(file, flags, 0644);
 	if (new_fd == -1)
 		return (-1);
@@ -52,8 +56,8 @@ static int	open_redirection_file(char *file, t_t_typ type)
 /*
 **	Process each redirection token:
 **	- Assign correct file descriptors for input/output.
-**	- If `<<`, call `handle_heredoc`, otherwise call `open_redirection_file`.
-**	- If successful, assign the new fd to `cmd->fd_in` or `cmd->fd_out`.
+**	- If '<<', call 'handle_heredoc', otherwise call 'open_redirection_file'.
+**	- If successful, assign the new fd to 'cmd->fd_in' or 'cmd->fd_out'.
 **	- If an old fd was already open, it is closed before assigning the new one.
 */
 
@@ -87,9 +91,9 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 
 /*
 **	Process a redirection and track failure
-**	This function acts as a wrapper around `process_redirection`:
-**	- If `process_redirection` fails, `redir_fail` is set to `true`,
-**	  and `cleanup_fds(cmd)` is called to close any open file descriptors.
+**	This function acts as a wrapper around 'process_redirection':
+**	- If 'process_redirection' fails, 'redir_fail' is set to 'true',
+**	  and 'cleanup_fds(cmd)' is called to close any open file descriptors.
 */
 
 static bool	check_redirection(t_shell *shell, t_cmd *cmd, t_tok *token,
@@ -106,9 +110,9 @@ static bool	check_redirection(t_shell *shell, t_cmd *cmd, t_tok *token,
 
 /*
 **	Process and apply redirections for a command.
-**	- If a redirection fails, the function immediately returns `false`
+**	- If a redirection fails, the function immediately returns 'false'
 **	  to indicate the command should be skipped.
-**	- After processing all redirections, `cleanup_fds(cmd)` ensures
+**	- After processing all redirections, 'cleanup_fds(cmd)' ensures
 **	  unnecessary file descriptors are closed.
 */
 

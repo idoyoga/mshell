@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:10:12 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 14:10:50 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 09:23:11 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 
 /*
 **	Close file descriptors and reset them to -2 (default value).
-**	Prevents fd leaks by resetting `fd_in` and `fd_out` to `-2`
+**	Prevents fd leaks by resetting 'fd_in' and 'fd_out' to '-2'
 **	(a convention for "unused" in our Minishell project).
 */
+
 
 void	cleanup_fds(t_cmd *cmd)
 {
@@ -36,6 +37,7 @@ void	cleanup_fds(t_cmd *cmd)
 
 /*
 **	Clean up the shell struct and free all allocated memory.
+**	- I guess we can add more cleanup functions here if needed.
 */
 
 void	clean_shell(t_shell *shell)
