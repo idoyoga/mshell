@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:47:49 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 10:45:11 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,6 @@
 # include "../libft/inc/libft.h"
 
 extern volatile sig_atomic_t	g_signal;
-
-typedef struct s_shell	t_shell;
 
 typedef enum e_token_type
 {
@@ -114,6 +112,8 @@ typedef struct s_tok
 	struct s_tok	*next;
 	struct s_tok	*prev;
 }	t_tok;
+
+typedef struct s_shell	t_shell;
 
 /*
 **	Meta-tracking allocations, used to keep track of all allocated memory
