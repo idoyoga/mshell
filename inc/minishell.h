@@ -126,6 +126,7 @@ typedef bool	(*t_expander)(t_shell *shell, char **output, char *input, int *inde
 
 // --------------  alloc  ------------------------------------------------- //
 void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array);
+void	alloc_tracker_remove(t_alloc *tracker, void *ptr);
 void	free_allocs(t_alloc *tracker);
 
 // --------------  alloc_helper  ------------------------------------------ //
@@ -151,9 +152,9 @@ bool	invalid_redirection(t_tok *token);
 t_t_typ	determine_token_type(t_tok **lst);
 
 // --------------  env_utils  --------------------------------------------- //
-t_env	*add_env_var(t_shell *shell, t_env **lst, char *data);
+t_env	*add_env_variable(t_shell *shell, t_env **lst, char *data);
 char	*create_prompt(t_shell *shell);
-int		env_var_count(char **env);
+bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name);
 
 // --------------  error  ------------------------------------------------- //
 bool	error(const char *error_msg, int status);
