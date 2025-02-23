@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 19:38:40 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 01:35:16 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ static bool	handle_expansion(t_shell *shell, char **output, char *input,
 	result = find_or_check_env(shell, input, index, false);
 	if (result == 1 || result == 2)
 		return (expander[result - 1](shell, output, &input[*index + 1],
-				index));
+			index));
 	return (true);
 }
 

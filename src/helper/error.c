@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/07 13:06:32 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 21:23:41 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,35 @@ void	error_exit(t_shell *shell, const char *error_msg, int exit_status)
 	exit(exit_status);
 }
 
-void	clean_shell(t_shell *shell)
+/*
+**	Print a syntax error message for an unexpected token
+**	1. If the next token is `shell->tokens` (indicating the end of input),
+**	   it prints `newline`, signaling a missing argument.
+**	2. Otherwise, it prints the unexpected token's content.
+*/
+
+bool	error_token(t_shell *shell, t_tok *token)
 {
-	if (!shell)
-		return ;
-	free_allocs(&shell->alloc_tracker);
+	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
+	if (token->next == shell->tokens)
+		ft_putstr_fd("newline", 2);
+	else
+		ft_putstr_fd(token->next->content, 2);
+	ft_putstr_fd("'\n", 2);
+	return (false);
+}
+
+/*
+**	Print an error message for a command that failed to execute.
+*/
+
+void	error_cmd(t_shell *shell, const char *cmd_name)
+{
+	char	*err_msg;
+
+	err_msg = ft_strjoin_four("minishell: ", cmd_name, ": ", strerror(errno));
+	alloc_tracker_add(&shell->alloc_tracker, err_msg, 0);
+	if (!err_msg)
+		error(NO_MEM, false);
+	ft_putendl_fd(err_msg, 2);
 }

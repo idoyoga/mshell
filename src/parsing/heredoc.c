@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/16 19:48:14 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 01:34:20 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static bool	heredoc_read_input(t_shell *shell, int fd, const char *delimiter)
 	}
 	setup_signals(handle_sigint);
 	return (!g_signal);
-	}
+}
 
 /*
 **	Handle heredoc redirection:

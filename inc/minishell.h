@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 22:50:36 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 21:26:49 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,11 +19,12 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <string.h>
-# include <sys/types.h>
-# include <sys/wait.h>
 # include <fcntl.h>
 # include <limits.h>
 # include <signal.h>
+# include <errno.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 # include <sys/stat.h>
 # include <dirent.h>
 # include <stdbool.h>
@@ -91,37 +92,37 @@ typedef struct s_tok
 
 typedef struct s_alloc_tracker
 {
-	void	**allocs;
-	int		*is_array;
-	int		count;
-	int		capacity;
-	bool	initialized;
+	void			**allocs;
+	int				*is_array;
+	int				count;
+	int				capacity;
+	bool			initialized;
 }	t_alloc;
 
 typedef struct s_shell
 {
-	t_cmd	*cmd;			// Command list
-	t_env	*env;			// Environment variables
-	t_tok	*tokens;		// Token list
-	t_alloc	alloc_tracker;	// Memory tracker
-	int		env_count;		// Environment variable count
-	int		status;			// Exit status
-	char	*prompt;		// Prompt string
-	char	*cmd_input;		// Command input
-	char	*home_dir;		// Home directory
-	char	*work_dir;		// Current working directory
-	char	*old_work_dir;	// Previous working directory
-	char	*user;			// User name
+	t_cmd			*cmd;			// Command list
+	t_env			*env;			// Environment variables
+	t_tok			*tokens;		// Token list
+	t_alloc			alloc_tracker;	// Memory tracker
+	int				env_count;		// Environment variable count
+	int				status;			// Exit status
+	char			*prompt;		// Prompt string
+	char			*cmd_input;		// Command input
+	char			*home_dir;		// Home directory
+	char			*work_dir;		// Current working directory
+	char			*old_work_dir;	// Previous working directory
+	char			*user;			// User name
 }	t_shell;
-
-typedef bool	(*t_expander)(t_shell *shell, char **output, char *input, int *index);
 
 typedef struct s_builtin
 {
-	t_b_typ	type;
-	char	*name;
-	void	(*fn)(t_shell *shell, t_cmd *cmd);
+	t_b_typ			type;
+	char			*name;
+	void			(*fn)(t_shell *shell, t_cmd *cmd);
 }	t_bltin;
+
+typedef bool	(*t_expander)(t_shell *shell, char **output, char *input, int *index);
 
 // --------------  alloc  ------------------------------------------------- //
 void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array);
@@ -134,6 +135,10 @@ void	*safe_calloc(t_shell *shell, size_t count, size_t size);
 char	*safe_strdup(t_shell *shell, const char *src);
 char	*safe_strjoin(t_shell *shell, const char *s1, const char *s2);
 
+// --------------  clean  ------------------------------------------------- //
+void	cleanup_fds(t_cmd *cmd);
+void	clean_shell(t_shell *shell);
+
 // --------------  cmd_parser  -------------------------------------------- //
 bool	parse_commands(t_shell *shell);
 
@@ -142,6 +147,9 @@ bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd);
 
 // --------------  cmd_utils  --------------------------------------------- //
 t_cmd	*add_cmd(t_shell *shell, t_cmd **lst);
+void	skip_invalid_command(t_shell *shell, t_tok **current);
+bool	invalid_redirection(t_tok *token);
+t_t_typ	determine_token_type(t_tok **lst);
 
 // --------------  env_utils  --------------------------------------------- //
 t_env	*add_env_variable(t_shell *shell, t_env **lst, char *data);
@@ -151,7 +159,8 @@ bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name);
 // --------------  error  ------------------------------------------------- //
 bool	error(const char *error_msg, int status);
 void	error_exit(t_shell *shell, const char *error_msg, int exit_status);
-void	clean_shell(t_shell *shell);
+bool	error_token(t_shell *shell, t_tok *token);
+void	error_cmd(t_shell *shell, const char *cmd_name);
 
 // --------------  expander  ---------------------------------------------- //
 bool	expand_dollar_variables(t_shell *shell, char **input);

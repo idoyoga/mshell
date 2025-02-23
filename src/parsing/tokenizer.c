@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 19:57:19 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/22 21:33:10 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,8 @@ bool	tokenize_input(t_shell *shell, char *input)
 		return (false);
 	if (!tokenize(shell, &shell->tokens, input))
 		return (false);
+	if (invalid_redirection(shell->tokens))
+		return (error_token(shell, shell->tokens));
 	if (!parse_commands(shell))
 		return (false);
 	return (true);

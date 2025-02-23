@@ -6,7 +6,7 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/02/13 18:08:12 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/02/22 14:10:50 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,7 @@ HEADER 	=	inc/minishell.h
 
 SRC		=	helper/alloc.c \
 			helper/alloc_helper.c \
+			helper/clean.c \
 			helper/cmd_utils.c \
 			helper/env_utils.c \
 			helper/error.c \

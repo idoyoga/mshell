@@ -3,18 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_parser.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/12 20:12:27 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/22 21:27:16 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /*
-**	Count the number of arguments in the command to determine how much memory
-**	to allocate for the args array.
+**	Count the number of arguments for a command:
+**	- Start counting if the token is CMD or ARG not preceded by a PIPE.
+**	- Iterate through tokens until PIPE or the start of the token list.
+**	- Return the total number of arguments, including the command itself.
 */
 
 static int	count_args(t_shell *shell, t_tok *token)
@@ -38,19 +40,10 @@ static int	count_args(t_shell *shell, t_tok *token)
 }
 
 /*
-**	Add an argument to the command's argument list
-*/
-
-static void	add_arg(t_shell *shell, char **args, int *i, char *content)
-{
-	args[*i] = safe_strdup(shell, content);
-	if (!args[*i])
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
-	(*i)++;
-}
-
-/*
-**	Check if a token is a valid command argument
+**	Check if a token is a valid argument for a command:
+**	- CMD tokens are always valid arguments.
+**	- ARG tokens are valid if preceded by CMD or another ARG, 
+**	  but not if preceded by PIPE at the start of the token list.
 */
 
 static bool	is_valid_arg(t_shell *shell, t_tok *current)
@@ -65,7 +58,10 @@ static bool	is_valid_arg(t_shell *shell, t_tok *current)
 }
 
 /*
-**	Extract arguments from the token list and store them in an array
+**	Extract arguments from tokens into an array:
+**	- Allocate memory for the array based on the argument count.
+**	- Iterate through tokens and adds valid arguments.
+**	- End the array with NULL for execve compatibility.
 */
 
 static char	**extract_args(t_shell *shell, t_tok *token)
@@ -77,17 +73,15 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 
 	ac = count_args(shell, token);
 	args = safe_malloc(shell, sizeof(char *) * (ac + 1));
-	if (!args)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
 	current = token;
 	i = 0;
 	if (current->type != PIPE && is_valid_arg(shell, current))
-		add_arg(shell, args, &i, current->content);
+		args[i++] = safe_strdup(shell, current->content);
 	current = current->next;
 	while (current != shell->tokens && current->type != PIPE)
 	{
 		if (is_valid_arg(shell, current))
-			add_arg(shell, args, &i, current->content);
+			args[i++] = safe_strdup(shell, current->content);
 		current = current->next;
 	}
 	args[i] = NULL;
@@ -95,10 +89,37 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 }
 
 /*
+**	Check if the current token is the start of a new command
+**	A command starts when:
+**	- The token is an ARG that follows an operator, such as:
+**	- A pipe: Indicates the start of a new pipeline command.
+**	- A redirection: Means the next argument is a command.
+*/
+
+static bool	is_command_start(t_tok *current)
+{
+	if (current->type == CMD)
+		return (true);
+	if (current->type == ARG && current->prev)
+	{
+		if (current->prev->type == PIPE || current->prev->type == REDIR_IN
+			|| current->prev->type == REDIR_OUT
+			|| current->prev->type == HEREDOC
+			|| current->prev->type == REDIR_APPEND)
+			return (true);
+	}
+	return (false);
+}
+
+/*
 **	Convert tokenized input into a command list and handle redirections
 **	before execution.
 **	- First iteration: !shell->cmd keeps loop running
 **	- Subsequent iterations: loop continues as long as current != shell->tokens
+**	- Check if current token is start of a command
+**	- Add commands to the command list
+**	- Handle redirections for each command
+**	- Extract arguments into the command structure
 */
 
 bool	parse_commands(t_shell *shell)
@@ -110,20 +131,15 @@ bool	parse_commands(t_shell *shell)
 	current = shell->tokens;
 	while (current != shell->tokens || !shell->cmd)
 	{
-		if (current->type == CMD || (current->type == ARG
-				&& current->prev->type == PIPE))
+		if (is_command_start(current))
 		{
 			cmd = add_cmd(shell, &shell->cmd);
-			if (!cmd)
-				error(NO_MEM, false);
 			if (!handle_redirection(shell, current, cmd))
 			{
-				shell->status = 42;
-				return (false);
+				skip_invalid_command(shell, &current);
+				continue ;
 			}
 			cmd->args = extract_args(shell, current);
-			if (!cmd->args)
-				return (error(NO_MEM, false));
 		}
 		current = current->next;
 	}
