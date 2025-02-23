@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:10:12 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:23:11 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 10:35:49 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 **	Prevents fd leaks by resetting 'fd_in' and 'fd_out' to '-2'
 **	(a convention for "unused" in our Minishell project).
 */
-
 
 void	cleanup_fds(t_cmd *cmd)
 {

@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:44:07 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 10:39:57 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 **	Parse a word token, trim quotes and assign a token type
 **	This function processes a word token from the input string:
 **	1. Determines the token's length and counts quotes.
-**	2. If trimming the quotes results in an empty token, the function exits early.
+**	2. If trimming the quotes results in an empty token, exit the function.
 **	3. Calls 'determine_token_type()' to classify the token as CMD or ARG.
 **	4. Adds the token to the token list.
 **	5. Advances the 'input' pointer to the next token.
@@ -77,7 +77,7 @@ static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input)
 
 /*
 **	Extract the content of the token and add it to the token list
-**	- If the input starts with a special operator, 'parse_operator_token()' is called.
+**	- If the input is a special operator, 'parse_operator_token()' is called.
 **	- Otherwise, 'parse_word_token()' is called.
 */
 
@@ -113,7 +113,7 @@ static bool	validate_pipe_syntax(t_tok *prev_token, t_tok **lst)
 **	3. Call 'extract_token_content()' to extract tokens.
 **	4. Call 'validate_pipe_syntax()' to check for invalid consecutive pipes.
 **	5. Update 'prev_token' to track the last processed token.
-**	6. Ensure that the input does not end with a pipe, returning an error if it does.
+**	6. Ensure that the input does not end with a pipe.
 */
 
 bool	tokenize(t_shell *shell, t_tok **lst, char *input)

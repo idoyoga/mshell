@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:26:17 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 10:36:30 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,8 +123,10 @@ t_t_typ	determine_token_type(t_tok **lst)
 		|| prev_token->type == HEREDOC || prev_token->type == REDIR_APPEND)
 		return (ARG);
 	else if (prev_token->type == ARG && prev_token->prev
-		&& (prev_token->prev->type == REDIR_IN || prev_token->prev->type == REDIR_OUT
-			|| prev_token->prev->type == HEREDOC || prev_token->prev->type == REDIR_APPEND))
+		&& (prev_token->prev->type == REDIR_IN
+			|| prev_token->prev->type == REDIR_OUT
+			|| prev_token->prev->type == HEREDOC
+			|| prev_token->prev->type == REDIR_APPEND))
 		return (CMD);
 	else
 		return (ARG);

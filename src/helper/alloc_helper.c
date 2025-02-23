@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 17:46:41 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 22:48:32 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 10:35:19 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,12 +84,11 @@ void	*safe_calloc(t_shell *shell, size_t count, size_t size)
 		return (NULL);
 	ptr = ft_calloc(count, size);
 	if (!ptr)
-		error_exit(shell, NO_MEM, "safe_calloc", EXIT_FAILURE);	
+		error_exit(shell, NO_MEM, "safe_calloc", EXIT_FAILURE);
 	if (!alloc_tracker_add(&shell->alloc_tracker, ptr, 0))
 	{
 		free(ptr);
-		error_exit(shell, NO_MEM, "safe_calloc", EXIT_FAILURE);	
+		error_exit(shell, NO_MEM, "safe_calloc", EXIT_FAILURE);
 	}
 	return (ptr);
 }
-

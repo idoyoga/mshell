@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 10:26:06 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 10:34:28 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ bool	error_token(t_shell *shell, t_tok *token)
 {
 	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
 	if (token->next == shell->tokens)
-		ft_putendl_fd("newline'" , 2);
+		ft_putendl_fd("newline'", 2);
 	else
 		ft_putendl_fd(token->next->content, 2);
 	return (false);
