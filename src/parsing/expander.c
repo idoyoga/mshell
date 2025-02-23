@@ -6,14 +6,14 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 01:35:16 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 09:42:12 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /*
-**	Expands a given environment variable ($VAR) by replacing it with its value.
+**	Expand a given environment variable ($VAR) by replacing it with its value.
 */
 
 static bool	expand_env_variable(t_shell *shell, char **output, char *input,
@@ -32,8 +32,6 @@ static bool	expand_env_variable(t_shell *shell, char **output, char *input,
 		{
 			var_value = node->data + len + 1;
 			new_output = safe_strjoin(shell, *output, var_value);
-			if (!new_output)
-				return (error(NO_MEM, false));
 			*output = new_output;
 			*index += len + 1;
 			return (true);
@@ -44,7 +42,7 @@ static bool	expand_env_variable(t_shell *shell, char **output, char *input,
 }
 
 /*
-**	Expands $?, replacing it with the exit status of the last command.
+**	Expand $?, replacing it with the exit status of the last command.
 */
 
 static bool	expand_exit_status(t_shell *shell, char **output, char *input,
@@ -58,18 +56,16 @@ static bool	expand_exit_status(t_shell *shell, char **output, char *input,
 	if (!status_str || !alloc_tracker_add(&shell->alloc_tracker, status_str, 0))
 		return (error(NO_MEM, false));
 	new_str = safe_strjoin(shell, *output, status_str);
-	if (!new_str)
-		return (error(NO_MEM, false));
 	*output = new_str;
 	(*index) += 2;
 	return (true);
 }
 
 /*
-**	Handles expanding a $-variable found in the input string:
-**	- If result == 1: expands the environment variable using expand_env_variable.
-**	- If result == 2: expands the exit status using expand_exit_status.
-**	- If result == 0: skips expansion, as the variable does not exist.
+**	Handle expanding a $-variable found in the input string:
+**	- If result == 1: expand the environment variable using expand_env_variable.
+**	- If result == 2: expand the exit status using expand_exit_status.
+**	- If result == 0: skip expansion, as the variable does not exist.
 */
 
 static bool	handle_expansion(t_shell *shell, char **output, char *input,
@@ -115,7 +111,7 @@ static bool	should_expand_dollar(t_shell *shell, char *input, int i,
 }
 
 /*
-**	Expands all $-variables in the user input. Allows dynamic substitition
+**	Expand all $-variables in the user input. Allows dynamic substitition
 **	of environment variables before command execution.
 */
 
@@ -127,8 +123,6 @@ bool	expand_dollar_variables(t_shell *shell, char **input)
 	int		i;
 
 	output = safe_strdup(shell, "");
-	if (!output)
-		return (error(NO_MEM, false));
 	d_quote = false;
 	s_quote = false;
 	i = 0;

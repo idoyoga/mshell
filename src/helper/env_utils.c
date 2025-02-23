@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 22:53:14 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 22:57:35 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static t_env	*init_env(t_shell *shell, char *data)
 		return (NULL);
 	env = safe_malloc(shell, sizeof(t_env));
 	if (!env)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
+		error_exit(shell, NO_MEM, "init_env", EXIT_FAILURE);
 	env->data = data;
 	env->next = NULL;
 	env->prev = NULL;
@@ -82,7 +82,7 @@ char	*create_prompt(t_shell *shell)
 		return (NULL);
 	shell->home_dir = getenv("HOME");
 	if (!shell->home_dir)
-		return (error(NO_HOME, false), NULL);
+		return (error(NO_HOME, 0), NULL);
 	len = ft_strlen(shell->home_dir);
 	work_dir = shell->work_dir;
 	if (ft_strlen(work_dir) > len && work_dir[len] == '/'
@@ -90,8 +90,6 @@ char	*create_prompt(t_shell *shell)
 		work_dir += len;
 	total_len = ft_strlen(shell->user) + ft_strlen(work_dir) + 6;
 	prompt = safe_calloc(shell, total_len, sizeof(char));
-	if (!prompt)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
 	ft_strlcpy(prompt, shell->user, total_len);
 	ft_strlcat(prompt, ":~", total_len);
 	ft_strlcat(prompt, work_dir, total_len);

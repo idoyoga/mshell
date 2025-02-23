@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 22:54:04 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 22:50:47 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ static bool	init_alloc_tracker(t_shell *shell, int initial_capacity)
 {
 	if (!shell || initial_capacity <= 0)
 		return (false);
+	shell->alloc_tracker.shell = shell;
 	shell->alloc_tracker.allocs = ft_calloc(initial_capacity, sizeof(void *));
 	shell->alloc_tracker.is_array = ft_calloc(initial_capacity, sizeof(int));
 	if (!shell->alloc_tracker.allocs || !shell->alloc_tracker.is_array)
@@ -29,7 +30,7 @@ static bool	init_alloc_tracker(t_shell *shell, int initial_capacity)
 		free(shell->alloc_tracker.is_array);
 		shell->alloc_tracker.allocs = NULL;
 		shell->alloc_tracker.is_array = NULL;
-		error_exit(shell, NO_ALLOC, EXIT_FAILURE);
+		error_exit(shell, NO_TRACK, "init_alloc_tracker", EXIT_FAILURE);
 	}
 	shell->alloc_tracker.count = 0;
 	shell->alloc_tracker.capacity = initial_capacity;
@@ -89,7 +90,7 @@ static bool	init_env(t_shell *shell, char **env)
 	{
 		tmp = safe_strdup(shell, env[i]);
 		if (!tmp)
-			error_exit(shell, NO_MEM, EXIT_FAILURE);
+			return (error(NO_MEM, false));
 		if (!add_env_variable(shell, &lst, tmp))
 			return (error(NO_MEM, false));
 	}

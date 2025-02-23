@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 17:46:41 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/07 13:16:53 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/22 22:48:32 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,6 @@ char	*safe_strdup(t_shell *shell, const char *src)
 		return (NULL);
 	len = ft_strlen(src);
 	dup = safe_malloc(shell, len + 1);
-	if (!dup)
-		return (NULL);
 	ft_memcpy(dup, src, len);
 	dup[len] = '\0';
 	return (dup);
@@ -47,8 +45,6 @@ char	*safe_strjoin(t_shell *shell, const char *s1, const char *s2)
 	len_s1 = ft_strlen(s1);
 	len_s2 = ft_strlen(s2);
 	new = safe_malloc(shell, len_s1 + len_s2 + 1);
-	if (!new)
-		return (NULL);
 	ft_memcpy(new, s1, len_s1);
 	ft_memcpy(new + len_s1, s2, len_s2);
 	new[len_s1 + len_s2] = '\0';
@@ -67,9 +63,12 @@ void	*safe_malloc(t_shell *shell, size_t size)
 		return (NULL);
 	ptr = malloc(size);
 	if (!ptr)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
+		error_exit(shell, NO_MEM, "safe_malloc", EXIT_FAILURE);
 	if (!alloc_tracker_add(&shell->alloc_tracker, ptr, 0))
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
+	{
+		free(ptr);
+		error_exit(shell, NO_MEM, "safe_malloc", EXIT_FAILURE);
+	}
 	return (ptr);
 }
 
@@ -85,8 +84,12 @@ void	*safe_calloc(t_shell *shell, size_t count, size_t size)
 		return (NULL);
 	ptr = ft_calloc(count, size);
 	if (!ptr)
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
+		error_exit(shell, NO_MEM, "safe_calloc", EXIT_FAILURE);	
 	if (!alloc_tracker_add(&shell->alloc_tracker, ptr, 0))
-		error_exit(shell, NO_MEM, EXIT_FAILURE);
+	{
+		free(ptr);
+		error_exit(shell, NO_MEM, "safe_calloc", EXIT_FAILURE);	
+	}
 	return (ptr);
 }
+
