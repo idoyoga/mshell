@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 10:47:06 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/16 19:40:08 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/23 23:57:32 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,25 +36,49 @@ void	handle_sigint(int sig)
 
 void	handle_heredoc_sigint(int sig)
 {
+	char	cr;
+
+	cr = '\n';
 	if (sig == SIGINT)
 	{
 		g_signal = 1;
-		write(1, "\n", 1);
+		ioctl(STDIN_FILENO, TIOCSTI, &cr);
 	}
 }
 
 /*
-**	Set up signal handlers for SIGINT and SIGQUIT (which is ignored)
+**	Signal handler for SIGQUIT
 */
 
-void	setup_signals(void (*handler)(int))
+void	handle_sigquit(int sig)
+{
+	char	cr;
+
+	cr = '\n';
+	if (sig == SIGQUIT)
+	{
+		ioctl(STDIN_FILENO, TIOCSTI, &cr);
+		write(1, "Quit (core dumped)", 18);
+	}
+}
+
+/*
+**	Set up signal handlers for SIGINT and SIGQUIT (ignored by default)
+**	-> SIGQUIT needs to be set in execute() with:
+**		'setup_signals(handle_sigint, SIG_DFL);'
+*/
+
+void	setup_signals(void (*sigint_handler)(int), void (*sigquit_handler)(int))
 {
 	struct sigaction	sa;
 
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
-	sa.sa_handler = handler;
+	sa.sa_handler = sigint_handler;
 	sigaction(SIGINT, &sa, NULL);
-	sa.sa_handler = SIG_IGN;
+	if (sigquit_handler == SIG_IGN)
+		sa.sa_handler = SIG_IGN;
+	else
+		sa.sa_handler = sigquit_handler;
 	sigaction(SIGQUIT, &sa, NULL);
 }

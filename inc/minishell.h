@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 10:45:11 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 00:16:14 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <sys/types.h>
+# include <sys/ioctl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include "../libft/inc/libft.h"
@@ -84,6 +85,7 @@ typedef enum e_error
 	SYNTAX,
 	INV_REDIR,
 	NO_REMOVE,
+	NO_EXPAND,
 	TOTAL
 }	t_error;
 
@@ -209,8 +211,10 @@ bool	init_shell(t_shell *shell, char **env);
 
 // --------------  signal  ------------------------------------------------ //
 void	handle_sigint(int sig);
+void	handle_sigquit(int sig);
 void	handle_heredoc_sigint(int sig);
-void	setup_signals(void (*handler)(int));
+void	setup_signals(void (*sigint_handler)(int),
+			void (*sigquit_handler)(int));
 
 // --------------  token  ------------------------------------------------- //
 bool	tokenize(t_shell *shell, t_tok **lst, char *input);

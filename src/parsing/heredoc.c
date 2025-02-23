@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 01:34:20 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 00:12:15 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,14 @@ static void	print_eof_warning(int line_count, const char *delimiter)
 **	Ctrl+D (EOF) or Ctrl+C (SIGINT) is pressed. Ctrl+C sets g_signal to 1.
 */
 
-static bool	heredoc_read_input(t_shell *shell, int fd, const char *delimiter)
+static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd)
 {
 	char	*line;
 	int		line_count;
 
 	g_signal = 0;
-	setup_signals(handle_heredoc_sigint);
 	line_count = 0;
+	setup_signals(handle_heredoc_sigint, SIG_IGN);
 	while (!g_signal)
 	{
 		line = readline("> ");
@@ -51,10 +51,12 @@ static bool	heredoc_read_input(t_shell *shell, int fd, const char *delimiter)
 		}
 		if (ft_strcmp(line, delimiter) == 0)
 			break ;
+		if (!expand_dollar_variables(shell, &line))
+			error_exit(shell, NO_EXPAND, "heredoc_read_input", EXIT_FAILURE);
 		ft_putendl_fd(line, fd);
 	}
-	setup_signals(handle_sigint);
-	return (!g_signal);
+	setup_signals(handle_sigint, SIG_IGN);
+	return (true);
 }
 
 /*
@@ -73,17 +75,16 @@ int	handle_heredoc(t_shell *shell, const char *delimiter)
 
 	count_str = ft_itoa(heredoc_count++);
 	alloc_tracker_add(&shell->alloc_tracker, count_str, 0);
-	heredoc_filename = safe_strjoin(shell, "./.heredoc_", count_str);
+	heredoc_filename = safe_strjoin(shell, "/tmp/.heredoc_", count_str);
 	fd = open(heredoc_filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 		return (-1);
-	if (!heredoc_read_input(shell, fd, delimiter))
+	if (!heredoc_read_input(shell, delimiter, fd))
 	{
 		if (fd >= 3)
 			close(fd);
 		unlink(heredoc_filename);
-		g_signal = 0;
-		setup_signals(handle_sigint);
+		setup_signals(handle_sigint, SIG_IGN);
 		return (-1);
 	}
 	close(fd);

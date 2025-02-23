@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 10:36:30 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 00:00:00 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,8 @@ t_cmd	*add_cmd(t_shell *shell, t_cmd **lst)
 
 void	skip_invalid_command(t_shell *shell, t_tok **current)
 {
+	if (!shell || !current || !*current)
+		return ;
 	while (*current && (*current)->type != PIPE)
 	{
 		*current = (*current)->next;
@@ -90,19 +92,26 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 
 bool	invalid_redirection(t_tok *token)
 {
-	if (!token->next)
+	t_tok	*current;
+
+	if (!token)
 		return (true);
-	if (token->type == REDIR_IN && token->next->type != ARG)
-		return (true);
-	if (token->type == REDIR_OUT && token->next->type != ARG)
-		return (true);
-	if (token->type == HEREDOC && token->next->type != ARG)
-		return (true);
-	if (token->type == REDIR_APPEND && token->next->type != ARG)
-		return (true);
+	current = token;
+	while (current)
+	{
+		if (!current->next)
+			return (true);
+		if ((current->type == REDIR_IN || current->type == REDIR_OUT
+				|| current->type == HEREDOC || current->type == REDIR_APPEND
+				|| current->type == REDIR_APPEND)
+			&& (current->next->type != ARG))
+			return (true);
+		current = current->next;
+		if (current == token)
+			break ;
+	}
 	return (false);
 }
-
 /*
 **	Determine whether a token should be CMD or ARG based on the previous token.
 **	- If there is no previous token or if it follows a 'PIPE', it is a 'CMD'.
