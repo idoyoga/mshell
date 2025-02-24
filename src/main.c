@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/16 19:44:47 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 00:03:01 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,32 +28,26 @@ static bool	blank_line(char *input)
 }
 
 /*
-** Starts minishell, provides the prompt, reads input and executes commands
+**	Start minishell, provide the prompt, read input and execute commands
 */
 
 static void	minishell(t_shell *shell)
 {
-	setup_signals(handle_sigint);
+	setup_signals(handle_sigint, SIG_IGN);
 	while (1)
 	{
 		g_signal = 0;
 		shell->cmd_input = readline(shell->prompt);
+		alloc_tracker_add(&shell->alloc_tracker, shell->cmd_input, 0);
 		if (!shell->cmd_input)
 			break ;
 		if (blank_line(shell->cmd_input))
-		{
-			free(shell->cmd_input);
 			continue ;
-		}
 		add_history(shell->cmd_input);
 		if (!tokenize_input(shell, shell->cmd_input))
-		{
-			free(shell->cmd_input);
 			continue ;
-		}
 		if (shell->cmd != NULL)
 			execute(shell);
-		free(shell->cmd_input);
 		shell->cmd_input = NULL;
 	}
 	rl_clear_history();

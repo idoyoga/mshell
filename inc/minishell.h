@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
+/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 10:45:11 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 00:16:14 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <sys/types.h>
+# include <sys/ioctl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include "../libft/inc/libft.h"
@@ -84,31 +85,32 @@ typedef enum e_error
 	SYNTAX,
 	INV_REDIR,
 	NO_REMOVE,
+	NO_EXPAND,
 	TOTAL
 }	t_error;
 
 typedef struct s_env
 {
-	char			*data;
+	char			    *data;
 	struct s_env	*next;
 	struct s_env	*prev;
 }	t_env;
 
 typedef struct s_cmd
 {
-	char			*cmd;
-	char			**args;
-	int				fd_in;
-	int				fd_out;
+	char	    		*cmd;
+	char			    **args;
+	int				    fd_in;
+	int				    fd_out;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }	t_cmd;
 
 typedef struct s_tok
 {
-	char			*content;
-	char			*file;
-	t_t_typ			type;
+	char			    *content;
+	char			    *file;
+	t_t_typ			   type;
 	struct s_tok	*next;
 	struct s_tok	*prev;
 }	t_tok;
@@ -122,12 +124,12 @@ typedef struct s_shell	t_shell;
 
 typedef struct s_alloc_tracker
 {
-	void	**allocs;
-	int		*is_array;
-	int		count;
-	int		capacity;
-	bool	initialized;
-	t_shell	*shell;
+	void	  **allocs;
+	int		  *is_array;
+	int		  count;
+	int	    capacity;
+	bool    initialized;
+	t_shell *shell;
 }	t_alloc;
 
 typedef struct s_shell
@@ -135,7 +137,7 @@ typedef struct s_shell
 	t_cmd			*cmd;			// Command list
 	t_env			*env;			// Environment variables
 	t_tok			*tokens;		// Token list
-	t_alloc			alloc_tracker;	// Memory tracker
+	t_alloc		alloc_tracker;	// Memory tracker
 	int				env_count;		// Environment variable count
 	int				status;			// Exit status
 	char			*prompt;		// Prompt string
@@ -209,8 +211,10 @@ bool	init_shell(t_shell *shell, char **env);
 
 // --------------  signal  ------------------------------------------------ //
 void	handle_sigint(int sig);
+void	handle_sigquit(int sig);
 void	handle_heredoc_sigint(int sig);
-void	setup_signals(void (*handler)(int));
+void	setup_signals(void (*sigint_handler)(int),
+			void (*sigquit_handler)(int));
 
 // --------------  token  ------------------------------------------------- //
 bool	tokenize(t_shell *shell, t_tok **lst, char *input);

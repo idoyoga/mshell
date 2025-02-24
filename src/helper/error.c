@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 10:34:28 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 00:12:15 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,5 +119,6 @@ static const char	*g_error_msgs[TOTAL] = {
 	"Failed to open file",
 	"Syntax error",
 	"Invalid redirection type",
-	"Pointer not found in allocation tracker"
+	"Pointer not found in allocation tracker",
+	"Failed to expand variable",
 };
