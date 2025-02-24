@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 10:47:06 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 23:57:32 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 18:01:31 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ void	handle_sigquit(int sig)
 	if (sig == SIGQUIT)
 	{
 		ioctl(STDIN_FILENO, TIOCSTI, &cr);
-		write(1, "Quit (core dumped)", 18);
+		write(2, "Quit (core dumped)", 18);
+		exit (131);
 	}
 }
 
@@ -76,9 +77,6 @@ void	setup_signals(void (*sigint_handler)(int), void (*sigquit_handler)(int))
 	sa.sa_flags = 0;
 	sa.sa_handler = sigint_handler;
 	sigaction(SIGINT, &sa, NULL);
-	if (sigquit_handler == SIG_IGN)
-		sa.sa_handler = SIG_IGN;
-	else
-		sa.sa_handler = sigquit_handler;
+	sa.sa_handler = sigquit_handler;
 	sigaction(SIGQUIT, &sa, NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 17:02:53 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 18:13:08 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,30 +90,9 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 }
 
 /*
-**	Process a redirection and track failure
-**	This function acts as a wrapper around 'process_redirection':
-**	- If 'process_redirection' fails, 'redir_fail' is set to 'true',
-**	  and 'cleanup_fds(cmd)' is called to close any open file descriptors.
-*/
-
-static bool	check_redirection(t_shell *shell, t_cmd *cmd, t_tok *token,
-								bool *redir_fail)
-{
-	if (!process_redirection(shell, cmd, token))
-	{
-		*redir_fail = true;
-		cleanup_fds(cmd);
-		return (false);
-	}
-	return (true);
-}
-
-/*
 **	Process and apply redirections for a command.
 **	- If a redirection fails, the function immediately returns 'false'
 **	  to indicate the command should be skipped.
-**	- After processing all redirections, 'cleanup_fds(cmd)' ensures
-**	  unnecessary file descriptors are closed.
 */
 
 bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd)
@@ -133,11 +112,10 @@ bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd)
 	{
 		if (current->type == REDIR_IN || current->type == HEREDOC
 			|| current->type == REDIR_OUT || current->type == REDIR_APPEND)
-			if (!check_redirection(shell, cmd, current, &redir_fail))
-				return (false);
+			if (!process_redirection(shell, cmd, current))
+				return (redir_fail = true, false);
 		current = current->next;
 	}
-	cleanup_fds(cmd);
 	if (redir_fail)
 		return (false);
 	return (true);
