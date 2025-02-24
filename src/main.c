@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 00:03:01 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 17:59:39 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ static void	minishell(t_shell *shell)
 	while (1)
 	{
 		g_signal = 0;
-		shell->cmd_input = readline(shell->prompt);
-		alloc_tracker_add(&shell->alloc_tracker, shell->cmd_input, 0);
+		shell->cmd_input = alloc_tracker_replace(&shell->alloc_tracker,
+				shell->cmd_input, readline(shell->prompt));
 		if (!shell->cmd_input)
 			break ;
 		if (blank_line(shell->cmd_input))
@@ -47,8 +47,10 @@ static void	minishell(t_shell *shell)
 		if (!tokenize_input(shell, shell->cmd_input))
 			continue ;
 		if (shell->cmd != NULL)
+		{
 			execute(shell);
-		shell->cmd_input = NULL;
+			cleanup_fds(shell->cmd);
+		}
 	}
 	rl_clear_history();
 }
@@ -61,7 +63,10 @@ int	main(int ac, char **av, char **env)
 	if (ac > 1)
 		return (error(INV_ARGS, 1));
 	if (!init_shell(&shell, env))
+	{
+		clean_shell(&shell);
 		return (error(NO_SHELL, 1));
+	}
 	minishell(&shell);
 	clean_shell(&shell);
 	return (0);

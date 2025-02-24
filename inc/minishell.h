@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 00:16:14 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 18:14:43 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,26 +91,26 @@ typedef enum e_error
 
 typedef struct s_env
 {
-	char			    *data;
+	char			*data;
 	struct s_env	*next;
 	struct s_env	*prev;
 }	t_env;
 
 typedef struct s_cmd
 {
-	char	    		*cmd;
-	char			    **args;
-	int				    fd_in;
-	int				    fd_out;
+	char			*cmd;
+	char			**args;
+	int				fd_in;
+	int				fd_out;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }	t_cmd;
 
 typedef struct s_tok
 {
-	char			    *content;
-	char			    *file;
-	t_t_typ			   type;
+	char			*content;
+	char			*file;
+	t_t_typ			type;
 	struct s_tok	*next;
 	struct s_tok	*prev;
 }	t_tok;
@@ -124,12 +124,12 @@ typedef struct s_shell	t_shell;
 
 typedef struct s_alloc_tracker
 {
-	void	  **allocs;
-	int		  *is_array;
-	int		  count;
-	int	    capacity;
-	bool    initialized;
-	t_shell *shell;
+	void	**allocs;
+	int		*is_array;
+	int		count;
+	int		capacity;
+	bool	initialized;
+	t_shell	*shell;
 }	t_alloc;
 
 typedef struct s_shell
@@ -137,7 +137,7 @@ typedef struct s_shell
 	t_cmd			*cmd;			// Command list
 	t_env			*env;			// Environment variables
 	t_tok			*tokens;		// Token list
-	t_alloc		alloc_tracker;	// Memory tracker
+	t_alloc			alloc_tracker;	// Memory tracker
 	int				env_count;		// Environment variable count
 	int				status;			// Exit status
 	char			*prompt;		// Prompt string
@@ -163,6 +163,7 @@ void	alloc_tracker_remove(t_alloc *tracker, void *ptr);
 void	free_allocs(t_alloc *tracker);
 
 // --------------  alloc_helper  ------------------------------------------ //
+void	*alloc_tracker_replace(t_alloc *tracker, void *old_ptr, void *new_ptr);
 void	*safe_malloc(t_shell *shell, size_t size);
 void	*safe_calloc(t_shell *shell, size_t count, size_t size);
 char	*safe_strdup(t_shell *shell, const char *src);

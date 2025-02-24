@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:10:12 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 10:35:49 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 18:11:34 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,26 @@
 
 void	cleanup_fds(t_cmd *cmd)
 {
+	t_cmd	*current;
+
 	if (!cmd)
 		return ;
-	if (cmd->fd_in > 2)
+	current = cmd;
+	while (current)
 	{
-		close(cmd->fd_in);
-		cmd->fd_in = -2;
-	}
-	if (cmd->fd_out > 2)
-	{
-		close(cmd->fd_out);
-		cmd->fd_out = -2;
+		if (current->fd_in > 2)
+		{
+			close(current->fd_in);
+			current->fd_in = -2;
+		}
+		if (current->fd_out > 2)
+		{
+			close(current->fd_out);
+			current->fd_out = -2;
+		}
+		current = current->next;
+		if (current == cmd)
+			break ;
 	}
 }
 
@@ -43,5 +52,6 @@ void	clean_shell(t_shell *shell)
 {
 	if (!shell)
 		return ;
+	cleanup_fds(shell->cmd);
 	free_allocs(&shell->alloc_tracker);
 }

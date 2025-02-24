@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 00:12:15 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/24 18:19:47 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,14 @@ static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd)
 	char	*line;
 	int		line_count;
 
+	line = NULL;
 	g_signal = 0;
 	line_count = 0;
 	setup_signals(handle_heredoc_sigint, SIG_IGN);
 	while (!g_signal)
 	{
-		line = readline("> ");
-		alloc_tracker_add(&shell->alloc_tracker, line, 0);
+		line = alloc_tracker_replace(&shell->alloc_tracker, line,
+				readline("> "));
 		line_count++;
 		if (!line)
 		{
