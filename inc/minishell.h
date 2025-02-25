@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 18:14:43 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/25 19:56:24 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,12 +177,13 @@ void	clean_shell(t_shell *shell);
 bool	parse_commands(t_shell *shell);
 
 // --------------  cmd_redir  --------------------------------------------- //
+bool	invalid_redirection(t_tok *token);
 bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd);
 
 // --------------  cmd_utils  --------------------------------------------- //
 t_cmd	*add_cmd(t_shell *shell, t_cmd **lst);
 void	skip_invalid_command(t_shell *shell, t_tok **current);
-bool	invalid_redirection(t_tok *token);
+bool	is_command_start(t_tok *current);
 t_t_typ	determine_token_type(t_tok **lst);
 
 // --------------  env_utils  --------------------------------------------- //

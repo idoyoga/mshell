@@ -6,12 +6,42 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 18:13:08 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/25 19:56:24 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+/*
+**	Check if a redirection is incorrectly formatted
+**	A redirection is invalid if:
+**	- It is the last token with no argument following it ('echo >' or 'cat <').
+**	- It is followed by a token that is not an argument (e.g., 'echo > | wc').
+**	- A 'HEREDOC' ('<<') or 'APPEND' ('>>') does not have an argument after it.
+*/
+
+bool	invalid_redirection(t_tok *token)
+{
+	t_tok	*current;
+
+	if (!token)
+		return (true);
+	current = token;
+	while (current)
+	{
+		if (!current->next)
+			return (true);
+		if ((current->type == REDIR_IN || current->type == REDIR_OUT
+				|| current->type == HEREDOC || current->type == REDIR_APPEND
+				|| current->type == REDIR_APPEND)
+			&& (current->next->type != ARG))
+			return (true);
+		current = current->next;
+		if (current == token)
+			break ;
+	}
+	return (false);
+}
 /*
 **	Return the appropriate flags for open():
 **	- '>' -> Truncate the file and write ('O_TRUNC | O_WRONLY | O_CREAT').
@@ -98,25 +128,19 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd)
 {
 	t_tok	*current;
-	bool	redir_fail;
 
 	current = token;
-	redir_fail = false;
-	while (current->type == CMD || current->type == ARG)
-	{
-		current = current->next;
-		if (current == shell->tokens)
-			return (true);
-	}
-	while (current && current->type != PIPE && current != shell->tokens)
+	while (current && current->type != PIPE)
 	{
 		if (current->type == REDIR_IN || current->type == HEREDOC
 			|| current->type == REDIR_OUT || current->type == REDIR_APPEND)
+		{
 			if (!process_redirection(shell, cmd, current))
-				return (redir_fail = true, false);
+				return (false);
+		}
 		current = current->next;
+		if (current == shell->tokens)
+			break ;
 	}
-	if (redir_fail)
-		return (false);
 	return (true);
 }

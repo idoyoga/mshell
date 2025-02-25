@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 00:00:00 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/25 19:56:24 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,32 +83,26 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 }
 
 /*
-**	Check if a redirection is incorrectly formatted
-**	A redirection is invalid if:
-**	- It is the last token with no argument following it ('echo >' or 'cat <').
-**	- It is followed by a token that is not an argument (e.g., 'echo > | wc').
-**	- A 'HEREDOC' ('<<') or 'APPEND' ('>>') does not have an argument after it.
+**	Check if the current token is the start of a new command
+**	A command starts when:
+**	- The token is an ARG that follows an operator, such as:
+**	- A pipe: Indicates the start of a new pipeline command.
+**	- A redirection: Means the next argument is a command.
 */
 
-bool	invalid_redirection(t_tok *token)
+bool	is_command_start(t_tok *current)
 {
-	t_tok	*current;
-
-	if (!token)
+	if (current->type == CMD)
 		return (true);
-	current = token;
-	while (current)
+	if (current->type == ARG && current->prev)
 	{
-		if (!current->next)
+		if (current->prev->type == REDIR_IN
+			|| current->prev->type == REDIR_OUT
+			|| current->prev->type == HEREDOC
+			|| current->prev->type == REDIR_APPEND)
+			return (false);
+		if (current->prev->type == PIPE)
 			return (true);
-		if ((current->type == REDIR_IN || current->type == REDIR_OUT
-				|| current->type == HEREDOC || current->type == REDIR_APPEND
-				|| current->type == REDIR_APPEND)
-			&& (current->next->type != ARG))
-			return (true);
-		current = current->next;
-		if (current == token)
-			break ;
 	}
 	return (false);
 }

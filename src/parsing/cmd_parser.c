@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:07:42 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/25 20:03:57 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,27 +88,27 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 	return (args);
 }
 
-/*
-**	Check if the current token is the start of a new command
-**	A command starts when:
-**	- The token is an ARG that follows an operator, such as:
-**	- A pipe: Indicates the start of a new pipeline command.
-**	- A redirection: Means the next argument is a command.
-*/
-
-static bool	is_command_start(t_tok *current)
+static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd, bool *redirected)
 {
-	if (current->type == CMD)
-		return (true);
-	if (current->type == ARG && current->prev)
+	if (!*cmd)
+		*cmd = add_cmd(shell, &shell->cmd);
+	if (!*redirected && ((*current)->type == REDIR_IN || (*current)->type == HEREDOC
+		|| (*current)->type == REDIR_OUT || (*current)->type == REDIR_APPEND))
 	{
-		if (current->prev->type == PIPE || current->prev->type == REDIR_IN
-			|| current->prev->type == REDIR_OUT
-			|| current->prev->type == HEREDOC
-			|| current->prev->type == REDIR_APPEND)
-			return (true);
+		if (!handle_redirection(shell, *current, *cmd))
+		{
+			skip_invalid_command(shell, current);
+			return (false);
+		}
+		if ((*current)->type != HEREDOC)
+			*redirected = true;
+		*current = (*current)->next;
+		return (true);
 	}
-	return (false);
+	if (is_command_start((*current)))
+		(*cmd)->args = extract_args(shell, (*current));
+	*current = (*current)->next;
+	return (true);
 }
 
 /*
@@ -122,26 +122,20 @@ static bool	is_command_start(t_tok *current)
 **	- Extract arguments into the command structure
 */
 
-bool	parse_commands(t_shell *shell)
+bool parse_commands(t_shell *shell)
 {
-	t_tok	*current;
-	t_cmd	*cmd;
+    t_tok	*current;
+    t_cmd	*cmd;
+	bool	redirected;
 
-	shell->cmd = NULL;
-	current = shell->tokens;
-	while (current != shell->tokens || !shell->cmd)
-	{
-		if (is_command_start(current))
-		{
-			cmd = add_cmd(shell, &shell->cmd);
-			if (!handle_redirection(shell, current, cmd))
-			{
-				skip_invalid_command(shell, &current);
-				continue ;
-			}
-			cmd->args = extract_args(shell, current);
-		}
-		current = current->next;
-	}
-	return (true);
+	cmd = NULL;
+    shell->cmd = NULL;
+    current = shell->tokens;
+	redirected = false;
+    while (current != shell->tokens || !shell->cmd)
+    {
+		if (!process_token(shell, &current, &cmd, &redirected))
+			continue ;
+    }
+    return (true);
 }
