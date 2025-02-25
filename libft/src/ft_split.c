@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/16 11:55:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2024/04/22 12:25:23 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/25 18:43:32 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-void	safe_malloc(char **word_arr, size_t pos)
+void	libft_safe_malloc(char **word_arr, size_t pos)
 {
 	size_t	i;
 
@@ -46,7 +46,7 @@ char	**fill(char **word_arr, char const *s, char c)
 		{
 			word_arr[i] = ft_substr(s - len, 0, len);
 			if (!(word_arr[i]))
-				return (safe_malloc(word_arr, i), NULL);
+				return (libft_safe_malloc(word_arr, i), NULL);
 			i++;
 		}
 	}
