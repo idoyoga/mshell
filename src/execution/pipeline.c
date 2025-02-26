@@ -56,7 +56,7 @@ void	execute_command(t_shell *shell, t_cmd *command)
 	}
 	type = identify_builtin(command->args[0]);
 	if (type > _NOT_A_BUILTIN)
-		execute_builtin(shell, type);
+		execute_builtin(shell, command, type);
 	shell->status = execve(command->cmd, command->args, shell->env_as_array);
 	printf("execve failed in execute_command! errno is %d\n", errno);
 	error_exit(shell, BAD_EXEC, "execute_command", shell->status);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 22:50:47 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/26 19:08:43 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ static bool	init_work_dirs(t_shell *shell)
 
 /*
 ** Initialize the environment variables, if no environment is passed,
-** return an error and exit with status false. Otherwise, create a new list 
-** and add all environment variables to it. 
+** return an error and exit with status false. Otherwise, create a new list
+** and add all environment variables to it.
 */
 
 static bool	init_env(t_shell *shell, char **env)
@@ -118,7 +118,7 @@ static bool	init_prompt(t_shell *shell)
 }
 
 /*
-** Initialize shell struct with allocation tracker, environment variables 
+** Initialize shell struct with allocation tracker, environment variables
 ** and working directory
 */
 
@@ -145,5 +145,7 @@ bool	init_shell(t_shell *shell, char **env)
 		return (error(NO_ENV, false));
 	if (!init_prompt(shell))
 		return (error(NO_PROMPT, false));
+	shell->fd_copies[0] = -2;
+	shell->fd_copies[1] = -2;
 	return (true);
 }

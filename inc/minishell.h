@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 22:49:55 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/26 20:25:56 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,8 @@ typedef enum e_error
 	BAD_EXEC,
 	BAD_WAIT,
 	NO_FORK,
+	EXIT_INVALID_ARGUMENT,
+	EXIT_TOO_MANY_ARGUMENTS,
 	TOTAL
 }								t_error;
 
@@ -154,6 +156,7 @@ typedef struct s_shell
 	char *user;            // User name
 	char **path_segments;  // PATH split at ':'
 	char **env_as_array;   // PATH split at ':'
+	int fd_copies[2];      // copies of STDOUT and STDIN for single builtins
 }								t_shell;
 
 typedef struct s_builtin
@@ -267,7 +270,8 @@ void							execute_single_builtin(t_shell *shell,
 									t_b_typ type);
 void							execute_with_pipeline(t_shell *shell,
 									t_cmd *command, size_t cmd_count);
-void							execute_builtin(t_shell *shell, t_b_typ type);
+void							execute_builtin(t_shell *shell, t_cmd *cmd,
+									t_b_typ type);
 void							execute_command(t_shell *shell, t_cmd *command);
 int								wait_for_children(t_shell *shell,
 									size_t cmd_count);

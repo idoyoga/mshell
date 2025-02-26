@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   clean.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:10:12 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 18:11:34 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/26 19:11:41 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,5 +53,9 @@ void	clean_shell(t_shell *shell)
 	if (!shell)
 		return ;
 	cleanup_fds(shell->cmd);
+	if (shell->fd_copies[STDIN_FILENO] != -2)
+		close(shell->fd_copies[STDIN_FILENO]);
+	if (shell->fd_copies[STDOUT_FILENO] != -2)
+		close(shell->fd_copies[STDOUT_FILENO]);
 	free_allocs(&shell->alloc_tracker);
 }
