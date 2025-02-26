@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 19:56:24 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/25 22:49:55 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,23 +15,23 @@
 
 # define DEFAULT_ALLOC_CAPACITY 100
 
-# include <stdio.h>
-# include <fcntl.h>
+# include "../libft/inc/libft.h"
+# include <dirent.h>
 # include <errno.h>
-# include <unistd.h>
+# include <fcntl.h>
+# include <limits.h>
+# include <readline/history.h>
+# include <readline/readline.h>
+# include <signal.h>
+# include <stdbool.h>
+# include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include <limits.h>
-# include <signal.h>
-# include <dirent.h>
-# include <stdbool.h>
-# include <sys/stat.h>
-# include <sys/wait.h>
-# include <sys/types.h>
 # include <sys/ioctl.h>
-# include <readline/readline.h>
-# include <readline/history.h>
-# include "../libft/inc/libft.h"
+# include <sys/stat.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <unistd.h>
 
 extern volatile sig_atomic_t	g_signal;
 
@@ -45,7 +45,7 @@ typedef enum e_token_type
 	PIPE,
 	CMD,
 	ARG
-}	t_t_typ;
+}								t_t_typ;
 
 typedef enum e_builtin_type
 {
@@ -57,7 +57,7 @@ typedef enum e_builtin_type
 	UNSET,
 	ENV,
 	EXIT
-}	t_b_typ;
+}								t_b_typ;
 
 typedef enum e_error
 {
@@ -86,37 +86,42 @@ typedef enum e_error
 	INV_REDIR,
 	NO_REMOVE,
 	NO_EXPAND,
+	NO_PIPE,
+	NO_DUP2,
+	BAD_EXEC,
+	BAD_WAIT,
+	NO_FORK,
 	TOTAL
-}	t_error;
+}								t_error;
 
 typedef struct s_env
 {
-	char			*data;
-	struct s_env	*next;
-	struct s_env	*prev;
-}	t_env;
+	char						*data;
+	struct s_env				*next;
+	struct s_env				*prev;
+}								t_env;
 
 typedef struct s_cmd
 {
-	char			*cmd;
-	char			**args;
-	int				fd_in;
-	int				fd_out;
-	struct s_cmd	*next;
-	struct s_cmd	*prev;
-}	t_cmd;
+	char						*cmd;
+	char						**args;
+	int							fd_in;
+	int							fd_out;
+	pid_t						child_pid;
+	struct s_cmd				*next;
+	struct s_cmd				*prev;
+}								t_cmd;
 
 typedef struct s_tok
 {
-	char			*content;
-	char			*file;
-	t_t_typ			type;
-	struct s_tok	*next;
-	struct s_tok	*prev;
-}	t_tok;
+	char						*content;
+	char						*file;
+	t_t_typ						type;
+	struct s_tok				*next;
+	struct s_tok				*prev;
+}								t_tok;
 
-typedef struct s_shell	t_shell;
-
+typedef struct s_shell			t_shell;
 /*
 **	Meta-tracking allocations, used to keep track of all allocated memory
 **	including the shell struct itself.
@@ -124,128 +129,167 @@ typedef struct s_shell	t_shell;
 
 typedef struct s_alloc_tracker
 {
-	void	**allocs;
-	int		*is_array;
-	int		count;
-	int		capacity;
-	bool	initialized;
-	t_shell	*shell;
-}	t_alloc;
+	void						**allocs;
+	int							*is_array;
+	int							count;
+	int							capacity;
+	bool						initialized;
+	t_shell						*shell;
+}								t_alloc;
 
 typedef struct s_shell
 {
-	t_cmd			*cmd;			// Command list
-	t_env			*env;			// Environment variables
-	t_tok			*tokens;		// Token list
-	t_alloc			alloc_tracker;	// Memory tracker
-	int				env_count;		// Environment variable count
-	int				status;			// Exit status
-	char			*prompt;		// Prompt string
-	char			*cmd_input;		// Command input
-	char			*home_dir;		// Home directory
-	char			*work_dir;		// Current working directory
-	char			*old_work_dir;	// Previous working directory
-	char			*user;			// User name
-}	t_shell;
+	t_cmd						*cmd;
+	// Command list
+	t_env *env;            // Environment variables
+	t_tok *tokens;         // Token list
+	t_alloc alloc_tracker; // Memory tracker
+	int env_count;         // Environment variable count
+	int status;            // Exit status
+	char *prompt;          // Prompt string
+	char *cmd_input;       // Command input
+	char *home_dir;        // Home directory
+	char *work_dir;        // Current working directory
+	char *old_work_dir;    // Previous working directory
+	char *user;            // User name
+	char **path_segments;  // PATH split at ':'
+	char **env_as_array;   // PATH split at ':'
+}								t_shell;
 
 typedef struct s_builtin
 {
-	t_b_typ			type;
-	char			*name;
-	void			(*fn)(t_shell *shell, t_cmd *cmd);
-}	t_bltin;
+	t_b_typ						type;
+	char						*name;
+	void						(*fn)(t_shell *shell, t_cmd *cmd);
+}								t_bltin;
 
-typedef bool	(*t_expander)(t_shell *shell, char **output, char *input, int *index);
+typedef bool					(*t_expander)(t_shell *shell, char **output,
+						char *input, int *index);
 
 // --------------  alloc  ------------------------------------------------- //
-void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array);
-void	alloc_tracker_remove(t_alloc *tracker, void *ptr);
-void	free_allocs(t_alloc *tracker);
+void							*alloc_tracker_add(t_alloc *tracker, void *ptr,
+									int is_array);
+void							alloc_tracker_remove(t_alloc *tracker,
+									void *ptr);
+void							free_allocs(t_alloc *tracker);
 
 // --------------  alloc_helper  ------------------------------------------ //
-void	*alloc_tracker_replace(t_alloc *tracker, void *old_ptr, void *new_ptr);
-void	*safe_malloc(t_shell *shell, size_t size);
-void	*safe_calloc(t_shell *shell, size_t count, size_t size);
-char	*safe_strdup(t_shell *shell, const char *src);
-char	*safe_strjoin(t_shell *shell, const char *s1, const char *s2);
+void							*alloc_tracker_replace(t_alloc *tracker,
+									void *old_ptr, void *new_ptr);
+void							*safe_malloc(t_shell *shell, size_t size);
+void							*safe_calloc(t_shell *shell, size_t count,
+									size_t size);
+char							*safe_strdup(t_shell *shell, const char *src);
+char							*safe_strjoin(t_shell *shell, const char *s1,
+									const char *s2);
 
 // --------------  clean  ------------------------------------------------- //
-void	cleanup_fds(t_cmd *cmd);
-void	clean_shell(t_shell *shell);
+void							cleanup_fds(t_cmd *cmd);
+void							clean_shell(t_shell *shell);
 
 // --------------  cmd_parser  -------------------------------------------- //
-bool	parse_commands(t_shell *shell);
+bool							parse_commands(t_shell *shell);
 
 // --------------  cmd_redir  --------------------------------------------- //
-bool	invalid_redirection(t_tok *token);
-bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd);
+bool							invalid_redirection(t_tok *token);
+bool							handle_redirection(t_shell *shell, t_tok *token,
+									t_cmd *cmd);
 
 // --------------  cmd_utils  --------------------------------------------- //
-t_cmd	*add_cmd(t_shell *shell, t_cmd **lst);
-void	skip_invalid_command(t_shell *shell, t_tok **current);
-bool	is_command_start(t_tok *current);
-t_t_typ	determine_token_type(t_tok **lst);
+t_cmd							*add_cmd(t_shell *shell, t_cmd **lst);
+void							skip_invalid_command(t_shell *shell,
+									t_tok **current);
+bool							is_command_start(t_tok *current);
+t_t_typ							determine_token_type(t_tok **lst);
 
 // --------------  env_utils  --------------------------------------------- //
-t_env	*add_env_variable(t_shell *shell, t_env **lst, char *data);
-char	*create_prompt(t_shell *shell);
-bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name);
+t_env							*add_env_variable(t_shell *shell, t_env **lst,
+									char *data);
+char							*create_prompt(t_shell *shell);
+bool							remove_env_variable(t_shell *shell, t_env **lst,
+									char *var_name);
+char							*get_env_value(t_shell *shell, char *key);
 
 // --------------  error  ------------------------------------------------- //
-bool	error(t_error err, int status);
-void	error_exit(t_shell *shell, t_error err, char *context, int status);
-bool	error_token(t_shell *shell, t_tok *token);
-void	error_cmd(t_shell *shell, const char *cmd_name);
+bool							error(t_error err, int status);
+void							error_exit(t_shell *shell, t_error err,
+									char *context, int status);
+bool							error_token(t_shell *shell, t_tok *token);
+void							error_cmd(t_shell *shell, const char *cmd_name);
 
 // --------------  expander  ---------------------------------------------- //
-bool	expand_dollar_variables(t_shell *shell, char **input);
+bool							expand_dollar_variables(t_shell *shell,
+									char **input);
 
 // --------------  expander_utils  ---------------------------------------- //
-int		find_or_check_env(t_shell *shell, char *input, int *index, bool check);
-int		match_env_variable(char *var_name, char *env_entry);
-bool	append_char_to_str(t_shell *shell, char **output, int *index, char *c);
+int								find_or_check_env(t_shell *shell, char *input,
+									int *index, bool check);
+int								match_env_variable(char *var_name,
+									char *env_entry);
+bool							append_char_to_str(t_shell *shell,
+									char **output, int *index, char *c);
 
 // --------------  heredoc  ----------------------------------------------- //
-int		handle_heredoc(t_shell *shell, const char *delimiter);
+int								handle_heredoc(t_shell *shell,
+									const char *delimiter);
 
 // --------------  init  -------------------------------------------------- //
-bool	init_shell(t_shell *shell, char **env);
+bool							init_shell(t_shell *shell, char **env);
 
 // --------------  signal  ------------------------------------------------ //
-void	handle_sigint(int sig);
-void	handle_sigquit(int sig);
-void	handle_heredoc_sigint(int sig);
-void	setup_signals(void (*sigint_handler)(int),
-			void (*sigquit_handler)(int));
+void							handle_sigint(int sig);
+void							handle_sigquit(int sig);
+void							handle_heredoc_sigint(int sig);
+void							setup_signals(void (*sigint_handler)(int),
+									void (*sigquit_handler)(int));
 
 // --------------  token  ------------------------------------------------- //
-bool	tokenize(t_shell *shell, t_tok **lst, char *input);
+bool							tokenize(t_shell *shell, t_tok **lst,
+									char *input);
 
 // --------------  tokenizer  --------------------------------------------- //
-char	*trim_quotes(t_shell *shell, char *src, int len);
-void	update_quote_state(bool *d_quote, bool *s_quote, char c);
-bool	tokenize_input(t_shell *shell, char *input);
+char							*trim_quotes(t_shell *shell, char *src,
+									int len);
+void							update_quote_state(bool *d_quote, bool *s_quote,
+									char c);
+bool							tokenize_input(t_shell *shell, char *input);
 
 // --------------  token_utils  ------------------------------------------- //
-t_t_typ	identify_special_token(char *str);
-int		get_special_length(char *str);
-int		get_token_length(char *input, int *quote);
-t_tok	*add_token(t_shell *shell, t_tok **lst, char *content, t_t_typ type);
+t_t_typ							identify_special_token(char *str);
+int								get_special_length(char *str);
+int								get_token_length(char *input, int *quote);
+t_tok							*add_token(t_shell *shell, t_tok **lst,
+									char *content, t_t_typ type);
 
 // --------------  command runner  ---------------------------------------- //
-void	execute(t_shell *shell);
-void	execute_single_builtin(t_shell *shell, t_b_typ type);
-void	execute_with_pipeline(t_shell *shell, size_t cmd_count);
+void							dispatch(t_shell *shell, size_t cmd_count);
+void							execute_single_builtin(t_shell *shell,
+									t_b_typ type);
+void							execute_with_pipeline(t_shell *shell,
+									t_cmd *command, size_t cmd_count);
+void							execute_builtin(t_shell *shell, t_b_typ type);
+void							execute_command(t_shell *shell, t_cmd *command);
+int								wait_for_children(t_shell *shell,
+									size_t cmd_count);
+
+void							prepare_execution(t_shell *shell,
+									size_t cmd_count);
+void							postpare_execution(t_shell *shell,
+									size_t cmd_count);
+char							**get_env_array(t_shell *shell);
 
 // --------------  builtins  ---------------------------------------------- //
-t_b_typ	identify_builtin(char *str);
-void	(*get_builtin(t_b_typ type))(t_shell *, t_cmd *);
-void	builtin_echo(t_shell *shell, t_cmd *cmd);
-void	builtin_cd(t_shell *shell, t_cmd *cmd);
-void	builtin_pwd(t_shell *shell, t_cmd *cmd);
-void	builtin_export(t_shell *shell, t_cmd *cmd);
-void	builtin_unset(t_shell *shell, t_cmd *cmd);
-void	builtin_env(t_shell *shell, t_cmd *cmd);
-void	builtin_exit(t_shell *shell, t_cmd *cmd);
+t_b_typ							identify_builtin(char *str);
+void (*get_builtin(t_b_typ type))(t_shell *, t_cmd *);
+void							builtin_echo(t_shell *shell, t_cmd *cmd);
+void							builtin_cd(t_shell *shell, t_cmd *cmd);
+void							builtin_pwd(t_shell *shell, t_cmd *cmd);
+void							builtin_export(t_shell *shell, t_cmd *cmd);
+void							builtin_unset(t_shell *shell, t_cmd *cmd);
+void							builtin_env(t_shell *shell, t_cmd *cmd);
+void							builtin_exit(t_shell *shell, t_cmd *cmd);
+
+// TODO: delet
+void							print_parsed_data(t_shell *shell);
 
 #endif

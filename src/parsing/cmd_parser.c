@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_parser.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 01:50:47 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/26 02:26:45 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ static int	count_args(t_shell *shell, t_tok *token)
 /*
 **	Check if a token is a valid argument for a command:
 **	- CMD tokens are always valid arguments.
-**	- ARG tokens are valid if preceded by CMD or another ARG, 
-**	  but not if preceded by PIPE at the start of the token list.
+**	- ARG tokens are valid if preceded by CMD or another ARG,
+**		but not if preceded by PIPE at the start of the token list.
 */
 
 static bool	is_valid_arg(t_shell *shell, t_tok *current)
@@ -89,23 +89,24 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 }
 
 /*
-**	Process a single token and determine if it is a redirection, command or pipe.
+**	Process a single token and determine if it is a redirection,
+		command or pipe.
 **
 **	- If no command has been added yet, create a new command node.
 **	- If the token is a redirection ('<', '>', '>>', '<<'):
-**	  - Call 'handle_redirection' to process it.
-**	  - If the redirection fails, the invalid command is skipped.
-**	  - If the redirection is successful (and is not a heredoc), 
-**	    set the 'redirected' flag to prevent further redirection handling.
+**		- Call 'handle_redirection' to process it.
+**		- If the redirection fails, the invalid command is skipped.
+**		- If the redirection is successful (and is not a heredoc),
+**			set the 'redirected' flag to prevent further redirection handling.
 **	- If the token is a pipe:
-**	  - Create a new command node for the next piped command.
-**	  - Reset 'redirected' flag to allow new redirections in the next command.
+**		- Create a new command node for the next piped command.
+**		- Reset 'redirected' flag to allow new redirections in the next command.
 **	- If the token is CMD or ARG:
-**	  - Extract arguments into the command node.
+**		- Extract arguments into the command node.
 */
 
 static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd,
-							bool *redir)
+		bool *redir)
 {
 	if (!*cmd)
 		*cmd = add_cmd(shell, &shell->cmd);
@@ -140,9 +141,9 @@ static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd,
 **	- Subsequent iterations: loop continues as long as 'current != shell->tokens'
 **	- Iterate through tokens, processing each using process_token().
 **	- If a pipe is encountered:
-**	  - Add a new command node for the next piped command.
-**	  - Reset the redirection flag.
-**	  - Move to the next token.
+**		- Add a new command node for the next piped command.
+**		- Reset the redirection flag.
+**		- Move to the next token.
 */
 
 bool	parse_commands(t_shell *shell)

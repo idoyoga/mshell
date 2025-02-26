@@ -6,48 +6,42 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/12 21:57:43 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/25 22:49:17 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static size_t	cmd_lstlen(t_cmd *cmd)
-{
-	size_t	i;
-	t_cmd	*current;
-
-	if (cmd == NULL)
-		return (0);
-	i = 1;
-	current = cmd->next;
-	while (current != cmd)
-	{
-		i++;
-		current = current->next;
-	}
-	return (i);
-}
-
+// effectively the same as fork_and_exec()
+// TODO: unify into one function
 static void	execute_without_pipeline(t_shell *shell)
 {
-	(void)shell;
-	printf("executing without pipeline\n");
+	shell->cmd->child_pid = fork();
+	if (shell->cmd->child_pid == -1)
+		error_exit(shell, NO_FORK, "execute_without_pipeline", EXIT_FAILURE);
+	if (shell->cmd->child_pid == 0)
+	{
+		execute_command(shell, shell->cmd);
+	}
+	shell->status = wait_for_children(shell, 1);
 }
 
-// run single builtins without forking
-// if receiving multiple commands,
-// fork and execute for each command
-void	execute(t_shell *shell)
+// entrypoint for any execution
+void	dispatch(t_shell *shell, size_t cmd_count)
 {
-	size_t	cmd_count;
 	t_b_typ	type;
 
-	cmd_count = cmd_lstlen(shell->cmd);
+	print_parsed_data(shell);
 	if (cmd_count != 1)
-		return (execute_with_pipeline(shell, cmd_count));
+	{
+		execute_with_pipeline(shell, shell->cmd, cmd_count);
+		return ;
+	}
 	type = identify_builtin(shell->cmd->args[0]);
 	if (type == _NOT_A_BUILTIN)
-		return (execute_without_pipeline(shell));
-	return (execute_single_builtin(shell, type));
+	{
+		execute_without_pipeline(shell);
+		return ;
+	}
+	execute_single_builtin(shell, type);
 }
