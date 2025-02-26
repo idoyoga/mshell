@@ -6,7 +6,7 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/02/25 19:54:37 by xgossing         ###   ########.fr        #
+#    Updated: 2025/02/26 01:33:24 by xgossing         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -85,7 +85,7 @@ fclean: clean
 re: fclean
 	$(MAKE) all
 
-leak: re
+leak: 
 	valgrind --leak-check=full --show-leak-kinds=all --suppressions=suppression.txt --track-fds=yes --trace-children=yes ./$(NAME)
 
 .PHONY: all clean fclean re

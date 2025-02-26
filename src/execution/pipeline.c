@@ -49,6 +49,11 @@ void	execute_command(t_shell *shell, t_cmd *command)
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	redirect_command(shell, command);
+	if (!command->args || !command->args[0])
+	{
+		clean_shell(shell);
+		exit(0);
+	}
 	type = identify_builtin(command->args[0]);
 	if (type > _NOT_A_BUILTIN)
 		execute_builtin(shell, type);
@@ -92,70 +97,154 @@ int	wait_for_children(t_shell *shell, size_t cmd_count)
 	return (status_code);
 }
 
-static bool	fork_and_exec(t_shell *shell, t_cmd *cmd)
-{
-	cmd->child_pid = fork();
-	if (cmd->child_pid == -1)
-		return (false);
-	if (cmd->child_pid == 0)
-	{
-		execute_command(shell, cmd);
-	}
-	printf("sent child off to execute %s\n", cmd->cmd);
-	return (true);
-}
+// static bool	fork_and_exec(t_shell *shell, t_cmd *cmd)
+// {
+// 	static int	i = 0;
 
-static void	reset_fds(int *fds, size_t count)
-{
-	size_t	i;
+// 	if (i == 2)
+// 		return (false);
+// 	i++;
+// 	cmd->child_pid = fork();
+// 	if (cmd->child_pid == -1)
+// 		return (false);
+// 	if (cmd->child_pid == 0)
+// 	{
+// 		execute_command(shell, cmd);
+// 	}
+// 	if (cmd->fd_in != -2)
+// 	{
+// 		close(cmd->fd_in);
+// 		cmd->fd_in = -2;
+// 	}
+// 	if (cmd->fd_out != -2)
+// 	{
+// 		close(cmd->fd_out);
+// 		cmd->fd_out = -2;
+// 	}
+// 	printf("sent child off to execute %s\n", cmd->cmd);
+// 	return (true);
+// }
 
-	if (!fds)
-		return ;
-	i = 0;
-	while (i < count)
-	{
-		if (fds[i] != -2)
-			close(fds[i]);
-		fds[i] = -2;
-		i++;
-	}
-}
+// static void	reset_fds(int *fds, size_t count)
+// {
+// 	size_t	i;
 
-static void	plumb(int *target_fd, int *source_fd)
-{
-	if (*target_fd == -2)
-		*target_fd = *source_fd;
-	else
-		reset_fds(source_fd, 1);
-}
+// 	if (!fds)
+// 		return ;
+// 	i = 0;
+// 	while (i < count)
+// 	{
+// 		if (fds[i] != -2)
+// 			close(fds[i]);
+// 		fds[i] = -2;
+// 		i++;
+// 	}
+// }
+
+// static void	plumb(int *target_fd, int *source_fd)
+// {
+// 	if (*target_fd == -2)
+// 		*target_fd = *source_fd;
+// 	else
+// 		reset_fds(source_fd, 1);
+// }
 
 void	execute_with_pipeline(t_shell *shell, t_cmd *command, size_t cmd_count)
 {
 	int		pipe_fds[2];
 	size_t	i;
+	int		prev_fd;
 
 	pipe_fds[0] = -2;
 	pipe_fds[1] = -2;
+	prev_fd = -2;
 	i = 0;
 	while (i < cmd_count)
 	{
-		if (plumb(&command->fd_in, pipe_fds + 0), i < cmd_count)
+		if (i < cmd_count - 1 && pipe(pipe_fds) == -1)
 		{
-			if (pipe(pipe_fds) == -1)
+			if (prev_fd != -2)
 			{
-				// TODO: actually handle error
-				reset_fds(pipe_fds, 2), reset_fds(&command->fd_in, 1);
-				error_exit(shell, NO_PIPE, "pipeline", EXIT_FAILURE);
+				close(prev_fd);
+				prev_fd = -2;
 			}
-			plumb(&command->fd_out, pipe_fds + 1);
+			error_exit(shell, NO_PIPE, "execute_with_pipeline", EXIT_FAILURE);
 		}
-		if (!fork_and_exec(shell, command))
+		command->child_pid = fork();
+		if (command->child_pid == -1)
 		{
-			reset_fds(pipe_fds, 2), reset_fds(&command->fd_in, 1);
-			error_exit(shell, NO_FORK, "fork_and_exec", EXIT_FAILURE);
+			if (prev_fd != -2)
+			{
+				close(prev_fd);
+			}
+			if (i < cmd_count - 1)
+			{
+				close(pipe_fds[0]);
+				close(pipe_fds[1]);
+			}
+			error_exit(shell, NO_FORK, "fork", EXIT_FAILURE);
 		}
-		reset_fds(pipe_fds + 1, 1), reset_fds(&command->fd_in, 1);
-		command = command->next; // ?
+		if (command->child_pid == 0)
+		{
+			if (prev_fd != -2)
+			{
+				if (dup2(prev_fd, STDIN_FILENO) == -1)
+				{
+					if (pipe_fds[0] != -2)
+						close(pipe_fds[0]);
+					if (pipe_fds[1] != -2)
+						close(pipe_fds[1]);
+					if (prev_fd != -2)
+						close(prev_fd);
+					error_exit(shell, NO_DUP2, "(child) dup2", EXIT_FAILURE);
+				}
+			}
+			if (i < cmd_count - 1)
+			{
+				if (dup2(pipe_fds[1], STDOUT_FILENO) == -1)
+				{
+					if (pipe_fds[0] != -2)
+						close(pipe_fds[0]);
+					if (pipe_fds[1] != -2)
+						close(pipe_fds[1]);
+					if (prev_fd != -2)
+						close(prev_fd);
+					error_exit(shell, NO_DUP2, "(child) dup2", EXIT_FAILURE);
+				}
+			}
+			// close inherited fds in the child
+			if (prev_fd != -2)
+			{
+				close(prev_fd);
+				prev_fd = -2;
+			}
+			if (i < cmd_count - 1)
+			{
+				close(pipe_fds[0]);
+				pipe_fds[0] = -2;
+				close(pipe_fds[1]);
+				pipe_fds[1] = -2;
+			}
+			execute_command(shell, command);
+			exit(1); // Should not be reached.
+		}
+		// I am parent
+		// close the old read end (if any); it's been passed to the child.
+		if (prev_fd != -2)
+		{
+			close(prev_fd);
+			prev_fd = -2;
+		}
+		// for non-last commands,
+		// close the write end and save the read end for the next iteration.
+		if (i < cmd_count - 1)
+		{
+			close(pipe_fds[1]); // parent doesn't need the write end.
+			pipe_fds[1] = -2;
+			prev_fd = pipe_fds[0];
+			pipe_fds[0] = -2;
+		}
+		command = command->next;
 		i++;
 	}
 	shell->status = wait_for_children(shell, cmd_count);

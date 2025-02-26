@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/25 22:49:17 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/26 02:41:22 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ void	dispatch(t_shell *shell, size_t cmd_count)
 		execute_with_pipeline(shell, shell->cmd, cmd_count);
 		return ;
 	}
+	if (!shell->cmd->args)
+		return ;
 	type = identify_builtin(shell->cmd->args[0]);
 	if (type == _NOT_A_BUILTIN)
 	{

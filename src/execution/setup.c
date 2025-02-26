@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/25 23:49:09 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/26 02:50:26 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,7 @@ static void	find_absolute_path(t_shell *shell, t_cmd *cmd)
 {
 	size_t	i;
 
-	printf("args[0]: '%s'\n", cmd->args[0]);
-	if (shell->path_segments == NULL || cmd->args[0][0] == '\0'
-		|| is_path(cmd->args[0]))
+	if (shell->path_segments == NULL || (cmd->args != NULL && (cmd->args[0] && (cmd->args[0][0] == '\0' || is_path(cmd->args[0])))))
 	{
 		// look in local directory
 		// just add './', or can I just leave it as is? try this out later
@@ -40,7 +38,7 @@ static void	find_absolute_path(t_shell *shell, t_cmd *cmd)
 		return ;
 	}
 	i = 0;
-	while (shell->path_segments[i] != NULL)
+	while (shell->path_segments[i] != NULL && cmd->args != NULL)
 	{
 		cmd->cmd = ft_strjoin_three(shell->path_segments[i], "/", cmd->args[0]);
 		if (!cmd)
