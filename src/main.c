@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 20:58:04 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/26 11:52:54 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,13 +50,29 @@ static void	print_command(t_cmd *command, size_t num)
 	printf("(end of command %lu)\n\n", num + 1);
 }
 
-static void	print_parsed_data(t_shell *shell)
+static void	print_env_data(t_env *env)
+{
+	t_env	*current;
+
+	current = env;
+	printf("Environment:\n");
+	while (current)
+	{
+		printf("%s\n", current->data);
+		current = current->next;
+		if (current == env)
+			break ;
+	}
+}
+
+void	print_parsed_data(t_shell *shell)
 {
 	size_t	cmd_count;
 	t_cmd	*current_command;
 	size_t	i;
 
 	printf("Printing shell data...\n");
+	print_env_data(shell->env);
 	printf("Status: %d\n", shell->status);
 	printf("Prompt: %s\n", shell->prompt);
 	printf("Cmd_input: %s\n", shell->cmd_input);
@@ -83,30 +99,48 @@ static void	print_parsed_data(t_shell *shell)
 	}
 }
 
+static size_t	cmd_lstlen(t_cmd *cmd)
+{
+	size_t	i;
+	t_cmd	*current;
+
+	if (cmd == NULL)
+		return (0);
+	i = 1;
+	current = cmd->next;
+	while (current != cmd)
+	{
+		i++;
+		current = current->next;
+	}
+	return (i);
+}
+
 /*
 **	Start minishell, provide the prompt, read input and execute commands
 */
 
 static void	minishell(t_shell *shell)
 {
-	setup_signals(handle_sigint, SIG_IGN);
 	while (1)
 	{
+		setup_signals(handle_sigint, SIG_IGN);
 		g_signal = 0;
 		shell->cmd_input = alloc_tracker_replace(&shell->alloc_tracker,
 				shell->cmd_input, readline(shell->prompt));
 		if (!shell->cmd_input)
 			break ;
+		setup_signals(SIG_IGN, SIG_IGN);
 		if (blank_line(shell->cmd_input))
 			continue ;
 		add_history(shell->cmd_input);
 		if (!tokenize_input(shell, shell->cmd_input))
 			continue ;
-		print_parsed_data(shell);
 		if (shell->cmd != NULL)
 		{
-			execute(shell);
-			cleanup_fds(shell->cmd);
+			prepare_execution(shell, cmd_lstlen(shell->cmd));
+			dispatch(shell, cmd_lstlen(shell->cmd));
+			postpare_execution(shell, cmd_lstlen(shell->cmd));
 		}
 	}
 	rl_clear_history();
@@ -115,7 +149,6 @@ static void	minishell(t_shell *shell)
 int	main(int ac, char **av, char **env)
 {
 	t_shell	shell;
-
 	(void)av;
 	if (ac > 1)
 		return (error(INV_ARGS, 1));

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_strjoin.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/17 14:43:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 12:44:39 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/25 14:23:39 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,31 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (new);
 }
 
+char	*ft_strjoin_three(char const *s1, char const *s2, char const *s3)
+{
+	size_t	len;
+	char	*new;
+	char	*temp;
+
+	if (!s1 || !s2 || !s3)
+		return (NULL);
+	len = ft_strlen(s1) + ft_strlen(s2) + ft_strlen(s3);
+	new = (char *)ft_calloc(len + 1, sizeof(char));
+	if (!new)
+		return (NULL);
+	temp = new;
+	while (*s1)
+		*temp++ = *s1++;
+	while (*s2)
+		*temp++ = *s2++;
+	while (*s3)
+		*temp++ = *s3++;
+	*temp = '\0';
+	return (new);
+}
+
 char	*ft_strjoin_four(char const *s1, char const *s2, char const *s3,
-			char const *s4)
+		char const *s4)
 {
 	size_t	len;
 	char	*new;

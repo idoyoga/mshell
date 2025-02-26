@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/22 22:57:35 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/25 22:03:51 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,9 +133,8 @@ bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name)
 	len = ft_strlen(var_name);
 	while (node)
 	{
-		if (ft_strlen(node->data) > len
-			&& ft_strncmp(node->data, var_name, len) == 0
-			&& (node->data[len] == '=' || !node->data[len]))
+		if (ft_strlen(node->data) > len && ft_strncmp(node->data, var_name,
+				len) == 0 && (node->data[len] == '=' || !node->data[len]))
 		{
 			unlink_env_node(lst, node);
 			alloc_tracker_remove(&shell->alloc_tracker, node->data);
@@ -148,4 +147,25 @@ bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name)
 			break ;
 	}
 	return (false);
+}
+
+char	*get_env_value(t_shell *shell, char *key)
+{
+	t_env	*current;
+	size_t	len;
+
+	if (!shell | !shell->env || !key)
+		return (NULL);
+	current = shell->env;
+	len = ft_strlen(key);
+	while (current)
+	{
+		if (ft_strlen(current->data) > len && ft_strncmp(current->data, key,
+				len) == 0 && current->data[len] == '=')
+			return (current->data + len + 1);
+		current = current->next;
+		if (current == shell->env)
+			break ;
+	}
+	return (NULL);
 }
