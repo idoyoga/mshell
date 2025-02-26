@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 19:56:24 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/26 01:46:46 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,10 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 
 /*
 **	Check if the current token is the start of a new command
-**	A command starts when:
-**	- The token is an ARG that follows an operator, such as:
-**	- A pipe: Indicates the start of a new pipeline command.
-**	- A redirection: Means the next argument is a command.
+**	- A command starts if the token is of type CMD.
+**	- An ARG token may also be the start of a command if:
+**		- It follows a PIPE, or 
+**		- It follows a redirection which is preceded by a PIPE.
 */
 
 bool	is_command_start(t_tok *current)
@@ -100,12 +100,14 @@ bool	is_command_start(t_tok *current)
 			|| current->prev->type == REDIR_OUT
 			|| current->prev->type == HEREDOC
 			|| current->prev->type == REDIR_APPEND)
-			return (false);
-		if (current->prev->type == PIPE)
-			return (true);
+		{
+			if (current->prev->prev && current->prev->prev->type == PIPE)
+				return (true);
+		}
 	}
 	return (false);
 }
+
 /*
 **	Determine whether a token should be CMD or ARG based on the previous token.
 **	- If there is no previous token or if it follows a 'PIPE', it is a 'CMD'.

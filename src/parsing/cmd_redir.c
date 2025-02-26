@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 19:56:24 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/26 01:44:57 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,14 +87,13 @@ static int	open_redirection_file(char *file, t_t_typ type)
 **	Process each redirection token:
 **	- Assign correct file descriptors for input/output.
 **	- If '<<', call 'handle_heredoc', otherwise call 'open_redirection_file'.
-**	- If successful, assign the new fd to 'cmd->fd_in' or 'cmd->fd_out'.
-**	- If an old fd was already open, it is closed before assigning the new one.
+**	- If file opening fails, an error is logged and 'false' returned.
+**	- Close any previously opened file descriptor before assigning the new one.
 */
 
 static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 {
 	int	*fd;
-	int	old_fd;
 	int	new_fd;
 
 	if (token->type == REDIR_IN || token->type == HEREDOC)
@@ -103,7 +102,6 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		fd = &cmd->fd_out;
 	else
 		return (false);
-	old_fd = *fd;
 	if (token->type == HEREDOC)
 		new_fd = handle_heredoc(shell, token->next->content);
 	else
@@ -113,16 +111,17 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		error_cmd(shell, token->next->content);
 		return (false);
 	}
-	if (old_fd >= 3)
-		close(old_fd);
+	if (*fd != -2)
+		close(*fd);
 	*fd = new_fd;
 	return (true);
 }
 
 /*
-**	Process and apply redirections for a command.
-**	- If a redirection fails, the function immediately returns 'false'
-**	  to indicate the command should be skipped.
+**	Process redirection tokens for a command.
+**	- If a redirection token is found, call 'process_redirection'.
+**	- If redirection processing fails, break the loop.
+**	- Move to the next token after handling redirections.
 */
 
 bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd)
@@ -136,7 +135,8 @@ bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd)
 			|| current->type == REDIR_OUT || current->type == REDIR_APPEND)
 		{
 			if (!process_redirection(shell, cmd, current))
-				return (false);
+				break ;
+			current = current->next;
 		}
 		current = current->next;
 		if (current == shell->tokens)

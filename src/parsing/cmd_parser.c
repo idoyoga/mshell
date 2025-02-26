@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 20:03:57 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/26 01:50:47 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,12 +88,30 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 	return (args);
 }
 
-static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd, bool *redirected)
+/*
+**	Process a single token and determine if it is a redirection, command or pipe.
+**
+**	- If no command has been added yet, create a new command node.
+**	- If the token is a redirection ('<', '>', '>>', '<<'):
+**	  - Call 'handle_redirection' to process it.
+**	  - If the redirection fails, the invalid command is skipped.
+**	  - If the redirection is successful (and is not a heredoc), 
+**	    set the 'redirected' flag to prevent further redirection handling.
+**	- If the token is a pipe:
+**	  - Create a new command node for the next piped command.
+**	  - Reset 'redirected' flag to allow new redirections in the next command.
+**	- If the token is CMD or ARG:
+**	  - Extract arguments into the command node.
+*/
+
+static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd,
+							bool *redir)
 {
 	if (!*cmd)
 		*cmd = add_cmd(shell, &shell->cmd);
-	if (!*redirected && ((*current)->type == REDIR_IN || (*current)->type == HEREDOC
-		|| (*current)->type == REDIR_OUT || (*current)->type == REDIR_APPEND))
+	if (!*redir && ((*current)->type == REDIR_IN || (*current)->type == HEREDOC
+			|| (*current)->type == REDIR_OUT
+			|| (*current)->type == REDIR_APPEND))
 	{
 		if (!handle_redirection(shell, *current, *cmd))
 		{
@@ -101,41 +119,52 @@ static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd, bool *re
 			return (false);
 		}
 		if ((*current)->type != HEREDOC)
-			*redirected = true;
+			*redir = true;
 		*current = (*current)->next;
 		return (true);
 	}
-	if (is_command_start((*current)))
+	if ((*current)->type == PIPE)
+	{
+		(*cmd)->next = add_cmd(shell, &shell->cmd);
+		*redir = false;
+	}
+	else if (is_command_start((*current)))
 		(*cmd)->args = extract_args(shell, (*current));
 	*current = (*current)->next;
 	return (true);
 }
 
 /*
-**	Convert tokenized input into a command list and handle redirections
-**	before execution.
-**	- First iteration: !shell->cmd keeps loop running
-**	- Subsequent iterations: loop continues as long as current != shell->tokens
-**	- Check if current token is start of a command
-**	- Add commands to the command list
-**	- Handle redirections for each command
-**	- Extract arguments into the command structure
+**	Iterate through the tokenized input and build a linked list of commands.
+**	- First iteration: '!shell->cmd' keeps loop running
+**	- Subsequent iterations: loop continues as long as 'current != shell->tokens'
+**	- Iterate through tokens, processing each using process_token().
+**	- If a pipe is encountered:
+**	  - Add a new command node for the next piped command.
+**	  - Reset the redirection flag.
+**	  - Move to the next token.
 */
 
-bool parse_commands(t_shell *shell)
+bool	parse_commands(t_shell *shell)
 {
-    t_tok	*current;
-    t_cmd	*cmd;
+	t_tok	*current;
+	t_cmd	*cmd;
 	bool	redirected;
 
 	cmd = NULL;
-    shell->cmd = NULL;
-    current = shell->tokens;
+	shell->cmd = NULL;
+	current = shell->tokens;
 	redirected = false;
-    while (current != shell->tokens || !shell->cmd)
-    {
+	while (current != shell->tokens || !shell->cmd)
+	{
 		if (!process_token(shell, &current, &cmd, &redirected))
 			continue ;
-    }
-    return (true);
+		if (current && current->type == PIPE)
+		{
+			cmd = add_cmd(shell, &shell->cmd);
+			redirected = false;
+			current = current->next;
+		}
+	}
+	return (true);
 }
