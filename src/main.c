@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 23:44:07 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/26 11:52:54 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,21 @@ static void	print_command(t_cmd *command, size_t num)
 	printf("(end of command %lu)\n\n", num + 1);
 }
 
+static void	print_env_data(t_env *env)
+{
+	t_env	*current;
+
+	current = env;
+	printf("Environment:\n");
+	while (current)
+	{
+		printf("%s\n", current->data);
+		current = current->next;
+		if (current == env)
+			break ;
+	}
+}
+
 void	print_parsed_data(t_shell *shell)
 {
 	size_t	cmd_count;
@@ -57,6 +72,7 @@ void	print_parsed_data(t_shell *shell)
 	size_t	i;
 
 	printf("Printing shell data...\n");
+	print_env_data(shell->env);
 	printf("Status: %d\n", shell->status);
 	printf("Prompt: %s\n", shell->prompt);
 	printf("Cmd_input: %s\n", shell->cmd_input);
@@ -133,7 +149,6 @@ static void	minishell(t_shell *shell)
 int	main(int ac, char **av, char **env)
 {
 	t_shell	shell;
-
 	(void)av;
 	if (ac > 1)
 		return (error(INV_ARGS, 1));

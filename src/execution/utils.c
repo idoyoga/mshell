@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 17:02:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/25 23:01:37 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/26 11:50:29 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ char	**get_env_array(t_shell *shell)
 		envp[i] = safe_strdup(shell, current_env->data);
 		if (!envp[i])
 			return (NULL);
+		current_env = current_env->next;
 		i++;
 	}
 	envp[i] = NULL;
