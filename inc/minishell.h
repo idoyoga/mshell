@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 20:25:56 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/26 20:30:48 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ typedef enum e_error
 	NO_FORK,
 	EXIT_INVALID_ARGUMENT,
 	EXIT_TOO_MANY_ARGUMENTS,
+	PWD_NO_CWD,
 	TOTAL
 }								t_error;
 
