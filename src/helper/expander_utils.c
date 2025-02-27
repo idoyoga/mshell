@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:39:27 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/19 18:00:19 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/27 15:28:56 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	match_env_variable(char *var_name, char *env_entry)
 		if (var_name[i] != env_entry[i])
 			return (0);
 	}
-	if (env_entry[i] == '=')
+	if (env_entry[i] == '=' || env_entry[i] == '\0')
 		return (i);
 	return (0);
 }

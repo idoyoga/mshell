@@ -5,40 +5,21 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/19 17:02:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 15:09:10 by xgossing         ###   ########.fr       */
+/*   Created: 2025/02/27 14:14:50 by xgossing          #+#    #+#             */
+/*   Updated: 2025/02/27 14:14:51 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	**get_env_array(t_shell *shell)
+size_t	count_cmd_args(t_cmd *cmd)
 {
-	char	**envp;
-	t_env	*current_env;
-	int		i;
+	size_t	count;
 
-	envp = safe_calloc(shell, shell->env_count + 1, sizeof(char *));
-	i = 0;
-	current_env = shell->env;
-	while (i < shell->env_count)
+	count = 0;
+	while (cmd->args[count] != NULL)
 	{
-		envp[i] = safe_strdup(shell, current_env->data);
-		if (!envp[i])
-			return (NULL);
-		current_env = current_env->next;
-		i++;
+		count++;
 	}
-	envp[i] = NULL;
-	return (envp);
-}
-
-inline bool	is_path(char *str)
-{
-	if (!str)
-		return (false);
-	if (str[0] == '/' || ft_strncmp("./", str, 2) == 0 || ft_strncmp("../", str,
-			3) == 0)
-		return (true);
-	return (false);
+	return (count);
 }

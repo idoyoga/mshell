@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 22:49:55 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 14:18:57 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,11 @@ typedef enum e_error
 	BAD_EXEC,
 	BAD_WAIT,
 	NO_FORK,
+	EXIT_INVALID_ARGUMENT,
+	EXIT_TOO_MANY_ARGUMENTS,
+	PWD_NO_CWD,
+	CD_TOO_MANY_ARGUMENTS,
+	CD_NO_HOME,
 	TOTAL
 }								t_error;
 
@@ -139,8 +144,7 @@ typedef struct s_alloc_tracker
 
 typedef struct s_shell
 {
-	t_cmd						*cmd;
-	// Command list
+	t_cmd *cmd;            // Command list
 	t_env *env;            // Environment variables
 	t_tok *tokens;         // Token list
 	t_alloc alloc_tracker; // Memory tracker
@@ -154,6 +158,7 @@ typedef struct s_shell
 	char *user;            // User name
 	char **path_segments;  // PATH split at ':'
 	char **env_as_array;   // PATH split at ':'
+	int fd_copies[2];      // copies of STDOUT and STDIN for single builtins
 }								t_shell;
 
 typedef struct s_builtin
@@ -266,17 +271,22 @@ void							dispatch(t_shell *shell, size_t cmd_count);
 void							execute_single_builtin(t_shell *shell,
 									t_b_typ type);
 void							execute_with_pipeline(t_shell *shell,
-									t_cmd *command, size_t cmd_count);
-void							execute_builtin(t_shell *shell, t_b_typ type);
+									t_cmd *command, size_t cmd_count,
+									int *pipe_fd);
+void							execute_builtin(t_shell *shell, t_cmd *cmd,
+									t_b_typ type);
 void							execute_command(t_shell *shell, t_cmd *command);
 int								wait_for_children(t_shell *shell,
-									size_t cmd_count);
+									t_cmd *command, size_t cmd_count);
 
 void							prepare_execution(t_shell *shell,
 									size_t cmd_count);
 void							postpare_execution(t_shell *shell,
 									size_t cmd_count);
 char							**get_env_array(t_shell *shell);
+
+bool							is_path(char *str);
+size_t							count_cmd_args(t_cmd *cmd);
 
 // --------------  builtins  ---------------------------------------------- //
 t_b_typ							identify_builtin(char *str);
