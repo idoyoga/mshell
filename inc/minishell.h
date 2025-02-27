@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 14:18:57 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 19:02:56 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,6 +122,7 @@ typedef struct s_tok
 	char						*content;
 	char						*file;
 	t_t_typ						type;
+	bool						is_quoted;
 	struct s_tok				*next;
 	struct s_tok				*prev;
 }								t_tok;
@@ -262,7 +263,7 @@ bool							tokenize_input(t_shell *shell, char *input);
 // --------------  token_utils  ------------------------------------------- //
 t_t_typ							identify_special_token(char *str);
 int								get_special_length(char *str);
-int								get_token_length(char *input, int *quote);
+int								get_token_length(char *input);
 t_tok							*add_token(t_shell *shell, t_tok **lst,
 									char *content, t_t_typ type);
 

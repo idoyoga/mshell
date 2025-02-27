@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:42:12 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/27 19:13:23 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ static bool	handle_expansion(t_shell *shell, char **output, char *input,
 **	Helper to check if the dollar sign should trigger variable expansion:
 **	- Skip expansion inside single quotes.
 **	- Skip expansion if the character before '$' is alphanumeric.
+**	- Skip expansion after '<<' (heredoc).
 **	- Expand $? as a special variable for exit status.
 **	- Check if the next character is a valid start for an environment variable.
 **	- Use find_or_check_env to verify if the environment variable exists.
@@ -97,9 +98,16 @@ static bool	handle_expansion(t_shell *shell, char **output, char *input,
 static bool	should_expand_dollar(t_shell *shell, char *input, int i,
 									bool s_quote)
 {
+	int	j;
+
 	if (!input[i] || input[i] != '$' || s_quote)
 		return (false);
 	if (i > 0 && ft_isalnum(input[i - 1]))
+		return (false);
+	j = i - 1;
+	while (j > 0 && ft_isblank(input[j]))
+		j--;
+	if (j > 0 && input[j - 1] == '<' && input[j] == '<')
 		return (false);
 	if (input[i + 1] == '?')
 		return (true);

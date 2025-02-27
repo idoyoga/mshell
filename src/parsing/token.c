@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 10:39:57 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/27 19:10:38 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,26 @@ static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input)
 {
 	t_t_typ	token_type;
 	char	*content;
-	int		quote_count;
+	bool	is_quoted;
 	int		len;
+	int		i;
 
-	len = get_token_length(*input, &quote_count);
-	if ((len - (2 * quote_count)) < 0)
+	len = get_token_length(*input);
+	if (len == 0)
 		return (true);
+	is_quoted = false;
+	i = -1;
+	while (++i < len)
+	{
+		if ((*input)[i] == '\'' || (*input)[i] == '"')
+			is_quoted = true;
+	}
 	content = trim_quotes(shell, *input, len);
 	token_type = determine_token_type(lst);
 	if (!add_token(shell, lst, content, token_type))
 		return (false);
+	if (token_type == ARG)
+		(*lst)->is_quoted = is_quoted;
 	*input += len;
 	return (true);
 }
