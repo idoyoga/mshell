@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 20:30:48 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:24:01 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,8 +142,7 @@ typedef struct s_alloc_tracker
 
 typedef struct s_shell
 {
-	t_cmd						*cmd;
-	// Command list
+	t_cmd *cmd;            // Command list
 	t_env *env;            // Environment variables
 	t_tok *tokens;         // Token list
 	t_alloc alloc_tracker; // Memory tracker
@@ -270,18 +269,21 @@ void							dispatch(t_shell *shell, size_t cmd_count);
 void							execute_single_builtin(t_shell *shell,
 									t_b_typ type);
 void							execute_with_pipeline(t_shell *shell,
-									t_cmd *command, size_t cmd_count);
+									t_cmd *command, size_t cmd_count,
+									int *pipe_fd);
 void							execute_builtin(t_shell *shell, t_cmd *cmd,
 									t_b_typ type);
 void							execute_command(t_shell *shell, t_cmd *command);
 int								wait_for_children(t_shell *shell,
-									size_t cmd_count);
+									t_cmd *command, size_t cmd_count);
 
 void							prepare_execution(t_shell *shell,
 									size_t cmd_count);
 void							postpare_execution(t_shell *shell,
 									size_t cmd_count);
 char							**get_env_array(t_shell *shell);
+
+bool							is_path(char *str);
 
 // --------------  builtins  ---------------------------------------------- //
 t_b_typ							identify_builtin(char *str);

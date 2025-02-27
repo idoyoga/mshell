@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 11:52:54 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:14:30 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,7 @@ static void	minishell(t_shell *shell)
 int	main(int ac, char **av, char **env)
 {
 	t_shell	shell;
+
 	(void)av;
 	if (ac > 1)
 		return (error(INV_ARGS, 1));

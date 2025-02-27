@@ -6,21 +6,11 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/26 02:50:26 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:23:09 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-static inline bool	is_path(char *str)
-{
-	if (!str)
-		return (false);
-	if (str[0] == '/' || ft_strncmp("./", str, 2) == 0 || ft_strncmp("../", str,
-			3) == 0)
-		return (true);
-	return (false);
-}
 
 // get_env_value doesn't allocate, it only returns a pointer
 // to the string inside of the matching env variable
@@ -28,13 +18,10 @@ static void	find_absolute_path(t_shell *shell, t_cmd *cmd)
 {
 	size_t	i;
 
-	if (shell->path_segments == NULL || (cmd->args != NULL && (cmd->args[0] && (cmd->args[0][0] == '\0' || is_path(cmd->args[0])))))
+	if (shell->path_segments == NULL || (cmd->args != NULL && (cmd->args[0]
+				&& (cmd->args[0][0] == '\0' || is_path(cmd->args[0])))))
 	{
-		// look in local directory
-		// just add './', or can I just leave it as is? try this out later
-		// or do I need to add CWD before the binary name?
 		cmd->cmd = safe_strdup(shell, cmd->args[0]);
-		// will exit if malloc fails, is this okay here?
 		return ;
 	}
 	i = 0;
