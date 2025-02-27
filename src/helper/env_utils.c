@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 15:17:13 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 16:04:25 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,8 +137,6 @@ bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name)
 				len) == 0 && (node->data[len] == '=' || !node->data[len]))
 		{
 			unlink_env_node(lst, node);
-			alloc_tracker_remove(&shell->alloc_tracker, node->data);
-			alloc_tracker_remove(&shell->alloc_tracker, node);
 			shell->env_count--;
 			return (true);
 		}
