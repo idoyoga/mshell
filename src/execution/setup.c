@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 13:23:09 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 20:55:00 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,14 +41,14 @@ static void	find_absolute_path(t_shell *shell, t_cmd *cmd)
 	cmd->cmd = safe_strdup(shell, "");
 }
 
-static void	get_absolute_paths(t_shell *shell, size_t cmd_count)
+static void	get_absolute_paths(t_shell *shell)
 {
 	size_t	i;
 	t_cmd	*current_command;
 
 	i = 0;
 	current_command = shell->cmd;
-	while (i < cmd_count)
+	while (i < shell->cmd_count)
 	{
 		find_absolute_path(shell, current_command);
 		current_command = current_command->next;
@@ -79,14 +79,32 @@ static void	set_env_as_array(t_shell *shell)
 		error_exit(shell, NO_ALLOC, "get_env_array", EXIT_FAILURE);
 }
 
+static void	set_cmd_count(t_shell *shell)
+{
+	t_cmd	*current_cmd;
+	size_t	count;
+
+	count = 0;
+	current_cmd = shell->cmd;
+	while (current_cmd)
+	{
+		count++;
+		current_cmd = current_cmd->next;
+		if (current_cmd == shell->cmd)
+			break ;
+	}
+	shell->cmd_count = count;
+}
+
 // minimize allocations in the execution flow for easier error handling
 // by front-loading anything we can before going too deep into exec
 // if no PATH set, return and use cwd instead
 // if anything goes wrong, most likely just a malloc fail,
 // error_exit() is called.
-void	prepare_execution(t_shell *shell, size_t cmd_count)
+void	prepare_execution(t_shell *shell)
 {
+	set_cmd_count(shell);
 	set_path_segments(shell);
-	get_absolute_paths(shell, cmd_count);
+	get_absolute_paths(shell);
 	set_env_as_array(shell);
 }
