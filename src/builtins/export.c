@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:56:12 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 15:08:52 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:32:41 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,11 @@ void	builtin_export(t_shell *shell, t_cmd *cmd)
 		}
 		else
 		{
-			tmp = safe_strdup(shell, cmd->args[i]);
-			add_env_variable(shell, &shell->env, tmp);
+			if (!find_or_check_env(shell, cmd->args[i], NULL, true))
+			{
+				tmp = safe_strdup(shell, cmd->args[i]);
+				add_env_variable(shell, &shell->env, tmp);
+			}
 		}
 		i++;
 	}

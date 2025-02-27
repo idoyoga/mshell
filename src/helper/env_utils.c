@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 22:03:51 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:17:13 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name)
 	len = ft_strlen(var_name);
 	while (node)
 	{
-		if (ft_strlen(node->data) > len && ft_strncmp(node->data, var_name,
+		if (ft_strlen(node->data) >= len && ft_strncmp(node->data, var_name,
 				len) == 0 && (node->data[len] == '=' || !node->data[len]))
 		{
 			unlink_env_node(lst, node);
