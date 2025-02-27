@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 15:46:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:29:35 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/27 19:02:56 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,18 +49,16 @@ int	get_special_length(char *str)
 **	Get length of a token while handling quotes
 */
 
-int	get_token_length(char *input, int *quote)
+int	get_token_length(char *input)
 {
 	int		len;
 
 	len = 0;
-	*quote = 0;
 	while (input[len] && !get_special_length(input + len)
 		&& !ft_isblank(input[len]))
 	{
 		if (input[len] == '\'' || input[len] == '"')
 		{
-			(*quote)++;
 			if (input[len++] == '"')
 				while (input[len] && input[len] != '"')
 					len++;
@@ -90,6 +88,7 @@ static	t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 	token->content = content;
 	token->file = NULL;
 	token->type = type;
+	token->is_quoted = false;
 	token->next = NULL;
 	token->prev = NULL;
 	return (token);
