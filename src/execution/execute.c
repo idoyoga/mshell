@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 13:15:28 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 20:56:24 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,21 +61,20 @@ static void	execute_without_pipeline(t_shell *shell)
 	{
 		execute_command(shell, shell->cmd);
 	}
-	shell->status = wait_for_children(shell, shell->cmd, 1);
+	shell->status = wait_for_children(shell, shell->cmd);
 }
 
 // entrypoint for any execution
-void	dispatch(t_shell *shell, size_t cmd_count)
+void	dispatch(t_shell *shell)
 {
 	int		pipe_fd[2];
 	t_b_typ	type;
 
-	print_parsed_data(shell);
-	if (cmd_count != 1)
+	if (shell->cmd_count != 1)
 	{
 		pipe_fd[0] = -2;
 		pipe_fd[1] = -2;
-		execute_with_pipeline(shell, shell->cmd, cmd_count, pipe_fd);
+		execute_with_pipeline(shell, shell->cmd, pipe_fd);
 		return ;
 	}
 	if (!shell->cmd->args)

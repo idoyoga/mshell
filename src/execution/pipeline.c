@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:54:23 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 13:21:06 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 20:49:49 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <signal.h>
 
-int	wait_for_children(t_shell *shell, t_cmd *cmd, size_t cmd_count)
+int	wait_for_children(t_shell *shell, t_cmd *cmd)
 {
 	int		status_code;
 	size_t	i;
@@ -23,7 +23,7 @@ int	wait_for_children(t_shell *shell, t_cmd *cmd, size_t cmd_count)
 	status_code = 0;
 	i = 0;
 	wait_result = -1;
-	while (i < cmd_count)
+	while (i < shell->cmd_count)
 	{
 		while (true)
 		{
@@ -67,24 +67,23 @@ static void	link_the_child(int *prev_fd, int *pipe_fds, bool is_not_last,
 		error_exit(shell, NO_DUP2, "(child) dup2", EXIT_FAILURE);
 }
 
-void	execute_with_pipeline(t_shell *shell, t_cmd *command, size_t cmd_count,
-		int *pipe_fd)
+void	execute_with_pipeline(t_shell *shell, t_cmd *command, int *pipe_fd)
 {
 	int		prev_fd;
 	size_t	i;
 
 	prev_fd = -2;
 	i = 0;
-	while (i < cmd_count)
+	while (i < shell->cmd_count)
 	{
-		if (i < cmd_count - 1 && pipe(pipe_fd) == -1)
+		if (i < shell->cmd_count - 1 && pipe(pipe_fd) == -1)
 			(reset_fd(&prev_fd), error_exit(shell, NO_PIPE, "pipeline", 1));
 		command->child_pid = fork();
 		if (command->child_pid == -1)
 			(reset_fd(&prev_fd), reset_fd(pipe_fd), reset_fd(pipe_fd + 1),
 				error_exit(shell, NO_FORK, "fork", EXIT_FAILURE));
 		if (command->child_pid == 0)
-			(link_the_child(&prev_fd, pipe_fd, i < cmd_count - 1, shell),
+			(link_the_child(&prev_fd, pipe_fd, i < shell->cmd_count - 1, shell),
 				execute_command(shell, command));
 		(reset_fd(&prev_fd), reset_fd(pipe_fd + 1));
 		prev_fd = pipe_fd[0];
@@ -92,5 +91,5 @@ void	execute_with_pipeline(t_shell *shell, t_cmd *command, size_t cmd_count,
 		command = command->next;
 		i++;
 	}
-	shell->status = wait_for_children(shell, shell->cmd, cmd_count);
+	shell->status = wait_for_children(shell, shell->cmd);
 }
