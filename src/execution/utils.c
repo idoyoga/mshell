@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 17:02:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 13:26:08 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:09:10 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,4 +42,3 @@ inline bool	is_path(char *str)
 		return (true);
 	return (false);
 }
-
