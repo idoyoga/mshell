@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 13:24:01 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 14:18:57 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,8 @@ typedef enum e_error
 	EXIT_INVALID_ARGUMENT,
 	EXIT_TOO_MANY_ARGUMENTS,
 	PWD_NO_CWD,
+	CD_TOO_MANY_ARGUMENTS,
+	CD_NO_HOME,
 	TOTAL
 }								t_error;
 
@@ -284,6 +286,7 @@ void							postpare_execution(t_shell *shell,
 char							**get_env_array(t_shell *shell);
 
 bool							is_path(char *str);
+size_t							count_cmd_args(t_cmd *cmd);
 
 // --------------  builtins  ---------------------------------------------- //
 t_b_typ							identify_builtin(char *str);

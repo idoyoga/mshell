@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:54:56 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/26 20:26:59 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 14:14:34 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,18 +28,6 @@ static bool	is_valid_exit_arg(char *arg)
 		i++;
 	}
 	return (true);
-}
-
-static size_t	count_cmd_args(t_cmd *cmd)
-{
-	size_t	count;
-
-	count = 0;
-	while (cmd->args[count] != NULL)
-	{
-		count++;
-	}
-	return (count);
 }
 
 void	builtin_exit(t_shell *shell, t_cmd *cmd)

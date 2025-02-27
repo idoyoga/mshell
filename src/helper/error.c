@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 20:35:03 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 14:18:48 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,5 +128,7 @@ static const char	*g_error_msgs[TOTAL] = {
 	"Fork unsuccessful",
 	"Numeric argument required",
 	"Too many arguments",
+	"Too many arguments",
+	"HOME not set",
 	"Failed to run getcwd"
 };
