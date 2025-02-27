@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:34 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/25 22:11:02 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 20:48:36 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,14 +47,14 @@ static void	clean_env_array(t_shell *shell)
 	}
 }
 
-static void	clean_absolute_paths(t_shell *shell, size_t cmd_count)
+static void	clean_absolute_paths(t_shell *shell)
 {
 	size_t	i;
 	t_cmd	*current_command;
 
 	i = 0;
 	current_command = shell->cmd;
-	while (i < cmd_count)
+	while (i < shell->cmd_count)
 	{
 		alloc_tracker_remove(&shell->alloc_tracker, current_command->cmd);
 		free(current_command->cmd);
@@ -64,10 +64,10 @@ static void	clean_absolute_paths(t_shell *shell, size_t cmd_count)
 	}
 }
 
-void	postpare_execution(t_shell *shell, size_t cmd_count)
+void	postpare_execution(t_shell *shell)
 {
 	clean_path_segments(shell);
 	clean_env_array(shell);
-	clean_absolute_paths(shell, cmd_count);
+	clean_absolute_paths(shell);
 	cleanup_fds(shell->cmd);
 }

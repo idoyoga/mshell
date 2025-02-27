@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 14:18:57 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 20:55:43 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,7 @@ typedef struct s_shell
 	t_env *env;            // Environment variables
 	t_tok *tokens;         // Token list
 	t_alloc alloc_tracker; // Memory tracker
+	size_t cmd_count;      // Number of distinct commands (subshells)
 	int env_count;         // Environment variable count
 	int status;            // Exit status
 	char *prompt;          // Prompt string
@@ -267,22 +268,19 @@ t_tok							*add_token(t_shell *shell, t_tok **lst,
 									char *content, t_t_typ type);
 
 // --------------  command runner  ---------------------------------------- //
-void							dispatch(t_shell *shell, size_t cmd_count);
+void							dispatch(t_shell *shell);
 void							execute_single_builtin(t_shell *shell,
 									t_b_typ type);
 void							execute_with_pipeline(t_shell *shell,
-									t_cmd *command, size_t cmd_count,
-									int *pipe_fd);
+									t_cmd *command, int *pipe_fd);
 void							execute_builtin(t_shell *shell, t_cmd *cmd,
 									t_b_typ type);
 void							execute_command(t_shell *shell, t_cmd *command);
 int								wait_for_children(t_shell *shell,
-									t_cmd *command, size_t cmd_count);
+									t_cmd *command);
 
-void							prepare_execution(t_shell *shell,
-									size_t cmd_count);
-void							postpare_execution(t_shell *shell,
-									size_t cmd_count);
+void							prepare_execution(t_shell *shell);
+void							postpare_execution(t_shell *shell);
 char							**get_env_array(t_shell *shell);
 
 bool							is_path(char *str);
