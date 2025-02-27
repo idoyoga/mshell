@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 19:10:38 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/27 19:57:17 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 **	5. Advances the 'input' pointer to the next token.
 */
 
-static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input)
+static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input, bool first_cmd_found)
 {
 	t_t_typ	token_type;
 	char	*content;
@@ -41,7 +41,7 @@ static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input)
 			is_quoted = true;
 	}
 	content = trim_quotes(shell, *input, len);
-	token_type = determine_token_type(lst);
+	token_type = determine_token_type(lst, first_cmd_found);
 	if (!add_token(shell, lst, content, token_type))
 		return (false);
 	if (token_type == ARG)
@@ -91,13 +91,13 @@ static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input)
 **	- Otherwise, 'parse_word_token()' is called.
 */
 
-static bool	extract_token_content(t_shell *shell, t_tok **lst, char **input)
+static bool	extract_token_content(t_shell *shell, t_tok **lst, char **input, bool first_cmd_found)
 {
 	if (!input || !*input)
 		return (false);
 	if (get_special_length(*input))
 		return (parse_operator_token(shell, lst, input));
-	if (!parse_word_token(shell, lst, input))
+	if (!parse_word_token(shell, lst, input, first_cmd_found))
 		return (false);
 	return (true);
 }
@@ -129,6 +129,7 @@ static bool	validate_pipe_syntax(t_tok *prev_token, t_tok **lst)
 bool	tokenize(t_shell *shell, t_tok **lst, char *input)
 {
 	t_tok	*prev_token;
+	bool first_cmd_found;
 
 	if (!lst || !input)
 		return (false);
@@ -142,12 +143,16 @@ bool	tokenize(t_shell *shell, t_tok **lst, char *input)
 			input++;
 		if (!*input)
 			break ;
-		if (!extract_token_content(shell, lst, &input))
+		if (!extract_token_content(shell, lst, &input, first_cmd_found))
 			return (false);
 		if (!validate_pipe_syntax(prev_token, lst))
 			return (false);
 		if (*lst)
 			prev_token = (*lst)->prev;
+		if ((*lst)->type == CMD)
+			first_cmd_found = true;
+		if ((*lst)->type == PIPE)
+			first_cmd_found = false;
 	}
 	if (prev_token && prev_token->type == PIPE)
 		return (error(END_PIPE, false));

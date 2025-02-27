@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 13:14:30 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 19:42:54 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,24 @@ static void	print_env_data(t_env *env)
 	}
 }
 
+static void	print_tokens(t_tok *tokens)
+{
+	t_tok	*current_token;
+	int		i;
+
+	i = 0;
+	current_token = tokens;
+	while (current_token)
+	{
+		printf("Token %d (%d): %s\n", i, current_token->type,
+			current_token->content);
+		current_token = current_token->next;
+		if (current_token == tokens)
+			break ;
+		i++;
+	}
+}
+
 void	print_parsed_data(t_shell *shell)
 {
 	size_t	cmd_count;
@@ -73,6 +91,7 @@ void	print_parsed_data(t_shell *shell)
 
 	printf("Printing shell data...\n");
 	print_env_data(shell->env);
+	print_tokens(shell->tokens);
 	printf("Status: %d\n", shell->status);
 	printf("Prompt: %s\n", shell->prompt);
 	printf("Cmd_input: %s\n", shell->cmd_input);

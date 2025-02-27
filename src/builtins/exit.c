@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:54:56 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 14:14:34 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 19:30:55 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void	builtin_exit(t_shell *shell, t_cmd *cmd)
 		error_exit(shell, EXIT_INVALID_ARGUMENT, "exit", 2);
 	}
 	if (count > 1)
-		shell->status = ft_atoi(cmd->args[1]); // TODO: protect
+		shell->status = ft_atoi(cmd->args[1]);
 	if (count > 2)
 	{
 		shell->status = 1;

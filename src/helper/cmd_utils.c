@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 01:46:46 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/27 19:59:56by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ t_cmd	*add_cmd(t_shell *shell, t_cmd **lst)
 /*
 **	Skip an invalid command after redirection failure
 **	- If a command has a redirection failure, this function moves 'current'
-**	  forward until it reaches a pipe or the end.
+**		forward until it reaches a pipe or the end.
 **	- If we reach a  pipe, it ensures the next command is processed.
 */
 
@@ -86,7 +86,7 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 **	Check if the current token is the start of a new command
 **	- A command starts if the token is of type CMD.
 **	- An ARG token may also be the start of a command if:
-**		- It follows a PIPE, or 
+**		- It follows a PIPE, or
 **		- It follows a redirection which is preceded by a PIPE.
 */
 
@@ -115,7 +115,7 @@ bool	is_command_start(t_tok *current)
 **	- If it follows an 'ARG' that itself follows a redirection, it is a 'CMD'.
 */
 
-t_t_typ	determine_token_type(t_tok **lst)
+t_t_typ	determine_token_type(t_tok **lst, bool first_cmd_found)
 {
 	t_tok	*prev_token;
 
@@ -127,7 +127,7 @@ t_t_typ	determine_token_type(t_tok **lst)
 	else if (prev_token->type == REDIR_IN || prev_token->type == REDIR_OUT
 		|| prev_token->type == HEREDOC || prev_token->type == REDIR_APPEND)
 		return (ARG);
-	else if (prev_token->type == ARG && prev_token->prev
+	else if (!first_cmd_found&& prev_token->type == ARG && prev_token->prev
 		&& (prev_token->prev->type == REDIR_IN
 			|| prev_token->prev->type == REDIR_OUT
 			|| prev_token->prev->type == HEREDOC
