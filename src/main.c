@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 13:14:30 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 20:56:10 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ static void	print_env_data(t_env *env)
 
 void	print_parsed_data(t_shell *shell)
 {
-	size_t	cmd_count;
 	t_cmd	*current_command;
 	size_t	i;
 
@@ -81,17 +80,9 @@ void	print_parsed_data(t_shell *shell)
 	printf("Old_work_dir: %s\n", shell->old_work_dir);
 	printf("User: %s\n", shell->user);
 	current_command = shell->cmd;
-	cmd_count = 0;
-	while (current_command)
-	{
-		cmd_count++;
-		current_command = current_command->next;
-		if (current_command == shell->cmd)
-			break ;
-	}
-	printf("Commands (%lu):\n\n", cmd_count);
+	printf("Commands (%lu):\n\n", shell->cmd_count);
 	i = 0;
-	while (i < cmd_count)
+	while (i < shell->cmd_count)
 	{
 		print_command(current_command, i);
 		current_command = current_command->next;
@@ -99,22 +90,6 @@ void	print_parsed_data(t_shell *shell)
 	}
 }
 
-static size_t	cmd_lstlen(t_cmd *cmd)
-{
-	size_t	i;
-	t_cmd	*current;
-
-	if (cmd == NULL)
-		return (0);
-	i = 1;
-	current = cmd->next;
-	while (current != cmd)
-	{
-		i++;
-		current = current->next;
-	}
-	return (i);
-}
 
 /*
 **	Start minishell, provide the prompt, read input and execute commands
@@ -138,9 +113,9 @@ static void	minishell(t_shell *shell)
 			continue ;
 		if (shell->cmd != NULL)
 		{
-			prepare_execution(shell, cmd_lstlen(shell->cmd));
-			dispatch(shell, cmd_lstlen(shell->cmd));
-			postpare_execution(shell, cmd_lstlen(shell->cmd));
+			prepare_execution(shell);
+			dispatch(shell);
+			postpare_execution(shell);
 		}
 	}
 	rl_clear_history();

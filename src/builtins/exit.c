@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:54:56 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 14:14:34 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/27 20:38:54 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ void	builtin_exit(t_shell *shell, t_cmd *cmd)
 {
 	size_t	count;
 
-	printf("exit\n");
+	if (shell->cmd_count == 1)
+		printf("exit\n");
 	count = count_cmd_args(cmd);
 	if (count == 1)
 	{
