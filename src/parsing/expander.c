@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 23:49:09 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/28 00:56:05 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,13 +110,14 @@ static bool	should_expand_dollar(t_shell *shell, char *input, int i, bool s_quot
 	j = i - 1;
 	while (j > 0 && (ft_isblank(input[j]) || input[j] == '"' || input[j] == '\''))
 		j--;
-	if (j > 1 && input[j] == '<' && input[j - 1] == '<')
+	if ((j == 1 && input[j] == '<' && input[j - 1] == '<')
+			|| (j > 1 && input[j] == '<' && input[j - 1] == '<'))
 	{
 		k = j + 2;
 		while (input[k] && ft_isblank(input[k]))
 			k++;
-		if (input[k] == '"' || input[k] == '\'' || input[k] == '$')
-				return (false);
+		if (input[k] != '\0')
+			return (false);
 	}
 	if (input[i + 1] == '?')
 		return (true);

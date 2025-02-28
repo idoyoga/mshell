@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 14:18:48 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/02/28 01:06:46 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void	error_exit(t_shell *shell, t_error err, char *context, int status)
 		ft_putstr_fd(context, 2);
 		ft_putstr_fd(": ", 2);
 	}
-	ft_putendl_fd((char *)g_error_msgs[err], 2);
+	ft_putstr_fd((char *)g_error_msgs[err], 2);
 	ft_putstr_fd(": ", 2);
 	ft_putendl_fd(strerror(errno), 2);
 	if (shell)
