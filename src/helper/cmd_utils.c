@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 01:46:46 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/01 15:46:01 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ static t_cmd	*init_cmd(t_shell *shell)
 	cmd->args = NULL;
 	cmd->fd_in = -2;
 	cmd->fd_out = -2;
+	cmd->skip = false;
 	cmd->next = NULL;
 	cmd->prev = NULL;
 	return (cmd);
@@ -72,11 +73,12 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 {
 	if (!shell || !current || !*current)
 		return ;
+	shell->cmd->skip = true;
 	while (*current && (*current)->type != PIPE)
 	{
 		*current = (*current)->next;
 		if (*current == shell->tokens)
-			break ;
+			return ;
 	}
 	if (*current && (*current)->type == PIPE)
 		*current = (*current)->next;
@@ -92,8 +94,16 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 
 bool	is_command_start(t_tok *current)
 {
+	if (!current)
+		return (false);
+	if (current->first_cmd && current->content && current->content[0] == '$')
+		return (false);
 	if (current->type == CMD)
+	{
+		if (current->content == NULL || current->content[0] == '\0')
+			return (false);
 		return (true);
+	}
 	if (current->type == ARG && current->prev)
 	{
 		if (current->prev->type == REDIR_IN
@@ -127,7 +137,7 @@ t_t_typ	determine_token_type(t_tok **lst)
 	else if (prev_token->type == REDIR_IN || prev_token->type == REDIR_OUT
 		|| prev_token->type == HEREDOC || prev_token->type == REDIR_APPEND)
 		return (ARG);
-	else if (prev_token->type == ARG && prev_token->prev
+	else if (!(*lst)->first_cmd && prev_token->type == ARG && prev_token->prev
 		&& (prev_token->prev->type == REDIR_IN
 			|| prev_token->prev->type == REDIR_OUT
 			|| prev_token->prev->type == HEREDOC

@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 01:44:57 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/01 15:50:12 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,20 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 	int	*fd;
 	int	new_fd;
 
+	if (cmd == NULL)
+	{
+		if (token->type == HEREDOC)
+			new_fd = handle_heredoc(shell, token->next->content);
+		else
+			new_fd = open_redirection_file(token->next->content, token->type);
+		if (new_fd == -1)
+		{
+			return (error_cmd(shell, token->next->content), false);
+			return (false);
+		}
+		close(new_fd);
+		return (true);
+	}
 	if (token->type == REDIR_IN || token->type == HEREDOC)
 		fd = &cmd->fd_in;
 	else if (token->type == REDIR_OUT || token->type == REDIR_APPEND)
@@ -108,6 +122,7 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		new_fd = open_redirection_file(token->next->content, token->type);
 	if (new_fd == -1)
 	{
+		cmd->skip = true;
 		error_cmd(shell, token->next->content);
 		return (false);
 	}

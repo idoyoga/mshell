@@ -6,7 +6,7 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/02/27 14:15:05 by xgossing         ###   ########.fr        #
+#    Updated: 2025/03/01 15:11:23 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,6 +30,7 @@ SRC		=	helper/alloc.c \
 			helper/error.c \
 			helper/expander_utils.c \
 			helper/init.c \
+			helper/parser_utils.c \
 			helper/signal.c \
 			helper/token_utils.c \
 			parsing/cmd_parser.c \

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 20:56:10 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/01 15:42:58 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ static void	print_command(t_cmd *command, size_t num)
 			i++;
 		}
 	}
+	printf("Skip: %d\n", command->skip);
 	printf("FD_in: %d\n", command->fd_in);
 	printf("FD_out: %d\n", command->fd_out);
 	printf("(end of command %lu)\n\n", num + 1);
@@ -90,6 +91,50 @@ void	print_parsed_data(t_shell *shell)
 	}
 }
 
+static void	print_tab(char **tab)
+{
+	int	i;
+
+	if (!(tab))
+	{
+		printf("NULL");
+		return ;
+	}
+	i = 0;
+	printf("[");
+	while (tab[i])
+	{
+		printf("%s", tab[i]);
+		if (tab[i + 1])
+			printf(", ");
+		i++;
+	}
+	printf("]");
+}
+
+void	print_cmd(t_cmd *cmd)
+{
+	t_cmd	*tmp;
+
+	tmp = cmd;
+	if (!cmd)
+	{
+		printf("No command\n");
+		return ;
+	}
+	while (tmp->next != cmd)
+	{
+		printf("Skip -> %d, fd_in -> %d, fd_out -> %d, cmd : ",
+		tmp->skip, tmp->fd_in, tmp->fd_out);
+		print_tab(tmp->args);
+		printf("\n");
+		tmp = tmp->next;
+	}
+	printf("Skip -> %d, fd_in -> %d, fd_out -> %d, cmd : ",
+		 tmp->skip, tmp->fd_in, tmp->fd_out);
+	print_tab(tmp->args);
+	printf("\n");
+}
 
 /*
 **	Start minishell, provide the prompt, read input and execute commands
@@ -111,6 +156,7 @@ static void	minishell(t_shell *shell)
 		add_history(shell->cmd_input);
 		if (!tokenize_input(shell, shell->cmd_input))
 			continue ;
+		print_cmd(shell->cmd);
 		if (shell->cmd != NULL)
 		{
 			prepare_execution(shell);

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 20:55:43 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/01 15:10:05 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ typedef struct s_cmd
 	int							fd_in;
 	int							fd_out;
 	pid_t						child_pid;
+	bool						skip;
 	struct s_cmd				*next;
 	struct s_cmd				*prev;
 }								t_cmd;
@@ -123,6 +124,7 @@ typedef struct s_tok
 	char						*file;
 	t_t_typ						type;
 	bool						is_quoted;
+	bool						first_cmd;
 	struct s_tok				*next;
 	struct s_tok				*prev;
 }								t_tok;
@@ -242,6 +244,9 @@ int								handle_heredoc(t_shell *shell,
 
 // --------------  init  -------------------------------------------------- //
 bool							init_shell(t_shell *shell, char **env);
+
+// --------------  parser_utils  ------------------------------------------ //
+int								validate_tokens(t_tok *tokens);
 
 // --------------  signal  ------------------------------------------------ //
 void							handle_sigint(int sig);

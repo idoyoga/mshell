@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 20:56:24 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/01 15:14:00 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ void	execute_command(t_shell *shell, t_cmd *command)
 // TODO: unify into one function
 static void	execute_without_pipeline(t_shell *shell)
 {
+	if (shell->cmd->skip)
+		return ;
 	shell->cmd->child_pid = fork();
 	if (shell->cmd->child_pid == -1)
 		error_exit(shell, NO_FORK, "execute_without_pipeline", EXIT_FAILURE);

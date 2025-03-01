@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 02:26:45 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/01 15:44:35 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,14 +108,19 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd,
 		bool *redir)
 {
-	if (!*cmd)
-		*cmd = add_cmd(shell, &shell->cmd);
+	if (is_command_start(*current))
+	{
+		if (!*cmd)
+			*cmd = add_cmd(shell, &shell->cmd);
+		(*cmd)->args = extract_args(shell, *current);
+	}
 	if (!*redir && ((*current)->type == REDIR_IN || (*current)->type == HEREDOC
 			|| (*current)->type == REDIR_OUT
 			|| (*current)->type == REDIR_APPEND))
 	{
 		if (!handle_redirection(shell, *current, *cmd))
 		{
+			(*cmd)->skip = true;
 			skip_invalid_command(shell, current);
 			return (false);
 		}
@@ -126,11 +131,13 @@ static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd,
 	}
 	if ((*current)->type == PIPE)
 	{
-		(*cmd)->next = add_cmd(shell, &shell->cmd);
+		if ((*current)->next && is_command_start((*current)->next))
+		{
+			*cmd = add_cmd(shell, &shell->cmd);
+			(*cmd)->args = extract_args(shell, (*current)->next);
+		}
 		*redir = false;
 	}
-	else if (is_command_start((*current)))
-		(*cmd)->args = extract_args(shell, (*current));
 	*current = (*current)->next;
 	return (true);
 }
@@ -140,10 +147,6 @@ static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd,
 **	- First iteration: '!shell->cmd' keeps loop running
 **	- Subsequent iterations: loop continues as long as 'current != shell->tokens'
 **	- Iterate through tokens, processing each using process_token().
-**	- If a pipe is encountered:
-**		- Add a new command node for the next piped command.
-**		- Reset the redirection flag.
-**		- Move to the next token.
 */
 
 bool	parse_commands(t_shell *shell)
@@ -160,12 +163,8 @@ bool	parse_commands(t_shell *shell)
 	{
 		if (!process_token(shell, &current, &cmd, &redirected))
 			continue ;
-		if (current && current->type == PIPE)
-		{
-			cmd = add_cmd(shell, &shell->cmd);
-			redirected = false;
-			current = current->next;
-		}
+		if (current == shell->tokens)
+			break ;
 	}
 	return (true);
 }
