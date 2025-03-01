@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 18:19:47 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/27 18:55:52 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd)
 		}
 		if (ft_strcmp(line, delimiter) == 0)
 			break ;
-		if (!expand_dollar_variables(shell, &line))
+		if (!shell->tokens->is_quoted && !expand_dollar_variables(shell, &line))
 			error_exit(shell, NO_EXPAND, "heredoc_read_input", EXIT_FAILURE);
 		ft_putendl_fd(line, fd);
 	}

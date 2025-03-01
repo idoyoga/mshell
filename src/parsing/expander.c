@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:42:12 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/02/28 00:56:05 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,20 +87,38 @@ static bool	handle_expansion(t_shell *shell, char **output, char *input,
 
 /*
 **	Helper to check if the dollar sign should trigger variable expansion:
-**	- Skip expansion inside single quotes.
-**	- Skip expansion if the character before '$' is alphanumeric.
-**	- Expand $? as a special variable for exit status.
-**	- Check if the next character is a valid start for an environment variable.
-**	- Use find_or_check_env to verify if the environment variable exists.
+**	The function performs the following checks:
+** 	- Returns false if '$' is preceded by an alphanumeric character (e.g., 'VAR$USER').
+** 	- Returns false if '$' appears inside single quotes ('''), as they prevent expansion.
+** 	- Detects if '$' is used within a heredoc ('<<') and determines if expansion should occur:
+** 	  - If the heredoc delimiter is quoted ('<< "$VAR"'), expansion is prevented.
+** 	  - If the heredoc delimiter is unquoted ('<< VAR'), expansion is allowed.
+** 	- Returns true for '$?', as it should always be expanded.
+** 	- Ensures only valid variable names are expanded ('$VAR' but not '$1VAR').
+** 	- Returns false if the environment variable does not exist.
 */
 
-static bool	should_expand_dollar(t_shell *shell, char *input, int i,
-									bool s_quote)
+static bool	should_expand_dollar(t_shell *shell, char *input, int i, bool s_quote)
 {
+	int	j;
+	int	k;
+
 	if (!input[i] || input[i] != '$' || s_quote)
 		return (false);
 	if (i > 0 && ft_isalnum(input[i - 1]))
 		return (false);
+	j = i - 1;
+	while (j > 0 && (ft_isblank(input[j]) || input[j] == '"' || input[j] == '\''))
+		j--;
+	if ((j == 1 && input[j] == '<' && input[j - 1] == '<')
+			|| (j > 1 && input[j] == '<' && input[j - 1] == '<'))
+	{
+		k = j + 2;
+		while (input[k] && ft_isblank(input[k]))
+			k++;
+		if (input[k] != '\0')
+			return (false);
+	}
 	if (input[i + 1] == '?')
 		return (true);
 	if (!input[i + 1] || (!ft_isalpha(input[i + 1]) && input[i + 1] != '_'))
