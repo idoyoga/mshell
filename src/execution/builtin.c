@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:51:59 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/26 19:46:03 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/01 15:16:11 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ void	execute_single_builtin(t_shell *shell, t_b_typ type)
 {
 	void	(*builtin)(t_shell *, t_cmd *);
 
+	if (shell->cmd->skip)
+		return ;
 	shell->fd_copies[STDIN_FILENO] = dup(STDIN_FILENO);
 	if (shell->fd_copies[STDIN_FILENO] == -1)
 	{

@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 15:46:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 19:02:56 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/01 15:31:53 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,9 +86,9 @@ static	t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 	if (!token)
 		error_exit(shell, NO_MEM, "init_token", EXIT_FAILURE);
 	token->content = content;
-	token->file = NULL;
 	token->type = type;
 	token->is_quoted = false;
+	token->first_cmd = false;
 	token->next = NULL;
 	token->prev = NULL;
 	return (token);

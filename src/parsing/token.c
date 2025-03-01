@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 19:10:38 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/01 14:47:55 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,20 +103,6 @@ static bool	extract_token_content(t_shell *shell, t_tok **lst, char **input)
 }
 
 /*
-**	Handle consecutive pipes
-*/
-
-static bool	validate_pipe_syntax(t_tok *prev_token, t_tok **lst)
-{
-	if (*lst && prev_token && prev_token->type == PIPE
-		&& (*lst)->prev->type == PIPE)
-	{
-		return (error(CONSEC_PIPES, false));
-	}
-	return (true);
-}
-
-/*
 **	Core function to tokenize user input in a structured token list.
 *	1. Check for invalid starting pipe.
 **	2. Skip leading whitespace.
@@ -128,14 +114,9 @@ static bool	validate_pipe_syntax(t_tok *prev_token, t_tok **lst)
 
 bool	tokenize(t_shell *shell, t_tok **lst, char *input)
 {
-	t_tok	*prev_token;
-
 	if (!lst || !input)
 		return (false);
 	*lst = NULL;
-	prev_token = NULL;
-	if (*input == '|')
-		return (error(START_PIPE, false));
 	while (*input)
 	{
 		while (ft_isblank(*input))
@@ -144,12 +125,12 @@ bool	tokenize(t_shell *shell, t_tok **lst, char *input)
 			break ;
 		if (!extract_token_content(shell, lst, &input))
 			return (false);
-		if (!validate_pipe_syntax(prev_token, lst))
-			return (false);
-		if (*lst)
-			prev_token = (*lst)->prev;
+		if ((*lst)->type == CMD)
+			(*lst)->first_cmd = true;
+		if ((*lst)->type == PIPE)
+			(*lst)->first_cmd = false;
 	}
-	if (prev_token && prev_token->type == PIPE)
+	if ((*lst)->prev && (*lst)->prev->type == PIPE)
 		return (error(END_PIPE, false));
 	return (true);
 }

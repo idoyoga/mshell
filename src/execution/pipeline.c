@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:54:23 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 20:49:49 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/01 15:15:21 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ void	execute_with_pipeline(t_shell *shell, t_cmd *command, int *pipe_fd)
 
 	prev_fd = -2;
 	i = 0;
+	if (!command)
+		return ;
 	while (i < shell->cmd_count)
 	{
 		if (i < shell->cmd_count - 1 && pipe(pipe_fd) == -1)

@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 09:44:45 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/01 15:10:22 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,8 @@ bool	tokenize_input(t_shell *shell, char *input)
 		return (false);
 	if (invalid_redirection(shell->tokens))
 		return (error_token(shell, shell->tokens));
+	if (validate_tokens(shell->tokens))
+		return (false);
 	if (!parse_commands(shell))
 		return (false);
 	return (true);

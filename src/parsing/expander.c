@@ -6,7 +6,7 @@
 /*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/28 00:56:05 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/01 15:55:06 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,12 @@ static bool	handle_expansion(t_shell *shell, char **output, char *input,
 /*
 **	Helper to check if the dollar sign should trigger variable expansion:
 **	The function performs the following checks:
-** 	- Returns false if '$' is preceded by an alphanumeric character (e.g., 'VAR$USER').
-** 	- Returns false if '$' appears inside single quotes ('''), as they prevent expansion.
-** 	- Detects if '$' is used within a heredoc ('<<') and determines if expansion should occur:
+** 	- Returns false if '$' is preceded 
+		by an alphanumeric character (e.g., 'VAR$USER').
+** 	- Returns false if '$' appears inside single quotes ('''), 
+		as they prevent expansion.
+** 	- Detects if '$' is used within a heredoc ('<<') and determines 
+		if expansion should occur:
 ** 	  - If the heredoc delimiter is quoted ('<< "$VAR"'), expansion is prevented.
 ** 	  - If the heredoc delimiter is unquoted ('<< VAR'), expansion is allowed.
 ** 	- Returns true for '$?', as it should always be expanded.
@@ -98,7 +101,8 @@ static bool	handle_expansion(t_shell *shell, char **output, char *input,
 ** 	- Returns false if the environment variable does not exist.
 */
 
-static bool	should_expand_dollar(t_shell *shell, char *input, int i, bool s_quote)
+static bool	should_expand_dollar(t_shell *shell, char *input, int i,
+									bool s_quote)
 {
 	int	j;
 	int	k;
@@ -108,10 +112,11 @@ static bool	should_expand_dollar(t_shell *shell, char *input, int i, bool s_quot
 	if (i > 0 && ft_isalnum(input[i - 1]))
 		return (false);
 	j = i - 1;
-	while (j > 0 && (ft_isblank(input[j]) || input[j] == '"' || input[j] == '\''))
+	while (j > 0 && (ft_isblank(input[j]) || input[j] == '"'
+			|| input[j] == '\''))
 		j--;
 	if ((j == 1 && input[j] == '<' && input[j - 1] == '<')
-			|| (j > 1 && input[j] == '<' && input[j - 1] == '<'))
+		|| (j > 1 && input[j] == '<' && input[j - 1] == '<'))
 	{
 		k = j + 2;
 		while (input[k] && ft_isblank(input[k]))
