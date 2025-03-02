@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 19:08:43 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 19:51:00 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,41 +39,9 @@ static bool	init_alloc_tracker(t_shell *shell, int initial_capacity)
 }
 
 /*
-** Initialize work_dir (PWD) and old_work_dir (OLDPWD), should also work with
-** incomplete environment (PWD unset). Used also for cd builtin later.
-*/
-
-static bool	init_work_dirs(t_shell *shell)
-{
-	char	*cwd;
-	char	*tmp;
-
-	tmp = safe_strdup(shell, "OLDPWD");
-	if (!tmp)
-		return (error(NO_MEM, false));
-	if (!add_env_variable(shell, &shell->env, tmp))
-		return (error(NO_MEM, false));
-	cwd = getcwd(NULL, 0);
-	if (!cwd || !alloc_tracker_add(&shell->alloc_tracker, cwd, 0))
-		return (error(GETCWD, false));
-	tmp = safe_strjoin(shell, "PWD=", cwd);
-	if (!tmp)
-		return (error(NO_MEM, false));
-	if (!add_env_variable(shell, &shell->env, tmp))
-		return (error(NO_MEM, false));
-	shell->work_dir = safe_strdup(shell, cwd);
-	if (!shell->work_dir)
-		return (error(NO_MEM, false));
-	shell->old_work_dir = safe_strdup(shell, "");
-	if (!shell->old_work_dir)
-		return (error(NO_MEM, false));
-	return (true);
-}
-
-/*
-** Initialize the environment variables, if no environment is passed,
-** return an error and exit with status false. Otherwise, create a new list
-** and add all environment variables to it.
+**	Initialize the environment variables, if no environment is passed,
+** 	create a barebone environment. Create a new list
+** 	and add all environment variables to it.
 */
 
 static bool	init_env(t_shell *shell, char **env)
@@ -83,7 +51,7 @@ static bool	init_env(t_shell *shell, char **env)
 	int		i;
 
 	if (!env || !(*env))
-		return (error(NO_ENV, false));
+		env = create_default_env(shell);
 	lst = NULL;
 	i = -1;
 	while (env[++i])
@@ -100,15 +68,49 @@ static bool	init_env(t_shell *shell, char **env)
 }
 
 /*
-** Set the user name and create the prompt string. If the user name is not set,
-** return an error and exit with status false.
+** Initialize work_dir (PWD) and old_work_dir (OLDPWD), should also work with
+** incomplete environment (PWD unset). Used also for cd builtin later.
+*/
+
+static bool	init_work_dirs(t_shell *shell)
+{
+	char	*cwd;
+	/* char	*tmp; */
+
+	/* tmp = safe_strdup(shell, "OLDPWD"); */
+	/* if (!tmp) */
+	/* 	return (error(NO_MEM, false)); */
+	/* if (!add_env_variable(shell, &shell->env, tmp)) */
+	/* 	return (error(NO_MEM, false)); */
+	cwd = getcwd(NULL, 0);
+	if (!cwd || !alloc_tracker_add(&shell->alloc_tracker, cwd, 0))
+		return (error(GETCWD, false));
+	/* tmp = safe_strjoin(shell, "PWD=", cwd); */
+	/* if (!tmp) */
+	/* 	return (error(NO_MEM, false)); */
+	/* if (!add_env_variable(shell, &shell->env, tmp)) */
+	/* 	return (error(NO_MEM, false)); */
+	shell->work_dir = safe_strdup(shell, cwd);
+	if (!shell->work_dir)
+		return (error(NO_MEM, false));
+	shell->old_work_dir = safe_strdup(shell, "");
+	if (!shell->old_work_dir)
+		return (error(NO_MEM, false));
+	return (true);
+}
+
+/*
+**	Set the user name and create the prompt string. If the user name is not set,
+**	"user" is used as a default.
 */
 
 static bool	init_prompt(t_shell *shell)
 {
+	if (!shell)
+		return (error(NO_SHELL, false));
 	shell->user = getenv("USER");
 	if (!shell->user)
-		return (error(NO_USER, false));
+		shell->user = safe_strdup(shell, "user");
 	if (!shell->work_dir)
 		return (error(NO_WD, false));
 	shell->prompt = create_prompt(shell);
@@ -129,7 +131,7 @@ bool	init_shell(t_shell *shell, char **env)
 
 	ft_memset(shell, 0, sizeof(t_shell));
 	i = 0;
-	if (env)
+	if (env && *env)
 	{
 		while (env[i])
 			i++;
@@ -139,10 +141,10 @@ bool	init_shell(t_shell *shell, char **env)
 		initial_capacity = DEFAULT_ALLOC_CAPACITY;
 	if (!init_alloc_tracker(shell, initial_capacity))
 		return (error(NO_ALLOC, false));
-	if (!init_work_dirs(shell))
-		return (error(NO_WD, false));
 	if (!init_env(shell, env))
 		return (error(NO_ENV, false));
+	if (!init_work_dirs(shell))
+		return (error(NO_WD, false));
 	if (!init_prompt(shell))
 		return (error(NO_PROMPT, false));
 	shell->fd_copies[0] = -2;

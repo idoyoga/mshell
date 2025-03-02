@@ -6,7 +6,7 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/03/01 15:11:23 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/03/02 18:08:50 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,6 +26,7 @@ SRC		=	helper/alloc.c \
 			helper/alloc_helper.c \
 			helper/clean.c \
 			helper/cmd_utils.c \
+			helper/env_helper.c \
 			helper/env_utils.c \
 			helper/error.c \
 			helper/expander_utils.c \
