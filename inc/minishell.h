@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 19:47:56 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 21:40:04 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,6 +99,13 @@ typedef enum e_error
 	TOTAL
 }								t_error;
 
+typedef enum e_quoted_status
+{
+	QUOTE_NONE = 0,
+	QUOTE_SINGLE = '\'',
+	QUOTE_DOUBLE = '"'
+}								t_qstat;
+
 typedef struct s_env
 {
 	char						*data;
@@ -189,6 +196,8 @@ void							*safe_malloc(t_shell *shell, size_t size);
 void							*safe_calloc(t_shell *shell, size_t count,
 									size_t size);
 char							*safe_strdup(t_shell *shell, const char *src);
+char							*safe_strndup(t_shell *shell, const char *src,
+									size_t n);
 char							*safe_strjoin(t_shell *shell, const char *s1,
 									const char *s2);
 
@@ -234,14 +243,18 @@ void							error_cmd(t_shell *shell, const char *cmd_name);
 // --------------  expander  ---------------------------------------------- //
 bool							expand_dollar_variables(t_shell *shell,
 									char **input);
+bool							expand_dilla_variables(t_shell *shell);
 
 // --------------  expander_utils  ---------------------------------------- //
 int								find_or_check_env(t_shell *shell, char *input,
 									int *index, bool check);
+bool							env_variable_exists(t_shell *shell,
+									char *input);
 int								match_env_variable(char *var_name,
 									char *env_entry);
 bool							append_char_to_str(t_shell *shell,
 									char **output, int *index, char *c);
+bool							is_quote(char c);
 
 // --------------  heredoc  ----------------------------------------------- //
 int								handle_heredoc(t_shell *shell,
@@ -277,6 +290,9 @@ int								get_special_length(char *str);
 int								get_token_length(char *input);
 t_tok							*add_token(t_shell *shell, t_tok **lst,
 									char *content, t_t_typ type);
+
+// --------------  quote eliminator  -------------------------------------- //
+bool							remove_quotes(t_shell *shell);
 
 // --------------  command runner  ---------------------------------------- //
 void							dispatch(t_shell *shell);

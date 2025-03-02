@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/01 15:10:22 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 21:38:49 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static bool	invalid_syntax(char *input)
 	{
 		if (*input == '\\' && (*(input + 1) == '$' || *(input + 1) == '\0'))
 			return (error(BACKSLASH, true));
-		if (*input == ';' && (*(input +1) == ' ' || *(input + 1) == '\0'))
+		if (*input == ';' && (*(input + 1) == ' ' || *(input + 1) == '\0'))
 			return (error(SEMICOLON, true));
 		input++;
 	}
@@ -62,7 +62,7 @@ char	*trim_quotes(t_shell *shell, char *input, int len)
 }
 
 /*
-**	Update the state of the quotes. If a single quote is found (and not 
+**	Update the state of the quotes. If a single quote is found (and not
 **	inside a double quote), toggle s_quote. If a double quote is found
 **	(and is not inside a single quote), toggle d_quote.
 */
@@ -97,22 +97,23 @@ static bool	check_unclosed_quotes(t_shell *shell, const char *input)
 
 /*
 **	Check first for invalid syntax and unclosed quotes,
-**	then handle environment variable expansion, tokenize the input 
+**	then handle environment variable expansion, tokenize the input
 **	and parse the commands.
 */
-
 bool	tokenize_input(t_shell *shell, char *input)
 {
 	input = shell->cmd_input;
 	if (invalid_syntax(input) || check_unclosed_quotes(shell, input))
 		return (false);
-	if (!expand_dollar_variables(shell, &input))
-		return (false);
 	if (!tokenize(shell, &shell->tokens, input))
+		return (false);
+	if (!expand_dilla_variables(shell))
 		return (false);
 	if (invalid_redirection(shell->tokens))
 		return (error_token(shell, shell->tokens));
 	if (validate_tokens(shell->tokens))
+		return (false);
+	if (!remove_quotes(shell))
 		return (false);
 	if (!parse_commands(shell))
 		return (false);

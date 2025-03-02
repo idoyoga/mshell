@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/01 14:47:55 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 21:38:34 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,31 +22,19 @@
 **	5. Advances the 'input' pointer to the next token.
 */
 
-static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input)
+static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input,
+		int token_length)
 {
 	t_t_typ	token_type;
 	char	*content;
-	bool	is_quoted;
-	int		len;
-	int		i;
 
-	len = get_token_length(*input);
-	if (len == 0)
-		return (true);
-	is_quoted = false;
-	i = -1;
-	while (++i < len)
-	{
-		if ((*input)[i] == '\'' || (*input)[i] == '"')
-			is_quoted = true;
-	}
-	content = trim_quotes(shell, *input, len);
+	content = safe_strndup(shell, *input, token_length);
 	token_type = determine_token_type(lst);
 	if (!add_token(shell, lst, content, token_type))
 		return (false);
-	if (token_type == ARG)
-		(*lst)->is_quoted = is_quoted;
-	*input += len;
+	if (ft_strchr(content, '"') != NULL || ft_strchr(content, '\'') != NULL)
+		(*lst)->prev->is_quoted = true;
+	*input += token_length;
 	return (true);
 }
 
@@ -59,18 +47,15 @@ static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input)
 **	5. Add the token to the list and advances the input pointer.
 */
 
-static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input)
+static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input,
+		int token_length)
 {
 	t_t_typ	type;
 	t_tok	*prev;
 	char	*content;
-	int		len;
 
-	len = get_special_length(*input);
-	if (len == 0)
-		return (false);
 	type = identify_special_token(*input);
-	content = ft_strndup(*input, len);
+	content = ft_strndup(*input, token_length);
 	if (!content || !alloc_tracker_add(&(shell->alloc_tracker), content, 0))
 		return (error(NO_MEM, false));
 	prev = NULL;
@@ -81,7 +66,7 @@ static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input)
 		return (error(CONSEC_REDIR, false));
 	if (!add_token(shell, lst, content, type))
 		return (false);
-	*input += len;
+	*input += token_length;
 	return (true);
 }
 
@@ -93,13 +78,16 @@ static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input)
 
 static bool	extract_token_content(t_shell *shell, t_tok **lst, char **input)
 {
+	size_t	special_token_length;
+	size_t	word_token_length;
+
 	if (!input || !*input)
 		return (false);
-	if (get_special_length(*input))
-		return (parse_operator_token(shell, lst, input));
-	if (!parse_word_token(shell, lst, input))
-		return (false);
-	return (true);
+	special_token_length = get_special_length(*input);
+	if (special_token_length > 0)
+		return (parse_operator_token(shell, lst, input, special_token_length));
+	word_token_length = get_token_length(*input);
+	return (parse_word_token(shell, lst, input, word_token_length));
 }
 
 /*

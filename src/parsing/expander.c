@@ -3,41 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   expander.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/01 15:55:06 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 21:53:06 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static bool	is_valid_var_char(char c, size_t index)
+{
+	if (c == '_')
+		return (true);
+	if (index == 0)
+		return (ft_isalpha(c));
+	return (ft_isalnum(c));
+}
 
 /*
 **	Expand a given environment variable ($VAR) by replacing it with its value.
 */
 
 static bool	expand_env_variable(t_shell *shell, char **output, char *input,
-							int *index)
+		int *index)
 {
-	t_env	*node;
 	char	*var_value;
 	char	*new_output;
-	int		len;
 
-	node = shell->env;
-	while (node)
-	{
-		len = match_env_variable(input, node->data);
-		if (len > 0)
-		{
-			var_value = node->data + len + 1;
-			new_output = safe_strjoin(shell, *output, var_value);
-			*output = new_output;
-			*index += len + 1;
-			return (true);
-		}
-		node = node->next;
-	}
+	var_value = get_env_value(shell, input);
+	new_output = safe_strjoin(shell, *output, var_value);
+	*output = new_output;
+	*index += ft_strlen(input) + 1;
 	return (true);
 }
 
@@ -46,7 +43,7 @@ static bool	expand_env_variable(t_shell *shell, char **output, char *input,
 */
 
 static bool	expand_exit_status(t_shell *shell, char **output, char *input,
-								int *index)
+		int *index)
 {
 	char	*status_str;
 	char	*new_str;
@@ -61,6 +58,14 @@ static bool	expand_exit_status(t_shell *shell, char **output, char *input,
 	return (true);
 }
 
+static bool	expand_noop(t_shell *shell, char **output, char *input, int *index)
+{
+	(void)shell;
+	(void)output;
+	(*index) += ft_strlen(input) + 1;
+	return (true);
+}
+
 /*
 **	Handle expanding a $-variable found in the input string:
 **	- If result == 1: expand the environment variable using expand_env_variable.
@@ -69,40 +74,41 @@ static bool	expand_exit_status(t_shell *shell, char **output, char *input,
 */
 
 static bool	handle_expansion(t_shell *shell, char **output, char *input,
-								int *index)
+		int *index)
 {
-	t_expander	expander[2];
+	t_expander	expander[3];
 	int			result;
 
 	if (!input)
 		return (false);
-	expander[0] = expand_env_variable;
-	expander[1] = expand_exit_status;
+	expander[0] = expand_noop;
+	expander[1] = expand_env_variable;
+	expander[2] = expand_exit_status;
 	result = find_or_check_env(shell, input, index, false);
-	if (result == 1 || result == 2)
-		return (expander[result - 1](shell, output, &input[*index + 1],
-			index));
+	if (result == 0 || result == 1 || result == 2)
+		return (expander[result](shell, output, &input[*index + 1], index));
 	return (true);
 }
 
 /*
 **	Helper to check if the dollar sign should trigger variable expansion:
 **	The function performs the following checks:
-** 	- Returns false if '$' is preceded 
+** 	- Returns false if '$' is preceded
 		by an alphanumeric character (e.g., 'VAR$USER').
-** 	- Returns false if '$' appears inside single quotes ('''), 
+** 	- Returns false if '$' appears inside single quotes ('''),
 		as they prevent expansion.
-** 	- Detects if '$' is used within a heredoc ('<<') and determines 
+** 	- Detects if '$' is used within a heredoc ('<<') and determines
 		if expansion should occur:
-** 	  - If the heredoc delimiter is quoted ('<< "$VAR"'), expansion is prevented.
-** 	  - If the heredoc delimiter is unquoted ('<< VAR'), expansion is allowed.
+** 		- If the heredoc delimiter is quoted ('<< "$VAR"'),
+			expansion is prevented.
+** 		- If the heredoc delimiter is unquoted ('<< VAR'), expansion is allowed.
 ** 	- Returns true for '$?', as it should always be expanded.
 ** 	- Ensures only valid variable names are expanded ('$VAR' but not '$1VAR').
 ** 	- Returns false if the environment variable does not exist.
 */
 
 static bool	should_expand_dollar(t_shell *shell, char *input, int i,
-									bool s_quote)
+		bool s_quote)
 {
 	int	j;
 	int	k;
@@ -115,8 +121,8 @@ static bool	should_expand_dollar(t_shell *shell, char *input, int i,
 	while (j > 0 && (ft_isblank(input[j]) || input[j] == '"'
 			|| input[j] == '\''))
 		j--;
-	if ((j == 1 && input[j] == '<' && input[j - 1] == '<')
-		|| (j > 1 && input[j] == '<' && input[j - 1] == '<'))
+	if ((j == 1 && input[j] == '<' && input[j - 1] == '<') || (j > 1
+			&& input[j] == '<' && input[j - 1] == '<'))
 	{
 		k = j + 2;
 		while (input[k] && ft_isblank(input[k]))
@@ -162,5 +168,126 @@ bool	expand_dollar_variables(t_shell *shell, char **input)
 			return (false);
 	}
 	*input = output;
+	return (true);
+}
+
+// checks whether a str contains only a variable that is unset
+// returns true only if no whitespace or any other surrounding characters
+// are found and the variable str expands to isn't set
+static bool	is_empty_variable(t_shell *shell, char *str)
+{
+	size_t	i;
+
+	if (str[0] == '$')
+	{
+		i = 1;
+		while (str[i] && is_valid_var_char(str[i], i - 1))
+			i++;
+		if (str[i] == '\0' && !find_or_check_env(shell, str + 1, NULL, true))
+			return (true);
+	}
+	return (false);
+}
+
+static void	handy_expandy(t_shell *shell, char *str, char **dest, int *index)
+{
+	char	*variable;
+	int		check_res;
+	int		i;
+
+	i = 0;
+	// +1 to skip the '$'
+	while (str[*index + i + 1] && is_valid_var_char(str[*index + i + 1], i))
+		i++;
+	variable = ft_substr(str, (*index) + 1, i);
+	// substr of only the valid chars
+	if (!variable)
+		error_exit(shell, NO_MEM, "handy_expandy", EXIT_FAILURE);
+	// printf("looking for variable `%s`\n", variable);
+	alloc_tracker_add(&shell->alloc_tracker, variable, 0);
+	check_res = env_variable_exists(shell, variable);
+	if (check_res == true)
+	{
+		// printf("found value for `%s`, expanding\n", variable);
+		expand_env_variable(shell, dest, variable, index);
+	}
+	else
+	{
+		// printf("found nothing for `%s`, noop-ing\n", variable);
+		expand_noop(shell, dest, variable, index);
+	}
+}
+
+void	xpand(t_shell *shell, t_tok *token)
+{
+	char	*expanded_content;
+	int		i;
+	t_qstat	quote;
+
+	if (is_empty_variable(shell, token->content))
+	{
+		token->content = NULL;
+		return ;
+	}
+	i = 0;
+	expanded_content = safe_strdup(shell, "");
+	quote = QUOTE_NONE;
+	while (token->content[i])
+	{
+		if (quote == QUOTE_NONE && is_quote(token->content[i]))
+		{
+			quote = token->content[i];
+			i++;
+		}
+		else if (quote != QUOTE_NONE && token->content[i] == quote)
+		{
+			quote = QUOTE_NONE;
+			i++;
+		}
+		else if (quote != QUOTE_SINGLE && token->content[i] == '$'
+			&& token->content[i + 1] == '?')
+		{
+			expand_exit_status(shell, &expanded_content, token->content + i,
+				&i);
+			// may return false on malloc fail - perhaps just exit instead?
+		}
+		else if (quote != QUOTE_SINGLE && token->content[i] == '$'
+			&& token->content[i + 1] && is_valid_var_char(token->content[i + 1],
+				0))
+		{
+			handy_expandy(shell, token->content, &expanded_content, &i);
+			continue ;
+		}
+		else
+			append_char_to_str(shell, &expanded_content, &i,
+				&token->content[i]);
+	}
+	token->content = expanded_content;
+}
+
+bool	expand_dilla_variables(t_shell *shell)
+{
+	t_tok	*current_token;
+
+	current_token = shell->tokens;
+	while (current_token)
+	{
+		if ((current_token->type != CMD && current_token->type != ARG)
+			|| (current_token->prev && current_token->prev->type != CMD
+				&& current_token->prev->type != ARG
+				&& current_token->prev->type != PIPE))
+		{
+			printf("not expanding %s\n", current_token->content);
+		}
+		else
+		{
+			printf("expanding %s\n", current_token->content);
+			xpand(shell, current_token);
+			printf("expanded to %s\n", current_token->content);
+		}
+		current_token = current_token->next;
+		if (current_token == shell->tokens)
+			break ;
+	}
 	return (true);
 }
