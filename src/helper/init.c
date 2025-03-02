@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 19:51:00 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 21:25:47 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ static bool	init_env(t_shell *shell, char **env)
 static bool	init_work_dirs(t_shell *shell)
 {
 	char	*cwd;
-	/* char	*tmp; */
 
+	/* char	*tmp; */
 	/* tmp = safe_strdup(shell, "OLDPWD"); */
 	/* if (!tmp) */
 	/* 	return (error(NO_MEM, false)); */
@@ -149,5 +149,6 @@ bool	init_shell(t_shell *shell, char **env)
 		return (error(NO_PROMPT, false));
 	shell->fd_copies[0] = -2;
 	shell->fd_copies[1] = -2;
+	shell->abort = false;
 	return (true);
 }

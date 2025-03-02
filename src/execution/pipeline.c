@@ -6,13 +6,25 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:54:23 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/01 15:15:21 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 22:30:02 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 #include <errno.h>
 #include <signal.h>
+
+static void	receive_exit_status(int *status_code)
+{
+	if (WIFEXITED(*status_code))
+		*status_code = WEXITSTATUS(*status_code);
+	else if (WIFSIGNALED(*status_code))
+		*status_code = WTERMSIG(*status_code) + 128;
+	if (*status_code == 130)
+		ft_putendl_fd("", 2);
+	if (*status_code == 131)
+		ft_putendl_fd("Quit (core dumped)", 2);
+}
 
 int	wait_for_children(t_shell *shell, t_cmd *cmd)
 {
@@ -27,16 +39,14 @@ int	wait_for_children(t_shell *shell, t_cmd *cmd)
 	{
 		while (true)
 		{
+			// printf("waiting for %d\n", cmd->child_pid);
 			wait_result = waitpid(cmd->child_pid, &status_code, 0);
 			if (wait_result != -1)
 				break ;
 			if (errno != EINTR)
 				error_exit(shell, BAD_WAIT, "waitpid", EXIT_FAILURE);
 		}
-		if (WIFEXITED(status_code))
-			status_code = WEXITSTATUS(status_code);
-		else if (WIFSIGNALED(status_code))
-			status_code = WTERMSIG(status_code) + 128;
+		receive_exit_status(&status_code);
 		cmd = cmd->next;
 		i++;
 	}

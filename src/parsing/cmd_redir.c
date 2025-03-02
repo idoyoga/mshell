@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 22:02:26 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 22:22:32 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,7 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 			new_fd = open_redirection_file(token->next->content, token->type);
 		if (new_fd == -1)
 		{
+			cmd->skip = true;
 			return (error_cmd(shell, token->next->content), false);
 			return (false);
 		}
@@ -150,7 +151,7 @@ bool	handle_redirection(t_shell *shell, t_tok *token, t_cmd *cmd)
 			|| current->type == REDIR_OUT || current->type == REDIR_APPEND)
 		{
 			if (!process_redirection(shell, cmd, current))
-				break ;
+				return (false);
 			current = current->next;
 		}
 		current = current->next;

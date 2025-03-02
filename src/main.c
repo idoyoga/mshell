@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 15:08:34 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 21:15:59 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,7 @@ static void	minishell(t_shell *shell)
 	{
 		setup_signals(handle_sigint, SIG_IGN);
 		g_signal = 0;
+		shell->abort = false;
 		shell->cmd_input = alloc_tracker_replace(&shell->alloc_tracker,
 				shell->cmd_input, readline(shell->prompt));
 		if (g_signal != 0)
@@ -159,7 +160,7 @@ static void	minishell(t_shell *shell)
 		if (!tokenize_input(shell, shell->cmd_input))
 			continue ;
 		print_cmd(shell->cmd);
-		if (shell->cmd != NULL)
+		if (shell->cmd != NULL && !shell->abort)
 		{
 			prepare_execution(shell);
 			dispatch(shell);

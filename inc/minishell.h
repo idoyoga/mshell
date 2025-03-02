@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 22:01:02 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 23:35:53 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,6 +161,7 @@ typedef struct s_shell
 	size_t cmd_count;      // Number of distinct commands (subshells)
 	int env_count;         // Environment variable count
 	int status;            // Exit status
+	bool abort;            // Whether to abort a whole execution cycle (for heredoc signal)
 	char *prompt;          // Prompt string
 	char *cmd_input;       // Command input
 	char *home_dir;        // Home directory

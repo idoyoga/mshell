@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 22:10:04 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 22:22:36 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,12 @@ static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd,
 		ft_putendl_fd(line, fd);
 	}
 	setup_signals(handle_sigint, SIG_IGN);
+	if (g_signal != 0)
+	{
+		shell->status = g_signal + 128;
+		shell->abort = true;
+		return (false);
+	}
 	return (true);
 }
 
