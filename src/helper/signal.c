@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signal.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 10:47:06 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 18:01:31 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 15:07:32 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	handle_sigint(int sig)
 {
 	if (sig == SIGINT)
 	{
-		g_signal = 1;
+		g_signal = sig;
 		write(1, "\n", 1);
 		rl_replace_line("", 0);
 		rl_on_new_line();
@@ -41,7 +41,7 @@ void	handle_heredoc_sigint(int sig)
 	cr = '\n';
 	if (sig == SIGINT)
 	{
-		g_signal = 1;
+		g_signal = sig;
 		ioctl(STDIN_FILENO, TIOCSTI, &cr);
 	}
 }
@@ -57,6 +57,7 @@ void	handle_sigquit(int sig)
 	cr = '\n';
 	if (sig == SIGQUIT)
 	{
+		g_signal = sig;
 		ioctl(STDIN_FILENO, TIOCSTI, &cr);
 		write(2, "Quit (core dumped)", 18);
 		exit (131);
