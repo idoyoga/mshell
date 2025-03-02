@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/01 15:44:35 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 23:27:52 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ bool	parse_commands(t_shell *shell)
 	shell->cmd = NULL;
 	current = shell->tokens;
 	redirected = false;
-	while (current != shell->tokens || !shell->cmd)
+	while ((current != shell->tokens || !shell->cmd) && !shell->abort)
 	{
 		if (!process_token(shell, &current, &cmd, &redirected))
 			continue ;
