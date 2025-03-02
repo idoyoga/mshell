@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_redir.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/01 15:50:12 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 22:02:26 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ static int	open_redirection_file(char *file, t_t_typ type)
 /*
 **	Process each redirection token:
 **	- Assign correct file descriptors for input/output.
-**	- If '<<', call 'handle_heredoc', otherwise call 'open_redirection_file'.
+**	- If '<<', call 'eeeeeeeeeeedoc', otherwise call 'open_redirection_file'.
 **	- If file opening fails, an error is logged and 'false' returned.
 **	- Close any previously opened file descriptor before assigning the new one.
 */
@@ -99,7 +99,7 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 	if (cmd == NULL)
 	{
 		if (token->type == HEREDOC)
-			new_fd = handle_heredoc(shell, token->next->content);
+			new_fd = handle_heredoc(shell, token->next->content, token->next->is_quoted);
 		else
 			new_fd = open_redirection_file(token->next->content, token->type);
 		if (new_fd == -1)
@@ -117,7 +117,7 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 	else
 		return (false);
 	if (token->type == HEREDOC)
-		new_fd = handle_heredoc(shell, token->next->content);
+		new_fd = handle_heredoc(shell, token->next->content, token->next->is_quoted);
 	else
 		new_fd = open_redirection_file(token->next->content, token->type);
 	if (new_fd == -1)

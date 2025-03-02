@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:39:27 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 15:28:56 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 21:35:29 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,26 @@ int	match_env_variable(char *var_name, char *env_entry)
 **		- Return 1 if the variable is found
 **		- Return 2 if the variable is $?
 */
+
+bool	env_variable_exists(t_shell *shell, char *input)
+{
+	t_env	*node;
+	int		len;
+
+	if (!shell->env || !input || !*input)
+		return (false);
+	node = shell->env;
+	while (node)
+	{
+		len = match_env_variable(input, node->data);
+		if (len > 0)
+			return (true);
+		node = node->next;
+		if (node == shell->env)
+			break ;
+	}
+	return (false);
+}
 
 int	find_or_check_env(t_shell *shell, char *input, int *index, bool check)
 {

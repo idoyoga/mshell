@@ -6,7 +6,7 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/03/02 18:08:50 by dplotzl          ###   ########.fr        #
+#    Updated: 2025/03/02 20:36:27 by xgossing         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,7 @@ SRC		=	helper/alloc.c \
 			parsing/cmd_redir.c \
 			parsing/expander.c \
 			parsing/heredoc.c \
+			parsing/quote_removal.c \
 			parsing/token.c \
 			parsing/tokenizer.c \
 			execution/execute.c \

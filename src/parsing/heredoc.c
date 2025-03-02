@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 15:02:45 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 22:10:04 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ static void	print_eof_warning(int line_count, const char *delimiter)
 **	Ctrl+D (EOF) or Ctrl+C (SIGINT) is pressed. Ctrl+C sets g_signal to 1.
 */
 
-static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd)
+static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd,
+		bool is_quoted)
 {
 	char	*line;
 	int		line_count;
@@ -52,7 +53,7 @@ static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd)
 		}
 		if (ft_strcmp(line, delimiter) == 0)
 			break ;
-		if (!shell->tokens->is_quoted && !expand_dollar_variables(shell, &line))
+		if (!is_quoted && !expand_dollar_variables(shell, &line))
 			error_exit(shell, NO_EXPAND, "heredoc_read_input", EXIT_FAILURE);
 		ft_putendl_fd(line, fd);
 	}
@@ -67,7 +68,7 @@ static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd)
 **	(not sure if necessary to handle this, open to suggestions)
 */
 
-int	handle_heredoc(t_shell *shell, const char *delimiter)
+int	handle_heredoc(t_shell *shell, const char *delimiter, bool is_quoted)
 {
 	int			fd;
 	char		*count_str;
@@ -82,7 +83,7 @@ int	handle_heredoc(t_shell *shell, const char *delimiter)
 	fd = open(heredoc_filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 		return (-1);
-	if (!heredoc_read_input(shell, delimiter, fd))
+	if (!heredoc_read_input(shell, delimiter, fd, is_quoted))
 	{
 		if (fd >= 3)
 			close(fd);

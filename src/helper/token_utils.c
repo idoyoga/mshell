@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 15:46:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/01 15:31:53 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 22:10:43 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,8 @@ int	get_special_length(char *str)
 {
 	if (!ft_strncmp(str, "<<", 2) || !ft_strncmp(str, ">>", 2))
 		return (2);
-	if (!ft_strncmp(str, "<", 1) || !ft_strncmp(str, ">", 1)
-		|| !ft_strncmp(str, "|", 1))
+	if (!ft_strncmp(str, "<", 1) || !ft_strncmp(str, ">", 1) || !ft_strncmp(str,
+			"|", 1))
 		return (1);
 	return (0);
 }
@@ -52,24 +52,21 @@ int	get_special_length(char *str)
 int	get_token_length(char *input)
 {
 	int		len;
+	t_qstat	quote;
 
+	quote = QUOTE_NONE;
 	len = 0;
-	while (input[len] && !get_special_length(input + len)
-		&& !ft_isblank(input[len]))
+	while (input[len])
 	{
-		if (input[len] == '\'' || input[len] == '"')
-		{
-			if (input[len++] == '"')
-				while (input[len] && input[len] != '"')
-					len++;
-			else
-				while (input[len] && input[len] != '\'')
-					len++;
-			if (input[len])
-				len++;
-		}
-		else
-			len++;
+		if (quote == QUOTE_NONE && ft_isblank(input[len]))
+			break ;
+		if (quote == QUOTE_NONE && get_special_length(input + len) != 0)
+			break ;
+		if (quote == QUOTE_NONE && is_quote(input[len]))
+			quote = input[len];
+		else if (quote != QUOTE_NONE && (input[len]) == quote)
+			quote = QUOTE_NONE;
+		len++;
 	}
 	return (len);
 }
@@ -78,7 +75,7 @@ int	get_token_length(char *input)
 **	Allocate and initialise a new token node
 */
 
-static	t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
+static t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 {
 	t_tok	*token;
 
@@ -91,6 +88,8 @@ static	t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 	token->first_cmd = false;
 	token->next = NULL;
 	token->prev = NULL;
+	if (ft_strchr(content, '"') != NULL || ft_strchr(content, '\'') != NULL)
+		token->is_quoted = true;
 	return (token);
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   alloc_helper.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 17:46:41 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/24 17:56:40 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 21:34:48 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,26 @@ char	*safe_strdup(t_shell *shell, const char *src)
 	dup = safe_malloc(shell, len + 1);
 	ft_memcpy(dup, src, len);
 	dup[len] = '\0';
+	return (dup);
+}
+
+/*
+**	Wrapper for strndup, automatically adding the allocation to the tracker
+*/
+
+char	*safe_strndup(t_shell *shell, const char *src, size_t n)
+{
+	char	*dup;
+	size_t	len;
+
+	if (!shell || !shell->alloc_tracker.initialized || !src)
+		return (NULL);
+	len = ft_strlen(src);
+	if (len < n)
+		n = len;
+	dup = safe_malloc(shell, n + 1);
+	ft_memcpy(dup, src, n);
+	dup[n] = '\0';
 	return (dup);
 }
 
