@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 18:55:52 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 15:02:45 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,8 @@ int	handle_heredoc(t_shell *shell, const char *delimiter)
 	static int	heredoc_count = 0;
 
 	count_str = ft_itoa(heredoc_count++);
+	if (!count_str)
+		return (-1);
 	alloc_tracker_add(&shell->alloc_tracker, count_str, 0);
 	heredoc_filename = safe_strjoin(shell, "/tmp/.heredoc_", count_str);
 	fd = open(heredoc_filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -84,8 +86,7 @@ int	handle_heredoc(t_shell *shell, const char *delimiter)
 	{
 		if (fd >= 3)
 			close(fd);
-		unlink(heredoc_filename);
-		setup_signals(handle_sigint, SIG_IGN);
+		(unlink(heredoc_filename), setup_signals(handle_sigint, SIG_IGN));
 		return (-1);
 	}
 	close(fd);
