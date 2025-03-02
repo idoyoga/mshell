@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 20:55:00 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 14:56:08 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static void	find_absolute_path(t_shell *shell, t_cmd *cmd)
 	while (shell->path_segments[i] != NULL && cmd->args != NULL)
 	{
 		cmd->cmd = ft_strjoin_three(shell->path_segments[i], "/", cmd->args[0]);
-		if (!cmd)
+		if (!cmd->cmd)
 			error_exit(shell, NO_MEM, "ft_strjoin_three", EXIT_FAILURE);
 		if (access(cmd->cmd, F_OK) == 0)
 		{

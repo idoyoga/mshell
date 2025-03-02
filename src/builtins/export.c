@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:56:12 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 15:32:41 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 15:19:34 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,9 @@ void	builtin_export(t_shell *shell, t_cmd *cmd)
 	{
 		if (!is_valid_identifier(cmd->args[i]))
 		{
-			printf("export: `%s': not a valid identifier\n", cmd->args[i]);
+			ft_putstr_fd("export: `", STDERR_FILENO);
+			ft_putstr_fd(cmd->args[i], STDERR_FILENO);
+			ft_putendl_fd("': not a valid identifier\n", STDERR_FILENO);
 		}
 		else
 		{

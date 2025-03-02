@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   alloc.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:24:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/23 10:36:45 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 15:00:32 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,10 @@ void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array)
 	if (tracker->count >= tracker->capacity)
 	{
 		if (!alloc_tracker_resize(tracker))
+		{
+			free(ptr);
 			error_exit(tracker->shell, NO_TRACK, NULL, EXIT_FAILURE);
+		}
 	}
 	tracker->allocs[tracker->count] = ptr;
 	tracker->is_array[tracker->count] = is_array;
