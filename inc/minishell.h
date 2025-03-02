@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:40:04 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 22:01:02 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,7 +258,7 @@ bool							is_quote(char c);
 
 // --------------  heredoc  ----------------------------------------------- //
 int								handle_heredoc(t_shell *shell,
-									const char *delimiter);
+									const char *delimiter, bool is_quoted);
 
 // --------------  init  -------------------------------------------------- //
 bool							init_shell(t_shell *shell, char **env);

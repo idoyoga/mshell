@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:38:34 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 22:10:12 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,6 @@ static bool	parse_word_token(t_shell *shell, t_tok **lst, char **input,
 	token_type = determine_token_type(lst);
 	if (!add_token(shell, lst, content, token_type))
 		return (false);
-	if (ft_strchr(content, '"') != NULL || ft_strchr(content, '\'') != NULL)
-		(*lst)->prev->is_quoted = true;
 	*input += token_length;
 	return (true);
 }

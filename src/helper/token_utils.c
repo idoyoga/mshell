@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 15:46:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:36:47 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 22:10:43 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ int	get_token_length(char *input)
 **	Allocate and initialise a new token node
 */
 
-static	t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
+static t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 {
 	t_tok	*token;
 
@@ -88,6 +88,8 @@ static	t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 	token->first_cmd = false;
 	token->next = NULL;
 	token->prev = NULL;
+	if (ft_strchr(content, '"') != NULL || ft_strchr(content, '\'') != NULL)
+		token->is_quoted = true;
 	return (token);
 }
 
