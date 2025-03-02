@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/01 15:10:05 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 19:47:56 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,13 +211,18 @@ void							skip_invalid_command(t_shell *shell,
 bool							is_command_start(t_tok *current);
 t_t_typ							determine_token_type(t_tok **lst);
 
+// --------------  env_helper  -------------------------------------------- //
+char							*get_env_value(t_shell *shell, char *key);
+char							**create_default_env(t_shell *shell);
+bool							upsert_env_variable(t_shell *shell, t_env **lst,
+									char *key, char *new_value);
+
 // --------------  env_utils  --------------------------------------------- //
 t_env							*add_env_variable(t_shell *shell, t_env **lst,
 									char *data);
 char							*create_prompt(t_shell *shell);
 bool							remove_env_variable(t_shell *shell, t_env **lst,
 									char *var_name);
-char							*get_env_value(t_shell *shell, char *key);
 
 // --------------  error  ------------------------------------------------- //
 bool							error(t_error err, int status);

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/27 16:04:25 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/02 18:08:27 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ char	*create_prompt(t_shell *shell)
 		return (NULL);
 	shell->home_dir = getenv("HOME");
 	if (!shell->home_dir)
-		return (error(NO_HOME, 0), NULL);
+		shell->home_dir = safe_strdup(shell, "");
 	len = ft_strlen(shell->home_dir);
 	work_dir = shell->work_dir;
 	if (ft_strlen(work_dir) > len && work_dir[len] == '/'
@@ -145,25 +145,4 @@ bool	remove_env_variable(t_shell *shell, t_env **lst, char *var_name)
 			break ;
 	}
 	return (false);
-}
-
-char	*get_env_value(t_shell *shell, char *key)
-{
-	t_env	*current;
-	size_t	len;
-
-	if (!shell | !shell->env || !key)
-		return (NULL);
-	current = shell->env;
-	len = ft_strlen(key);
-	while (current)
-	{
-		if (ft_strlen(current->data) > len && ft_strncmp(current->data, key,
-				len) == 0 && current->data[len] == '=')
-			return (current->data + len + 1);
-		current = current->next;
-		if (current == shell->env)
-			break ;
-	}
-	return (NULL);
 }
