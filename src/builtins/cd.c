@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:56:21 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 14:25:22 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 15:23:25 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,19 @@ static void	change_directory(t_shell *shell, char *directory)
 	if (!working_directory)
 	{
 		// handle critical error
+		ft_putstr_fd("cd: ", STDERR_FILENO);
+		ft_putstr_fd(directory, STDERR_FILENO);
+		ft_putstr_fd(": ", STDERR_FILENO);
+		ft_putendl_fd(strerror(errno), STDERR_FILENO);
 		return ;
 	}
 	if (chdir(directory) != 0)
 	{
 		free(working_directory);
-		printf("cd: %s: %s\n", directory, strerror(errno));
+		ft_putstr_fd("cd: ", STDERR_FILENO);
+		ft_putstr_fd(directory, STDERR_FILENO);
+		ft_putstr_fd(": ", STDERR_FILENO);
+		ft_putendl_fd(strerror(errno), STDERR_FILENO);
 		shell->status = 1;
 		return ;
 	}

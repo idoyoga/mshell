@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:54:56 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 20:38:54 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/02 15:20:46 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ static bool	is_valid_exit_arg(char *arg)
 	int	i;
 
 	i = 0;
+	if (arg == NULL)
+		return (false);
 	if (arg[i] == '\0')
 		return (false);
 	if (arg[i] == '-' || arg[i] == '+')
@@ -35,7 +37,7 @@ void	builtin_exit(t_shell *shell, t_cmd *cmd)
 	size_t	count;
 
 	if (shell->cmd_count == 1)
-		printf("exit\n");
+		ft_putendl_fd("exit", STDERR_FILENO);
 	count = count_cmd_args(cmd);
 	if (count == 1)
 	{
@@ -47,7 +49,7 @@ void	builtin_exit(t_shell *shell, t_cmd *cmd)
 		error_exit(shell, EXIT_INVALID_ARGUMENT, "exit", 2);
 	}
 	if (count > 1)
-		shell->status = ft_atoi(cmd->args[1]); // TODO: protect
+		shell->status = ft_atoi(cmd->args[1]);
 	if (count > 2)
 	{
 		shell->status = 1;
