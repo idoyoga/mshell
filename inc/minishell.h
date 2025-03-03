@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 19:11:07 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 19:45:00 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MINISHELL_H
 
 # define DEFAULT_ALLOC_CAPACITY 100
+# define PROMPT_MESSAGE "minishell > "
 
 # include "../libft/inc/libft.h"
 # include <dirent.h>
@@ -104,8 +105,8 @@ typedef enum e_error
 
 typedef enum e_access_status
 {
-	A_NOOP,      // no command to run, do nothing
-	A_NOT_FOUND, // doesn't exist at all
+	A_NOOP,
+	A_NOT_FOUND,
 	A_PERMISSION_DENIED,
 	A_IS_DIRECTORY,
 	A_CAN_EXECUTE
@@ -169,23 +170,23 @@ typedef struct s_alloc_tracker
 
 typedef struct s_shell
 {
-	t_cmd *cmd;            // Command list
-	t_env *env;            // Environment variables
-	t_tok *tokens;         // Token list
-	t_alloc alloc_tracker; // Memory tracker
-	size_t cmd_count;      // Number of distinct commands (subshells)
-	int env_count;         // Environment variable count
-	int status;            // Exit status
-	bool abort;            // Whether to abort a whole execution cycle (for heredoc signal)
-	char *prompt;          // Prompt string
-	char *cmd_input;       // Command input
-	char *home_dir;        // Home directory
-	char *work_dir;        // Current working directory
-	char *old_work_dir;    // Previous working directory
-	char *user;            // User name
-	char **path_segments;  // PATH split at ':'
-	char **env_as_array;   // PATH split at ':'
-	int fd_copies[2];      // copies of STDOUT and STDIN for single builtins
+	t_cmd						*cmd;
+	t_env						*env;
+	t_tok						*tokens;
+	t_alloc						alloc_tracker;
+	size_t						cmd_count;
+	int							env_count;
+	int							status;
+	bool						abort;
+	char						*prompt;
+	char						*cmd_input;
+	char						*home_dir;
+	char						*work_dir;
+	char						*old_work_dir;
+	char						*user;
+	char						**path_segments;
+	char						**env_as_array;
+	int							fd_copies[2];
 }								t_shell;
 
 typedef struct s_builtin
@@ -245,7 +246,6 @@ bool							upsert_env_variable(t_shell *shell, t_env **lst,
 // --------------  env_utils  --------------------------------------------- //
 t_env							*add_env_variable(t_shell *shell, t_env **lst,
 									char *data);
-char							*create_prompt(t_shell *shell);
 bool							remove_env_variable(t_shell *shell, t_env **lst,
 									char *var_name);
 
@@ -332,7 +332,7 @@ size_t							count_cmd_args(t_cmd *cmd);
 
 // --------------  builtins  ---------------------------------------------- //
 t_b_typ							identify_builtin(char *str);
-void (*get_builtin(t_b_typ type))(t_shell *, t_cmd *);
+void	(*get_builtin(t_b_typ type))(t_shell *, t_cmd *);
 void							builtin_echo(t_shell *shell, t_cmd *cmd);
 void							builtin_cd(t_shell *shell, t_cmd *cmd);
 void							builtin_pwd(t_shell *shell, t_cmd *cmd);

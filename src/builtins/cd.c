@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:56:21 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/02 15:23:25 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 19:39:26 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static void	change_directory(t_shell *shell, char *directory)
 	if (!working_directory)
 	{
 		// handle critical error
-		ft_putstr_fd("cd: ", STDERR_FILENO);
+		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
 		ft_putstr_fd(directory, STDERR_FILENO);
 		ft_putstr_fd(": ", STDERR_FILENO);
 		ft_putendl_fd(strerror(errno), STDERR_FILENO);
@@ -29,7 +29,7 @@ static void	change_directory(t_shell *shell, char *directory)
 	if (chdir(directory) != 0)
 	{
 		free(working_directory);
-		ft_putstr_fd("cd: ", STDERR_FILENO);
+		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
 		ft_putstr_fd(directory, STDERR_FILENO);
 		ft_putstr_fd(": ", STDERR_FILENO);
 		ft_putendl_fd(strerror(errno), STDERR_FILENO);

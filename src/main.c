@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 17:02:31 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 19:40:24 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ void	print_parsed_data(t_shell *shell)
 	printf("Status: %d\n", shell->status);
 	printf("Prompt: %s\n", shell->prompt);
 	printf("Cmd_input: %s\n", shell->cmd_input);
-	printf("Home_dir: %s\n", shell->home_dir);
+	// printf("Home_dir: %s\n", shell->home_dir);
 	printf("Work_dir: %s\n", shell->work_dir);
 	printf("Old_work_dir: %s\n", shell->old_work_dir);
 	printf("User: %s\n", shell->user);
@@ -161,7 +161,8 @@ static void	minishell(t_shell *shell)
 		add_history(shell->cmd_input);
 		if (!tokenize_input(shell, shell->cmd_input))
 			continue ;
-		print_cmd(shell->cmd);
+		// print_cmd(shell->cmd);
+		// print_parsed_data(shell);
 		if (shell->cmd != NULL && !shell->abort)
 		{
 			prepare_execution(shell);

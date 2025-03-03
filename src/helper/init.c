@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:25:47 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 19:33:39 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,9 +113,7 @@ static bool	init_prompt(t_shell *shell)
 		shell->user = safe_strdup(shell, "user");
 	if (!shell->work_dir)
 		return (error(NO_WD, false));
-	shell->prompt = create_prompt(shell);
-	if (!shell->prompt)
-		return (error(NO_PROMPT, false));
+	shell->prompt = PROMPT_MESSAGE;
 	return (true);
 }
 
