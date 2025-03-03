@@ -6,11 +6,20 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:39:27 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:35:29 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 19:09:58 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+bool	is_valid_var_char(char c, size_t index)
+{
+	if (c == '_')
+		return (true);
+	if (index == 0)
+		return (ft_isalpha(c));
+	return (ft_isalnum(c));
+}
 
 /*
 **	Check if var_name matches the name of an environment variable inside

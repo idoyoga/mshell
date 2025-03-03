@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_helper.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 18:07:01 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 19:45:49 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 19:04:44 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,11 @@ char	**create_default_env(t_shell *shell)
 }
 
 /*
-**	Upsert an environment variable. 
+**	Upsert an environment variable.
 */
 
-bool	upsert_env_variable(t_shell *shell, t_env **lst, char *key, char *new_value)
+bool	upsert_env_variable(t_shell *shell, t_env **lst, char *key,
+		char *new_value)
 {
 	t_env	*node;
 	char	*updated_value;
@@ -91,4 +92,3 @@ bool	upsert_env_variable(t_shell *shell, t_env **lst, char *key, char *new_value
 	updated_value = safe_strjoin(shell, updated_value, new_value);
 	return (add_env_variable(shell, lst, updated_value) != NULL);
 }
-

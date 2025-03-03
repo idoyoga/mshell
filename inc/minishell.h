@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 16:19:00 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 19:11:07 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,6 +271,7 @@ int								match_env_variable(char *var_name,
 bool							append_char_to_str(t_shell *shell,
 									char **output, int *index, char *c);
 bool							is_quote(char c);
+bool							is_valid_var_char(char c, size_t index);
 
 // --------------  heredoc  ----------------------------------------------- //
 int								handle_heredoc(t_shell *shell,

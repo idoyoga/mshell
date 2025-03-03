@@ -6,20 +6,11 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 18:08:04 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 19:10:16 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-static bool	is_valid_var_char(char c, size_t index)
-{
-	if (c == '_')
-		return (true);
-	if (index == 0)
-		return (ft_isalpha(c));
-	return (ft_isalnum(c));
-}
 
 /*
 **	Expand a given environment variable ($VAR) by replacing it with its value.
