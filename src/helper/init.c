@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 17:28:17 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 19:31:28 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ static bool	init_work_dirs(t_shell *shell)
 		return (error(GETCWD, false));
 	if (shell->work_dir)
 		alloc_tracker_remove(&shell->alloc_tracker, shell->work_dir);
-	shell->work_dir = ft_strdup(cwd);
+	shell->work_dir = safe_strdup(shell, cwd);
 	if (shell->old_work_dir)
 		alloc_tracker_remove(&shell->alloc_tracker, shell->old_work_dir);
 	shell->old_work_dir = safe_strdup(shell, "");
@@ -100,6 +100,8 @@ static bool	init_work_dirs(t_shell *shell)
 **	"user" is used as a default.
 */
 
+#define PROMPT "Minishell>"
+
 static bool	init_prompt(t_shell *shell)
 {
 	if (!shell)
@@ -109,7 +111,8 @@ static bool	init_prompt(t_shell *shell)
 		shell->user = safe_strdup(shell, "user");
 	if (!shell->work_dir)
 		return (error(NO_WD, false));
-	shell->prompt = create_prompt(shell);
+	/* shell->prompt = create_prompt(shell); */
+	shell->prompt = PROMPT;
 	if (!shell->prompt)
 		return (error(NO_PROMPT, false));
 	return (true);

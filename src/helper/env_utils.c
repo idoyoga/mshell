@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:36:20 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 16:26:14 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 19:29:54 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,33 +71,33 @@ t_env	*add_env_variable(t_shell *shell, t_env **lst, char *data)
 **	ft_strlen(work_dir) to ensure that access by work_dir[len] is safe.
 */
 
-char	*create_prompt(t_shell *shell)
-{
-	char	*prompt;
-	char	*work_dir;
-	size_t	len;
-	size_t	total_len;
+/* char	*create_prompt(t_shell *shell) */
+/* { */
+/* 	char	*prompt; */
+/* 	char	*work_dir; */
+/* 	size_t	len; */
+/* 	size_t	total_len; */
 
-	if (!shell || !shell->user || !shell->work_dir)
-		return (NULL);
-	shell->home_dir = getenv("HOME");
-	if (!shell->home_dir)
-		shell->home_dir = safe_strdup(shell, "");
-	len = ft_strlen(shell->home_dir);
-	work_dir = shell->work_dir;
-	if (ft_strlen(work_dir) > len && work_dir[len] == '/'
-		&& ft_strncmp(shell->home_dir, work_dir, len) == 0)
-		work_dir += len;
-	total_len = ft_strlen(shell->user) + ft_strlen(work_dir) + 6;
-	if (shell->prompt)
-		alloc_tracker_remove(&shell->alloc_tracker, shell->prompt);
-	prompt = safe_calloc(shell, total_len, sizeof(char));
-	ft_strlcpy(prompt, shell->user, total_len);
-	ft_strlcat(prompt, ":~", total_len);
-	ft_strlcat(prompt, work_dir, total_len);
-	ft_strlcat(prompt, "$ ", total_len);
-	return (prompt);
-}
+/* 	if (!shell || !shell->user || !shell->work_dir) */
+/* 		return (NULL); */
+/* 	shell->home_dir = getenv("HOME"); */
+/* 	if (!shell->home_dir) */
+/* 		shell->home_dir = safe_strdup(shell, ""); */
+/* 	len = ft_strlen(shell->home_dir); */
+/* 	work_dir = shell->work_dir; */
+/* 	if (ft_strlen(work_dir) > len && work_dir[len] == '/' */
+/* 		&& ft_strncmp(shell->home_dir, work_dir, len) == 0) */
+/* 		work_dir += len; */
+/* 	total_len = ft_strlen(shell->user) + ft_strlen(work_dir) + 6; */
+/* 	if (shell->prompt) */
+/* 		alloc_tracker_remove(&shell->alloc_tracker, shell->prompt); */
+/* 	prompt = safe_calloc(shell, total_len, sizeof(char)); */
+/* 	ft_strlcpy(prompt, shell->user, total_len); */
+/* 	ft_strlcat(prompt, ":~", total_len); */
+/* 	ft_strlcat(prompt, work_dir, total_len); */
+/* 	ft_strlcat(prompt, "$ ", total_len); */
+/* 	return (prompt); */
+/* } */
 
 /*
 **	Unlink an environment node from our list.

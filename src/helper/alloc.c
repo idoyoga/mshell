@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:24:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 17:42:22 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 19:37:32 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,27 +137,28 @@ void	free_tracker_allocs(void *alloc, int is_array, int cycle_only)
 	int		i;
 	char	**array;
 
+	(void)cycle_only;
 	if (!alloc)
 	{
 		printf("⚠️ free_tracker_allocs called with NULL pointer!\n");
 		return ;
 	}
-	if (cycle_only)
-	{
-		printf("⏩ Skipping free (cycle_only active): %p\n", alloc);
-		return ;
-	}
+	/* if (cycle_only) */
+	/* { */
+	/* 	printf("⏩ Skipping free (cycle_only active): %p\n", alloc); */
+	/* 	return ; */
+	/* } */
 	if (is_array)
 	{
 		array = (char **)alloc;
 		i = -1;
 		while (array[++i])
 		{
-			printf("🟠 Freeing array element: %p\n", array[i]);
+			printf("🟠 Freeing array element in free_tracker_allocs: %p\n", array[i]);
 			free(array[i]);
 		}
 	}
-	printf("🟢 Freeing allocation: %p\n", alloc);
+	printf("🟢 Freeing allocation in free_tracker_allocs: %p\n", alloc);
 	free(alloc);
 }
 
@@ -172,20 +173,22 @@ void	free_allocs(t_alloc *tracker)
 	if (!tracker || !tracker->allocs)
 		return ;
 	printf("🧹 Calling free_allocs()...\n");
-	if (tracker->shell->env_as_array)
-	{
-		printf("🟡 Freeing env_as_array: %p\n", tracker->shell->env_as_array);
-		alloc_tracker_remove(tracker, tracker->shell->env_as_array);
-		tracker->shell->env_as_array = NULL;
-	}
+	/* if (tracker->shell->env_as_array) */
+	/* { */
+	/* 	printf("🟡 Freeing env_as_array: %p\n", tracker->shell->env_as_array); */
+	/* 	alloc_tracker_remove(tracker, tracker->shell->env_as_array); */
+	/* 	tracker->shell->env_as_array = NULL; */
+	/* } */
 	i = 0;
 	while (i < tracker->count)
 	{
 		if (tracker->allocs[i] && !tracker->cycle_only[i])
 		{
-			printf("🟢 Freeing allocation: %p\n", tracker->allocs[i]);
+			printf("🟢 Freeing allocation in free_allocs: %p\n", tracker->allocs[i]);
 			free_tracker_allocs(tracker->allocs[i], tracker->is_array[i], tracker->cycle_only[i]);
-			tracker->allocs[i] = NULL;
+			/* tracker->allocs[i] = NULL; */
+			/* tracker->is_array[i] = 0; */
+			/* tracker->cycle_only[i] = 0; */
 		}
 		i++;
 	}
