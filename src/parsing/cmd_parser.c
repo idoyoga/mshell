@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 16:28:23 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 18:18:57 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ static int	count_args(t_shell *shell, t_tok *token)
 			i++;
 		current = current->next;
 	}
-	printf("counted %d args\n", i);
+	// printf("counted %d args\n", i);
 	return (i);
 }
 
@@ -80,7 +80,6 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 	}
 	if ((*token)->type > END && (*token)->type < PIPE)
 	{
-		printf("redirection for %s\n", (*token)->content);
 		if (!(*redir))
 		{
 			if (!handle_redirection(shell, *token, *cmd))
@@ -88,11 +87,9 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 				(*cmd)->skip = true;
 				return (false);
 			}
-			if ((*token)->type != HEREDOC)
-				*redir = true;
+			*redir = true;
 		}
 		*token = (*token)->next;
-		// skip the extra redirection token
 	}
 	else if ((*token)->type > PIPE && !(*token)->is_null)
 	{

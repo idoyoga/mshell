@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 00:14:06 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 18:08:04 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,13 +278,10 @@ bool	expand_dilla_variables(t_shell *shell)
 				&& current_token->prev->type != ARG
 				&& current_token->prev->type != PIPE))
 		{
-			printf("not expanding %s\n", current_token->content);
 		}
 		else
 		{
-			printf("expanding %s\n", current_token->content);
 			xpand(shell, current_token);
-			printf("expanded to %s\n", current_token->content);
 		}
 		current_token = current_token->next;
 		if (current_token == shell->tokens)
