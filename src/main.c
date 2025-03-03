@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 15:45:21 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 17:02:31 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,8 +151,10 @@ static void	minishell(t_shell *shell)
 				shell->cmd_input, readline(shell->prompt));
 		if (g_signal != 0)
 			shell->status = g_signal + 128;
-		if (!shell->cmd_input)
+		if (!shell->cmd_input) {
+			ft_putendl_fd("exit", 2);
 			break ;
+		}
 		setup_signals(SIG_IGN, SIG_IGN);
 		if (blank_line(shell->cmd_input))
 			continue ;
