@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/01 15:14:00 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 00:49:19 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,31 @@ void	execute_command(t_shell *shell, t_cmd *command)
 {
 	t_b_typ	type;
 
+	shell->status = 0;
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	redirect_command(shell, command);
-	if (!command->args || !command->args[0])
+	if (command->access_status == A_NOOP)
 	{
+		ft_putendl_fd("nooping the heck out",2);
 		clean_shell(shell);
 		exit(0);
+	}
+	if (command->access_status == A_NOT_FOUND)
+	{
+		shell->status = 127;
+		error_exit(shell, EXEC_NOT_FOUND, "execute_command", shell->status);
+	}
+	if (command->access_status == A_IS_DIRECTORY)
+	{
+		shell->status = 126;
+		error_exit(shell, EXEC_IS_DIRECTORY, "execute_command", shell->status);
+	}
+	if (command->access_status == A_PERMISSION_DENIED)
+	{
+		shell->status = 126;
+		error_exit(shell, EXEC_PERMISSION_DENIED, "execute_command",
+			shell->status);
 	}
 	type = identify_builtin(command->args[0]);
 	if (type > _NOT_A_BUILTIN)
@@ -72,6 +90,8 @@ void	dispatch(t_shell *shell)
 	int		pipe_fd[2];
 	t_b_typ	type;
 
+	shell->status = 0;
+	printf("cmd count: %lu\n", shell->cmd_count);
 	if (shell->cmd_count != 1)
 	{
 		pipe_fd[0] = -2;

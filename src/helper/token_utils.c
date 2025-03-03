@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 15:46:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 22:10:43 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 00:14:23 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ static t_tok	*init_token(t_shell *shell, char *content, t_t_typ type)
 	token->content = content;
 	token->type = type;
 	token->is_quoted = false;
+	token->is_null = false;
 	token->first_cmd = false;
 	token->next = NULL;
 	token->prev = NULL;

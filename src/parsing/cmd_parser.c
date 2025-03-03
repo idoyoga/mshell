@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 23:27:52 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 16:28:23 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,66 +26,19 @@ static int	count_args(t_shell *shell, t_tok *token)
 
 	i = 0;
 	current = token;
-	if (current->type == CMD || (current->type == ARG
-			&& current->prev->type != PIPE))
+	if (!current->is_null && (current->type == CMD || (current->type == ARG
+				&& current->prev->type != PIPE)))
 		i++;
 	current = current->next;
 	while (current != shell->tokens && current->type != PIPE)
 	{
-		if (current->type == CMD || current->type == ARG)
+		if (!current->is_null && (current->type == CMD || (current->type == ARG
+					&& current->prev->type > PIPE)))
 			i++;
 		current = current->next;
 	}
+	printf("counted %d args\n", i);
 	return (i);
-}
-
-/*
-**	Check if a token is a valid argument for a command:
-**	- CMD tokens are always valid arguments.
-**	- ARG tokens are valid if preceded by CMD or another ARG,
-**		but not if preceded by PIPE at the start of the token list.
-*/
-
-static bool	is_valid_arg(t_shell *shell, t_tok *current)
-{
-	if (current->type == CMD)
-		return (true);
-	if (current->type == ARG && (current->prev->type == CMD
-			|| current->prev->type == ARG)
-		&& current->prev != shell->tokens->prev)
-		return (true);
-	return (false);
-}
-
-/*
-**	Extract arguments from tokens into an array:
-**	- Allocate memory for the array based on the argument count.
-**	- Iterate through tokens and adds valid arguments.
-**	- End the array with NULL for execve compatibility.
-*/
-
-static char	**extract_args(t_shell *shell, t_tok *token)
-{
-	t_tok	*current;
-	char	**args;
-	int		ac;
-	int		i;
-
-	ac = count_args(shell, token);
-	args = safe_malloc(shell, sizeof(char *) * (ac + 1));
-	current = token;
-	i = 0;
-	if (current->type != PIPE && is_valid_arg(shell, current))
-		args[i++] = safe_strdup(shell, current->content);
-	current = current->next;
-	while (current != shell->tokens && current->type != PIPE)
-	{
-		if (is_valid_arg(shell, current))
-			args[i++] = safe_strdup(shell, current->content);
-		current = current->next;
-	}
-	args[i] = NULL;
-	return (args);
 }
 
 /*
@@ -105,40 +58,47 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 **		- Extract arguments into the command node.
 */
 
-static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd,
+// when we encounter a pipe, syntax check should ensure
+// that there'll always be a token afterwards
+// since the first redirect thing we hit will go over
+// all the redirections in that subcommand
+// we still want to enter this function for every
+// token, though - even the redir ones that
+// we have already handled
+// but we have to make sure that each ARG
+// that follows a redirection is properly skipped
+// cmd->type END should never be encountered
+static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 		bool *redir)
 {
-	if (is_command_start(*current))
-	{
-		if (!*cmd)
-			*cmd = add_cmd(shell, &shell->cmd);
-		(*cmd)->args = extract_args(shell, *current);
-	}
-	if (!*redir && ((*current)->type == REDIR_IN || (*current)->type == HEREDOC
-			|| (*current)->type == REDIR_OUT
-			|| (*current)->type == REDIR_APPEND))
-	{
-		if (!handle_redirection(shell, *current, *cmd))
-		{
-			(*cmd)->skip = true;
-			skip_invalid_command(shell, current);
-			return (false);
-		}
-		if ((*current)->type != HEREDOC)
-			*redir = true;
-		*current = (*current)->next;
+	if ((*token)->is_null)
 		return (true);
-	}
-	if ((*current)->type == PIPE)
+	if ((*token)->type == PIPE)
 	{
-		if ((*current)->next && is_command_start((*current)->next))
-		{
-			*cmd = add_cmd(shell, &shell->cmd);
-			(*cmd)->args = extract_args(shell, (*current)->next);
-		}
 		*redir = false;
+		*cmd = NULL;
 	}
-	*current = (*current)->next;
+	if ((*token)->type > END && (*token)->type < PIPE)
+	{
+		printf("redirection for %s\n", (*token)->content);
+		if (!(*redir))
+		{
+			if (!handle_redirection(shell, *token, *cmd))
+			{
+				(*cmd)->skip = true;
+				return (false);
+			}
+			if ((*token)->type != HEREDOC)
+				*redir = true;
+		}
+		*token = (*token)->next;
+		// skip the extra redirection token
+	}
+	else if ((*token)->type > PIPE && !(*token)->is_null)
+	{
+		(*cmd)->args[(*cmd)->argc] = safe_strdup(shell, (*token)->content);
+		(*cmd)->argc++;
+	}
 	return (true);
 }
 
@@ -151,19 +111,43 @@ static bool	process_token(t_shell *shell, t_tok **current, t_cmd **cmd,
 
 bool	parse_commands(t_shell *shell)
 {
-	t_tok	*current;
-	t_cmd	*cmd;
-	bool	redirected;
+	t_tok		*current;
+	t_cmd		*cmd;
+	bool		redirected;
+	static int	i = 0;
 
 	cmd = NULL;
 	shell->cmd = NULL;
 	current = shell->tokens;
 	redirected = false;
-	while ((current != shell->tokens || !shell->cmd) && !shell->abort)
+	while (!shell->abort)
 	{
+		if (!cmd)
+		{
+			cmd = add_cmd(shell, &shell->cmd);
+			cmd->argc = count_args(shell, current);
+			cmd->args = safe_calloc(shell, cmd->argc + 1, sizeof(char *));
+			cmd->argc = 0;
+		}
+		// into this cmd, until a pipe is encountered
+		// if the token is_null, then do not add an arg for it
+		// when encountering a pipe in process_token,
+		// set this cmd to NULL and let this `if` case
+		// init another cmd if there's more tokens
+		// after the pipe
 		if (!process_token(shell, &current, &cmd, &redirected))
-			continue ;
+		{
+			// a command that's skipped should probably be marked as noop? idk
+			// it's already marked as 'skip' anyway so no need
+			skip_invalid_command(shell, &current);
+			cmd = NULL;
+			redirected = false;
+		}
+		else
+			current = current->next;
 		if (current == shell->tokens)
+			break ;
+		if (++i > 50) // debug
 			break ;
 	}
 	return (true);

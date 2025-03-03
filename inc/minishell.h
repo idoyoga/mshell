@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 23:35:53 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 16:19:00 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,8 +96,20 @@ typedef enum e_error
 	PWD_NO_CWD,
 	CD_TOO_MANY_ARGUMENTS,
 	CD_NO_HOME,
+	EXEC_NOT_FOUND,
+	EXEC_IS_DIRECTORY,
+	EXEC_PERMISSION_DENIED,
 	TOTAL
 }								t_error;
+
+typedef enum e_access_status
+{
+	A_NOOP,      // no command to run, do nothing
+	A_NOT_FOUND, // doesn't exist at all
+	A_PERMISSION_DENIED,
+	A_IS_DIRECTORY,
+	A_CAN_EXECUTE
+}								t_acc_t;
 
 typedef enum e_quoted_status
 {
@@ -117,8 +129,10 @@ typedef struct s_cmd
 {
 	char						*cmd;
 	char						**args;
+	int							argc;
 	int							fd_in;
 	int							fd_out;
+	t_acc_t						access_status;
 	pid_t						child_pid;
 	bool						skip;
 	struct s_cmd				*next;
@@ -131,6 +145,7 @@ typedef struct s_tok
 	char						*file;
 	t_t_typ						type;
 	bool						is_quoted;
+	bool						is_null;
 	bool						first_cmd;
 	struct s_tok				*next;
 	struct s_tok				*prev;
