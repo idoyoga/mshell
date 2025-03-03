@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:15:59 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 15:23:26 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,43 @@ void	print_cmd(t_cmd *cmd)
 	print_tab(tmp->args);
 	printf("\n");
 }
+static void alloc_tracker_purge_cycle(t_alloc *tracker)
+{
+    int i = 0;
+    int j = 0;
+
+    if (!tracker || tracker->count == 0)
+        return;
+
+    while (i < tracker->count)
+    {
+        if (tracker->cycle_only[i])
+        {
+			if (tracker->allocs[i] == tracker->shell->prompt)
+			{
+				printf("⏩ Skipping free for prompt: %p\n", tracker->allocs[i]);
+				i++;
+				continue;
+			}
+            printf("🛑 Freeing cycle allocation: %p\n", tracker->allocs[i]);
+            free_tracker_allocs(tracker->allocs[i], tracker->is_array[i], 
+				tracker->cycle_only[i]);
+            tracker->allocs[i] = NULL;
+        }
+        i++;
+    }
+    for (i = 0; i < tracker->count; i++)
+    {
+        if (tracker->allocs[i] != NULL)
+        {
+            tracker->allocs[j] = tracker->allocs[i];
+            tracker->is_array[j] = tracker->is_array[i];
+            tracker->cycle_only[j] = tracker->cycle_only[i];
+            j++;
+        }
+    }
+    tracker->count = j;  // Update the count after cleanup
+}
 
 /*
 **	Start minishell, provide the prompt, read input and execute commands
@@ -164,8 +201,10 @@ static void	minishell(t_shell *shell)
 		{
 			prepare_execution(shell);
 			dispatch(shell);
-			postpare_execution(shell);
+			printf(" 🚀 Commands dispatched.\n");
+			/* postpare_execution(shell); */
 		}
+		alloc_tracker_purge_cycle(&shell->alloc_tracker);
 	}
 	rl_clear_history();
 }

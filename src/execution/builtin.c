@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:51:59 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/01 15:16:11 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 15:41:51 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	execute_builtin(t_shell *shell, t_cmd *command, t_b_typ type)
 	builtin = get_builtin(type);
 	if (builtin != NULL)
 		builtin(shell, command);
-	clean_shell(shell);
+	/* clean_shell(shell); */
 	exit(shell->status);
 }
 

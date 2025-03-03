@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 15:46:52 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 22:10:43 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 13:50:53 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int	get_token_length(char *input)
 			break ;
 		if (quote == QUOTE_NONE && is_quote(input[len]))
 			quote = input[len];
-		else if (quote != QUOTE_NONE && (input[len]) == quote)
+		else if (quote != QUOTE_NONE && (input[len]) == (unsigned char)quote)
 			quote = QUOTE_NONE;
 		len++;
 	}

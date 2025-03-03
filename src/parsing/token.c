@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 22:10:12 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 15:06:11 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,7 @@ static bool	parse_operator_token(t_shell *shell, t_tok **lst, char **input,
 	char	*content;
 
 	type = identify_special_token(*input);
-	content = ft_strndup(*input, token_length);
-	if (!content || !alloc_tracker_add(&(shell->alloc_tracker), content, 0))
-		return (error(NO_MEM, false));
+	content = safe_strndup(shell, *input, token_length);
 	prev = NULL;
 	if (*lst)
 		prev = (*lst)->prev;

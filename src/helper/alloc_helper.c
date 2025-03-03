@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 17:46:41 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:34:48 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 15:04:30 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	*alloc_tracker_replace(t_alloc *tracker, void *old_ptr, void *new_ptr)
 	if (!tracker || !new_ptr)
 		return (NULL);
 	if (!old_ptr)
-		return (alloc_tracker_add(tracker, new_ptr, 0));
+		return (alloc_tracker_add(tracker, new_ptr, 0, 1));
 	i = -1;
 	while (++i < tracker->count)
 	{
@@ -110,7 +110,7 @@ void	*safe_malloc(t_shell *shell, size_t size)
 	ptr = malloc(size);
 	if (!ptr)
 		error_exit(shell, NO_MEM, "safe_malloc", EXIT_FAILURE);
-	if (!alloc_tracker_add(&shell->alloc_tracker, ptr, 0))
+	if (!alloc_tracker_add(&shell->alloc_tracker, ptr, 0, 1))
 	{
 		free(ptr);
 		error_exit(shell, NO_MEM, "safe_malloc", EXIT_FAILURE);
@@ -131,7 +131,7 @@ void	*safe_calloc(t_shell *shell, size_t count, size_t size)
 	ptr = ft_calloc(count, size);
 	if (!ptr)
 		error_exit(shell, NO_MEM, "safe_calloc", EXIT_FAILURE);
-	if (!alloc_tracker_add(&shell->alloc_tracker, ptr, 0))
+	if (!alloc_tracker_add(&shell->alloc_tracker, ptr, 0, 1))
 	{
 		free(ptr);
 		error_exit(shell, NO_MEM, "safe_calloc", EXIT_FAILURE);

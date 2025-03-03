@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/28 01:06:46 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 15:06:44 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void	error_cmd(t_shell *shell, const char *cmd_name)
 	char	*err_msg;
 
 	err_msg = ft_strjoin_four("minishell: ", cmd_name, ": ", strerror(errno));
-	alloc_tracker_add(&shell->alloc_tracker, err_msg, 0);
+	alloc_tracker_add(&shell->alloc_tracker, err_msg, 0, 1);
 	if (!err_msg)
 		error(NO_MEM, false);
 	ft_putendl_fd(err_msg, 2);

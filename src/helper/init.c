@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:25:47 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 17:28:17 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,16 @@ static bool	init_alloc_tracker(t_shell *shell, int initial_capacity)
 	shell->alloc_tracker.shell = shell;
 	shell->alloc_tracker.allocs = ft_calloc(initial_capacity, sizeof(void *));
 	shell->alloc_tracker.is_array = ft_calloc(initial_capacity, sizeof(int));
-	if (!shell->alloc_tracker.allocs || !shell->alloc_tracker.is_array)
+	shell->alloc_tracker.cycle_only = ft_calloc(initial_capacity, sizeof(int));
+	if (!shell->alloc_tracker.allocs || !shell->alloc_tracker.is_array
+			|| !shell->alloc_tracker.cycle_only)
 	{
 		free(shell->alloc_tracker.allocs);
 		free(shell->alloc_tracker.is_array);
+		free(shell->alloc_tracker.cycle_only);
 		shell->alloc_tracker.allocs = NULL;
 		shell->alloc_tracker.is_array = NULL;
+		shell->alloc_tracker.cycle_only = NULL;
 		error_exit(shell, NO_TRACK, "init_alloc_tracker", EXIT_FAILURE);
 	}
 	shell->alloc_tracker.count = 0;
@@ -44,7 +48,7 @@ static bool	init_alloc_tracker(t_shell *shell, int initial_capacity)
 ** 	and add all environment variables to it.
 */
 
-static bool	init_env(t_shell *shell, char **env)
+static bool	init_environment(t_shell *shell, char **env)
 {
 	t_env	*lst;
 	char	*tmp;
@@ -60,7 +64,10 @@ static bool	init_env(t_shell *shell, char **env)
 		if (!tmp)
 			return (error(NO_MEM, false));
 		if (!add_env_variable(shell, &lst, tmp))
+		{
+			alloc_tracker_remove(&shell->alloc_tracker, tmp);
 			return (error(NO_MEM, false));
+		}
 	}
 	shell->env = lst;
 	shell->env_count = i;
@@ -76,26 +83,15 @@ static bool	init_work_dirs(t_shell *shell)
 {
 	char	*cwd;
 
-	/* char	*tmp; */
-	/* tmp = safe_strdup(shell, "OLDPWD"); */
-	/* if (!tmp) */
-	/* 	return (error(NO_MEM, false)); */
-	/* if (!add_env_variable(shell, &shell->env, tmp)) */
-	/* 	return (error(NO_MEM, false)); */
 	cwd = getcwd(NULL, 0);
-	if (!cwd || !alloc_tracker_add(&shell->alloc_tracker, cwd, 0))
+	if (!cwd || !alloc_tracker_add(&shell->alloc_tracker, cwd, 0, 0))
 		return (error(GETCWD, false));
-	/* tmp = safe_strjoin(shell, "PWD=", cwd); */
-	/* if (!tmp) */
-	/* 	return (error(NO_MEM, false)); */
-	/* if (!add_env_variable(shell, &shell->env, tmp)) */
-	/* 	return (error(NO_MEM, false)); */
-	shell->work_dir = safe_strdup(shell, cwd);
-	if (!shell->work_dir)
-		return (error(NO_MEM, false));
+	if (shell->work_dir)
+		alloc_tracker_remove(&shell->alloc_tracker, shell->work_dir);
+	shell->work_dir = ft_strdup(cwd);
+	if (shell->old_work_dir)
+		alloc_tracker_remove(&shell->alloc_tracker, shell->old_work_dir);
 	shell->old_work_dir = safe_strdup(shell, "");
-	if (!shell->old_work_dir)
-		return (error(NO_MEM, false));
 	return (true);
 }
 
@@ -141,7 +137,7 @@ bool	init_shell(t_shell *shell, char **env)
 		initial_capacity = DEFAULT_ALLOC_CAPACITY;
 	if (!init_alloc_tracker(shell, initial_capacity))
 		return (error(NO_ALLOC, false));
-	if (!init_env(shell, env))
+	if (!init_environment(shell, env))
 		return (error(NO_ENV, false));
 	if (!init_work_dirs(shell))
 		return (error(NO_WD, false));

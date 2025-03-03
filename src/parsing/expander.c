@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:53:06 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 16:36:19 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ static bool	expand_exit_status(t_shell *shell, char **output, char *input,
 
 	(void)input;
 	status_str = ft_itoa(shell->status);
-	if (!status_str || !alloc_tracker_add(&shell->alloc_tracker, status_str, 0))
+	if (!status_str || !alloc_tracker_add(&shell->alloc_tracker, status_str, 0, 1))
 		return (error(NO_MEM, false));
 	new_str = safe_strjoin(shell, *output, status_str);
 	*output = new_str;
@@ -204,7 +204,7 @@ static void	handy_expandy(t_shell *shell, char *str, char **dest, int *index)
 	if (!variable)
 		error_exit(shell, NO_MEM, "handy_expandy", EXIT_FAILURE);
 	// printf("looking for variable `%s`\n", variable);
-	alloc_tracker_add(&shell->alloc_tracker, variable, 0);
+	alloc_tracker_add(&shell->alloc_tracker, variable, 0, 0);
 	check_res = env_variable_exists(shell, variable);
 	if (check_res == true)
 	{
@@ -226,6 +226,7 @@ void	xpand(t_shell *shell, t_tok *token)
 
 	if (is_empty_variable(shell, token->content))
 	{
+		alloc_tracker_remove(&shell->alloc_tracker, token->content);
 		token->content = NULL;
 		return ;
 	}
@@ -239,7 +240,7 @@ void	xpand(t_shell *shell, t_tok *token)
 			quote = token->content[i];
 			i++;
 		}
-		else if (quote != QUOTE_NONE && token->content[i] == quote)
+		else if (quote != QUOTE_NONE && token->content[i] == (unsigned char)quote)
 		{
 			quote = QUOTE_NONE;
 			i++;
@@ -262,6 +263,7 @@ void	xpand(t_shell *shell, t_tok *token)
 			append_char_to_str(shell, &expanded_content, &i,
 				&token->content[i]);
 	}
+	alloc_tracker_remove(&shell->alloc_tracker, token->content);
 	token->content = expanded_content;
 }
 

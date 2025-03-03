@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 19:35:53 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/02 21:24:37 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 13:50:26 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static size_t	get_length_without_quotes(char *token)
 	{
 		if (quote == QUOTE_NONE && is_quote(token[i]))
 			quote = token[i];
-		else if (quote != QUOTE_NONE && token[i] == quote)
+		else if (quote != QUOTE_NONE && token[i] == (unsigned char)quote)
 			quote = QUOTE_NONE;
 		else
 			length_without_quotes++;
@@ -52,7 +52,7 @@ static void	strip_quotes_from_token(char *token, char *destination)
 	{
 		if (quote == QUOTE_NONE && is_quote(token[ti]))
 			quote = token[ti];
-		else if (quote != QUOTE_NONE && token[ti] == quote)
+		else if (quote != QUOTE_NONE && token[ti] == (unsigned char)quote)
 			quote = QUOTE_NONE;
 		else
 		{

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 23:35:53 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 17:36:43 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,15 +137,12 @@ typedef struct s_tok
 }								t_tok;
 
 typedef struct s_shell			t_shell;
-/*
-**	Meta-tracking allocations, used to keep track of all allocated memory
-**	including the shell struct itself.
-*/
 
 typedef struct s_alloc_tracker
 {
 	void						**allocs;
 	int							*is_array;
+	int							*cycle_only;
 	int							count;
 	int							capacity;
 	bool						initialized;
@@ -185,9 +182,11 @@ typedef bool					(*t_expander)(t_shell *shell, char **output,
 
 // --------------  alloc  ------------------------------------------------- //
 void							*alloc_tracker_add(t_alloc *tracker, void *ptr,
-									int is_array);
+									int is_array, int cycle_only);
 void							alloc_tracker_remove(t_alloc *tracker,
 									void *ptr);
+void							free_tracker_allocs(void *alloc, int is_array,
+									int cycle_only);
 void							free_allocs(t_alloc *tracker);
 
 // --------------  alloc_helper  ------------------------------------------ //

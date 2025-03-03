@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 23:27:52 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 17:06:44 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,8 @@ static char	**extract_args(t_shell *shell, t_tok *token)
 	current = current->next;
 	while (current != shell->tokens && current->type != PIPE)
 	{
+		/* if (args[i]) */
+		/* 	alloc_tracker_remove(&shell->alloc_tracker, args[i]); */
 		if (is_valid_arg(shell, current))
 			args[i++] = safe_strdup(shell, current->content);
 		current = current->next;

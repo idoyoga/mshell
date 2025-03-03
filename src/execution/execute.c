@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/01 15:14:00 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 15:53:26 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,19 @@ void	execute_command(t_shell *shell, t_cmd *command)
 	type = identify_builtin(command->args[0]);
 	if (type > _NOT_A_BUILTIN)
 		execute_builtin(shell, command, type);
+	if (!shell->env_as_array)
+	{
+		printf("❌ Error: env_as_array is NULL before execve\n");
+		return ;
+	}
 	shell->status = execve(command->cmd, command->args, shell->env_as_array);
-	printf("execve failed in execute_command! errno is %d\n", errno);
-	error_exit(shell, BAD_EXEC, "execute_command", shell->status);
+	if (shell->status == -1)
+	{
+		printf("execve failed in execute_command! errno is %d\n", errno);
+		free(shell->env_as_array);
+		shell->env_as_array = NULL;
+		error_exit(shell, BAD_EXEC, "execute_command", shell->status);
+	}
 }
 
 // effectively the same as fork_and_exec()
@@ -72,6 +82,7 @@ void	dispatch(t_shell *shell)
 	int		pipe_fd[2];
 	t_b_typ	type;
 
+	printf(" 🔢 Command count: %lu\n", shell->cmd_count);
 	if (shell->cmd_count != 1)
 	{
 		pipe_fd[0] = -2;
