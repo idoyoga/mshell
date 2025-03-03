@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 22:22:36 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 15:59:47 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ int	handle_heredoc(t_shell *shell, const char *delimiter, bool is_quoted)
 	char		*heredoc_filename;
 	static int	heredoc_count = 0;
 
+	printf("heredoc looking for `%s`\n", delimiter);
 	count_str = ft_itoa(heredoc_count++);
 	if (!count_str)
 		return (-1);

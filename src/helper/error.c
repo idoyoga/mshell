@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/28 01:06:46 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 00:53:54 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,5 +130,8 @@ static const char	*g_error_msgs[TOTAL] = {
 	"Too many arguments",
 	"Too many arguments",
 	"HOME not set",
-	"Failed to run getcwd"
+	"Failed to run getcwd",
+	"Command not found",
+	"Is a directory",
+	"Permission denied"
 };

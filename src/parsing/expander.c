@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:53:06 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 00:14:06 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,6 +227,7 @@ void	xpand(t_shell *shell, t_tok *token)
 	if (is_empty_variable(shell, token->content))
 	{
 		token->content = NULL;
+		token->is_null = true;
 		return ;
 	}
 	i = 0;

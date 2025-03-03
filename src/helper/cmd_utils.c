@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dplotzl <dplotzl@student.42vienna.com>     +#+  +:+       +#+        */
+/*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/01 15:46:01 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/03 16:21:41 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,11 @@ static t_cmd	*init_cmd(t_shell *shell)
 		error_exit(shell, NO_MEM, "init_cmd", EXIT_FAILURE);
 	cmd->cmd = NULL;
 	cmd->args = NULL;
+	cmd->argc = 0;
 	cmd->fd_in = -2;
 	cmd->fd_out = -2;
 	cmd->skip = false;
+	cmd->access_status = A_CAN_EXECUTE;
 	cmd->next = NULL;
 	cmd->prev = NULL;
 	return (cmd);
@@ -65,7 +67,7 @@ t_cmd	*add_cmd(t_shell *shell, t_cmd **lst)
 /*
 **	Skip an invalid command after redirection failure
 **	- If a command has a redirection failure, this function moves 'current'
-**	  forward until it reaches a pipe or the end.
+**		forward until it reaches a pipe or the end.
 **	- If we reach a  pipe, it ensures the next command is processed.
 */
 
@@ -73,7 +75,12 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 {
 	if (!shell || !current || !*current)
 		return ;
-	shell->cmd->skip = true;
+	// shell->cmd->skip = true;
+	// TODO: currently always marks the first command as skip,
+	// should instead mark the respective cmd
+	// maybe just shell->cmd->prev->skip = true;?
+	// might not be necessary at all because once we enter
+	// this function, cmd->skip should already be true
 	while (*current && (*current)->type != PIPE)
 	{
 		*current = (*current)->next;
@@ -88,7 +95,7 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 **	Check if the current token is the start of a new command
 **	- A command starts if the token is of type CMD.
 **	- An ARG token may also be the start of a command if:
-**		- It follows a PIPE, or 
+**		- It follows a PIPE, or
 **		- It follows a redirection which is preceded by a PIPE.
 */
 
@@ -96,7 +103,7 @@ bool	is_command_start(t_tok *current)
 {
 	if (!current)
 		return (false);
-	if (current->first_cmd && current->content && current->content[0] == '$')
+	if (current->first_cmd && !current->content)
 		return (false);
 	if (current->type == CMD)
 	{
@@ -106,8 +113,7 @@ bool	is_command_start(t_tok *current)
 	}
 	if (current->type == ARG && current->prev)
 	{
-		if (current->prev->type == REDIR_IN
-			|| current->prev->type == REDIR_OUT
+		if (current->prev->type == REDIR_IN || current->prev->type == REDIR_OUT
 			|| current->prev->type == HEREDOC
 			|| current->prev->type == REDIR_APPEND)
 		{

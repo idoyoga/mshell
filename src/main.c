@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:15:59 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 15:45:21 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,8 +124,8 @@ void	print_cmd(t_cmd *cmd)
 	}
 	while (tmp->next != cmd)
 	{
-		printf("Skip -> %d, fd_in -> %d, fd_out -> %d, cmd : ",
-		tmp->skip, tmp->fd_in, tmp->fd_out);
+		printf("Skip -> %d, fd_in -> %d, fd_out -> %d, count -> %d, cmd : ",
+		tmp->skip, tmp->fd_in, tmp->fd_out, tmp->argc);
 		print_tab(tmp->args);
 		printf("\n");
 		tmp = tmp->next;

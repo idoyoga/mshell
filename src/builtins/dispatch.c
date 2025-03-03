@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 19:14:39 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/13 11:14:05 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/03 00:23:51 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ t_b_typ	identify_builtin(char *str)
 	char	*builtin_name;
 
 	i = 0;
+	if (!str)
+		return (_NOT_A_BUILTIN);
 	while (i < g_builtin_count)
 	{
 		builtin_name = g_builtins[i].name;
