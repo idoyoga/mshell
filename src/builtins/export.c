@@ -6,13 +6,35 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:56:12 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 10:26:49 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 14:34:19 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// TODO: value should be enclosed in double quotes KEY="VALUE"
+static void	print_value_in_quotes(char *key_value)
+{
+	char	*equal_sign;
+	char	*key;
+	char	*value;
+
+	if (!key_value)
+		return ;
+	equal_sign = ft_strchr(key_value, '=');
+	if (equal_sign == NULL)
+	{
+		printf("%s", key_value);
+	}
+	else
+	{
+		*equal_sign = '\0';
+		key = key_value;
+		value = equal_sign + 1;
+		printf("%s=\"%s\"", key, value);
+		*equal_sign = '=';
+	}
+}
+
 static void	export_print(t_env *env)
 {
 	t_env	*current;
@@ -22,7 +44,9 @@ static void	export_print(t_env *env)
 	current = env;
 	while (current)
 	{
-		printf("declare -x %s\n", current->data);
+		printf("declare -x ");
+		print_value_in_quotes(current->data);
+		printf("\n");
 		current = current->next;
 		if (current == env)
 			break ;

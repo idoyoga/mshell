@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 16:21:41 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 14:23:22 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,12 +75,6 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 {
 	if (!shell || !current || !*current)
 		return ;
-	// shell->cmd->skip = true;
-	// TODO: currently always marks the first command as skip,
-	// should instead mark the respective cmd
-	// maybe just shell->cmd->prev->skip = true;?
-	// might not be necessary at all because once we enter
-	// this function, cmd->skip should already be true
 	while (*current && (*current)->type != PIPE)
 	{
 		*current = (*current)->next;

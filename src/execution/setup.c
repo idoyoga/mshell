@@ -6,15 +6,12 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 00:22:30 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 14:23:32 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// TODO: reject symlinks and other stupid garbage
-// on symlink: if -1 simply print something like
-// "error encountered while traversing symbolic link"
 static t_acc_t	get_file_access_status(const char *path)
 {
 	struct stat	file_stat;
