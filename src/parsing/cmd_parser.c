@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 19:07:43 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 20:00:02 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,13 +80,16 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 	}
 	if ((*token)->type > END && (*token)->type < PIPE)
 	{
-		if (!(*redir) && !handle_redirection(shell, *token, *cmd))
+		if (!(*redir))
 		{
-			(*cmd)->skip = true;
-			shell->status = 1;
-			return (false);
+			if (!handle_redirection(shell, *token, *cmd))
+			{
+				(*cmd)->skip = true;
+				shell->status = 1;
+				return (false);
+			}
+			*redir = true;
 		}
-		*redir = true;
 		*token = (*token)->next;
 	}
 	else if ((*token)->type > PIPE && !(*token)->is_null)
@@ -97,14 +100,14 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 	return (true);
 }
 
-static bool	setup_new_command(t_shell *shell, t_tok **token, t_cmd **cmd)
-{
-	*cmd = add_cmd(shell, &shell->cmd);
-	(*cmd)->argc = count_args(shell, *token);
-	(*cmd)->args = safe_calloc(shell, (*cmd)->argc + 1, sizeof(char *));
-	(*cmd)->argc = 0;
-	return (true);
-}
+// static bool	setup_new_command(t_shell *shell, t_tok **token, t_cmd **cmd)
+// {
+// 	*cmd = add_cmd(shell, &shell->cmd);
+// 	(*cmd)->argc = count_args(shell, *token);
+// 	(*cmd)->args = safe_calloc(shell, (*cmd)->argc + 1, sizeof(char *));
+// 	(*cmd)->argc = 0;
+// 	return (true);
+// }
 
 /*
 **	Iterate through the tokenized input and build a linked list of commands.
@@ -115,9 +118,9 @@ static bool	setup_new_command(t_shell *shell, t_tok **token, t_cmd **cmd)
 
 bool	parse_commands(t_shell *shell)
 {
-	t_tok		*current;
-	t_cmd		*cmd;
-	bool		redirected;
+	t_tok	*current;
+	t_cmd	*cmd;
+	bool	redirected;
 
 	cmd = NULL;
 	shell->cmd = NULL;
@@ -125,8 +128,13 @@ bool	parse_commands(t_shell *shell)
 	redirected = false;
 	while (!shell->abort)
 	{
-		if (!cmd || !setup_new_command(shell, &current, &cmd))
-			return (false);
+		if (!cmd)
+		{
+			cmd = add_cmd(shell, &shell->cmd);
+			cmd->argc = count_args(shell, current);
+			cmd->args = safe_calloc(shell, cmd->argc + 1, sizeof(char *));
+			cmd->argc = 0;
+		}
 		if (!process_token(shell, &current, &cmd, &redirected))
 		{
 			skip_invalid_command(shell, &current);
