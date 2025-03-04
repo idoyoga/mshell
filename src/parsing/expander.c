@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 12:47:31 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 14:26:34 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ static bool	expand_env_variable(t_shell *shell, char **output, char *input,
 **	Expand $?, replacing it with the exit status of the last command.
 */
 
-// TODO: just exit_failure if itoa fails
 static bool	expand_exit_status(t_shell *shell, char **output, char *input,
 		int *index)
 {
@@ -43,7 +42,7 @@ static bool	expand_exit_status(t_shell *shell, char **output, char *input,
 	(void)input;
 	status_str = ft_itoa(shell->status);
 	if (!status_str)
-		return (error(NO_MEM, false));
+		error_exit(shell, NO_MEM, "expand_exit_status", EXIT_FAILURE);
 	alloc_tracker_add(&shell->alloc_tracker, status_str, 0);
 	new_str = safe_strjoin(shell, *output, status_str);
 	*output = new_str;
@@ -247,8 +246,6 @@ void	xpand(t_shell *shell, t_tok *token)
 		{
 			expand_exit_status(shell, &expanded_content, token->content + i,
 				&i);
-			// TODO: may return false on malloc fail
-			// - perhaps just exit instead?
 		}
 		else if (quote != QUOTE_SINGLE && token->content[i] == '$'
 			&& token->content[i + 1] && is_valid_var_char(token->content[i + 1],
