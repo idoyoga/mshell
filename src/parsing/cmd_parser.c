@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 20:00:02 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:04:51 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,10 +74,7 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 	if ((*token)->is_null)
 		return (true);
 	if ((*token)->type == PIPE)
-	{
-		*redir = false;
-		*cmd = NULL;
-	}
+		return (*redir = false, *cmd = NULL, true);
 	if ((*token)->type > END && (*token)->type < PIPE)
 	{
 		if (!(*redir))
@@ -116,6 +113,17 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 **	- Iterate through tokens, processing each using process_token().
 */
 
+static t_cmd	*setup_new_cmd(t_shell *shell, t_tok *current_token)
+{
+	t_cmd	*cmd;
+
+	cmd = add_cmd(shell, &shell->cmd);
+	cmd->argc = count_args(shell, current_token);
+	cmd->args = safe_calloc(shell, cmd->argc + 1, sizeof(char *));
+	cmd->argc = 0;
+	return (cmd);
+}
+
 bool	parse_commands(t_shell *shell)
 {
 	t_tok	*current;
@@ -129,12 +137,7 @@ bool	parse_commands(t_shell *shell)
 	while (!shell->abort)
 	{
 		if (!cmd)
-		{
-			cmd = add_cmd(shell, &shell->cmd);
-			cmd->argc = count_args(shell, current);
-			cmd->args = safe_calloc(shell, cmd->argc + 1, sizeof(char *));
-			cmd->argc = 0;
-		}
+			cmd = setup_new_cmd(shell, current);
 		if (!process_token(shell, &current, &cmd, &redirected))
 		{
 			skip_invalid_command(shell, &current);
