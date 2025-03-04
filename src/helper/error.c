@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 12:10:24 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 16:06:14 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ static const char	*g_error_msgs[TOTAL] = {"Too many arguments (max 1)",
 											"Execution unsuccessful",
 											"Waiting for subprocess unsuccessful",
 											"Fork unsuccessful",
-											"Numeric argument required",
+											"numeric argument required",
 											"too many arguments",
 											"Failed to run getcwd",
 											"too many arguments",

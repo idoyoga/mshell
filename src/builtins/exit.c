@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:54:56 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 13:31:21 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 16:09:47 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ static bool	is_valid_exit_arg(char *arg)
 	digits = count_digits(arg + start);
 	if (digits == -1 || digits > 19)
 		return (false);
-	printf("digits %d\n", digits);
 	if (digits == 19)
 	{
 		if (is_negative && ft_strncmp(arg + start, g_max_negative, 19) > 0)

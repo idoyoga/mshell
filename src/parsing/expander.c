@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 14:26:34 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 16:02:28 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,14 +232,16 @@ void	xpand(t_shell *shell, t_tok *token)
 		if (quote == QUOTE_NONE && is_quote(token->content[i]))
 		{
 			quote = token->content[i];
-			append_char_to_str(shell, &expanded_content, &i,
-				&token->content[i]);
+			// append_char_to_str(shell, &expanded_content, &i,
+			// 	&token->content[i]);
+			i++;
 		}
 		else if (quote != QUOTE_NONE && token->content[i] == quote)
 		{
 			quote = QUOTE_NONE;
-			append_char_to_str(shell, &expanded_content, &i,
-				&token->content[i]);
+			// append_char_to_str(shell, &expanded_content, &i,
+			// 	&token->content[i]);
+			i++;
 		}
 		else if (quote != QUOTE_SINGLE && token->content[i] == '$'
 			&& token->content[i + 1] == '?')
@@ -260,8 +262,57 @@ void	xpand(t_shell *shell, t_tok *token)
 	token->content = expanded_content;
 }
 
+static size_t	get_length_without_quotes(char *token)
+{
+	size_t	length_without_quotes;
+	size_t	i;
+	t_qstat	quote;
+
+	length_without_quotes = 0;
+	i = 0;
+	quote = QUOTE_NONE;
+	while (token[i])
+	{
+		if (quote == QUOTE_NONE && is_quote(token[i]))
+			quote = token[i];
+		else if (quote != QUOTE_NONE && token[i] == quote)
+			quote = QUOTE_NONE;
+		else
+			length_without_quotes++;
+		i++;
+	}
+	return (length_without_quotes);
+}
+
+static void	strip_quotes_from_token(char *token, char *destination)
+{
+	size_t	i;
+	size_t	ti;
+	t_qstat	quote;
+
+	i = 0;
+	ti = 0;
+	quote = QUOTE_NONE;
+	while (token[ti])
+	{
+		if (quote == QUOTE_NONE && is_quote(token[ti]))
+			quote = token[ti];
+		else if (quote != QUOTE_NONE && token[ti] == quote)
+			quote = QUOTE_NONE;
+		else
+		{
+			destination[i] = token[ti];
+			i++;
+		}
+		ti++;
+	}
+	destination[i] = '\0';
+}
+
 bool	expand_dilla_variables(t_shell *shell)
 {
+	size_t	length_without_quotes;
+	char	*new_content;
 	t_tok	*current_token;
 
 	current_token = shell->tokens;
@@ -272,6 +323,15 @@ bool	expand_dilla_variables(t_shell *shell)
 				&& current_token->prev->type != ARG
 				&& current_token->prev->type != PIPE))
 		{
+			if (current_token->content != NULL)
+			{
+				length_without_quotes = get_length_without_quotes(current_token->content);
+				new_content = safe_calloc(shell, length_without_quotes + 1,
+						sizeof(char));
+				strip_quotes_from_token(current_token->content, new_content);
+				current_token->content = new_content;
+			}
+			// remove quotes and do nothing else
 		}
 		else
 		{

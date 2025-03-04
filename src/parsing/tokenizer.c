@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 03:04:06 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 16:08:40 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,17 +83,15 @@ bool	tokenize_input(t_shell *shell, char *input)
 {
 	input = shell->cmd_input;
 	if (invalid_syntax(input) || check_unclosed_quotes(shell, input))
-		return (shell->status = 2,false);
+		return (shell->status = 2, false);
 	if (!tokenize(shell, &shell->tokens, input))
-		return (shell->status = 2,false);
+		return (shell->status = 2, false);
 	if (!expand_dilla_variables(shell))
-		return (shell->status = 2,false);
+		return (shell->status = 2, false);
 	if (invalid_redirection(shell->tokens))
-		return (shell->status = 2,error_token(shell, shell->tokens));
+		return (shell->status = 2, error_token(shell, shell->tokens));
 	if (validate_tokens(shell->tokens))
 		return (shell->status = 2, false);
-	if (!remove_quotes(shell))
-		return (false);
 	if (!parse_commands(shell))
 		return (false);
 	return (true);

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 12:36:40 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 14:38:27 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,7 +235,6 @@ bool							handle_redirection(t_shell *shell, t_tok *token,
 t_cmd							*add_cmd(t_shell *shell, t_cmd **lst);
 void							skip_invalid_command(t_shell *shell,
 									t_tok **current);
-bool							is_command_start(t_tok *current);
 t_t_typ							determine_token_type(t_tok **lst);
 
 // --------------  env_helper  -------------------------------------------- //

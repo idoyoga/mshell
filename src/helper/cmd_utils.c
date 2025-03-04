@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 12:01:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 14:23:22 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 14:38:25 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,39 +83,6 @@ void	skip_invalid_command(t_shell *shell, t_tok **current)
 	}
 	if (*current && (*current)->type == PIPE)
 		*current = (*current)->next;
-}
-
-/*
-**	Check if the current token is the start of a new command
-**	- A command starts if the token is of type CMD.
-**	- An ARG token may also be the start of a command if:
-**		- It follows a PIPE, or
-**		- It follows a redirection which is preceded by a PIPE.
-*/
-
-bool	is_command_start(t_tok *current)
-{
-	if (!current)
-		return (false);
-	if (current->first_cmd && !current->content)
-		return (false);
-	if (current->type == CMD)
-	{
-		if (current->content == NULL || current->content[0] == '\0')
-			return (false);
-		return (true);
-	}
-	if (current->type == ARG && current->prev)
-	{
-		if (current->prev->type == REDIR_IN || current->prev->type == REDIR_OUT
-			|| current->prev->type == HEREDOC
-			|| current->prev->type == REDIR_APPEND)
-		{
-			if (current->prev->prev && current->prev->prev->type == PIPE)
-				return (true);
-		}
-	}
-	return (false);
 }
 
 /*
