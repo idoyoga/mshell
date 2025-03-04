@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 18:57:05 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:25:18 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,21 +26,14 @@ static void	print_eof_warning(int line_count, const char *delimiter)
 	ft_putendl_fd("')", 2);
 }
 
-/*
-**	Read user input into heredoc_filename until the delimiter is found,
-**	Ctrl+D (EOF) or Ctrl+C (SIGINT) is pressed. Ctrl+C sets g_signal to 1.
-*/
-
-static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd,
-		bool is_quoted)
+static void	read_heredoc_loop(t_shell *shell, const char *delimiter, int fd,
+			  bool is_quoted)
 {
 	char	*line;
 	int		line_count;
 
 	line = NULL;
-	g_signal = 0;
 	line_count = 0;
-	setup_signals(handle_heredoc_sigint, SIG_IGN);
 	while (!g_signal)
 	{
 		line = alloc_tracker_replace(&shell->alloc_tracker, line,
@@ -54,9 +47,22 @@ static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd,
 		if (ft_strcmp(line, delimiter) == 0)
 			break ;
 		if (!is_quoted && !expand_dollar_variables(shell, &line))
-			error_exit(shell, NO_EXPAND, "heredoc_read_input", EXIT_FAILURE);
+			error_exit(shell, NO_MEM, "read_heredoc_loop", EXIT_FAILURE);
 		ft_putendl_fd(line, fd);
 	}
+}
+
+/*
+**	Read user input into heredoc_filename until the delimiter is found,
+**	Ctrl+D (EOF) or Ctrl+C (SIGINT) is pressed. Ctrl+C sets g_signal to 1.
+*/
+
+static bool	heredoc_read_input(t_shell *shell, const char *delimiter, int fd,
+		bool is_quoted)
+{
+	g_signal = 0;
+	setup_signals(handle_heredoc_sigint, SIG_IGN);
+	read_heredoc_loop(shell, delimiter, fd, is_quoted);
 	setup_signals(handle_sigint, SIG_IGN);
 	if (g_signal != 0)
 	{
