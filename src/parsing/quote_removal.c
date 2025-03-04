@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 19:35:53 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/02 21:24:37 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 16:06:31 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ static void	strip_quotes_from_token(char *token, char *destination)
 	destination[i] = '\0';
 }
 
+// TODO: unused right now
+// quotes are removed during expansion
 bool	remove_quotes(t_shell *shell)
 {
 	t_tok	*current;
