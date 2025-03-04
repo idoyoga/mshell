@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:51:59 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 19:27:42 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:57:53 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,26 @@ void	execute_builtin(t_shell *shell, t_cmd *command, t_b_typ type)
 	exit(shell->status);
 }
 
+static void	link_fds_for_builtin(t_shell *shell)
+{
+	if (shell->cmd->fd_in > 2)
+	{
+		if (dup2(shell->cmd->fd_in, STDIN_FILENO) == -1)
+			(close(shell->fd_copies[STDIN_FILENO]),
+				close(shell->fd_copies[STDOUT_FILENO]), error_exit(shell,
+					NO_DUP2, "execute_single_builtin", EXIT_FAILURE));
+		close(shell->cmd->fd_in);
+	}
+	if (shell->cmd->fd_out > 2)
+	{
+		if (dup2(shell->cmd->fd_out, STDOUT_FILENO) == -1)
+			(close(shell->fd_copies[STDIN_FILENO]),
+				close(shell->fd_copies[STDOUT_FILENO]), error_exit(shell,
+					NO_DUP2, "execute_single_builtin", EXIT_FAILURE));
+		close(shell->cmd->fd_out);
+	}
+}
+
 void	execute_single_builtin(t_shell *shell, t_b_typ type)
 {
 	void	(*builtin)(t_shell *, t_cmd *);
@@ -59,43 +79,12 @@ void	execute_single_builtin(t_shell *shell, t_b_typ type)
 	}
 	shell->fd_copies[STDIN_FILENO] = dup(STDIN_FILENO);
 	if (shell->fd_copies[STDIN_FILENO] == -1)
-	{
-		// ensure that fd_in and fd_out for cmd are closed here
-		// also, reset io
-		return (perror("execute_single_builtin: could not duplicate STDIN"));
-	}
+		error_exit(shell, NO_DUP, "execute_single_builtin", EXIT_FAILURE);
 	shell->fd_copies[STDOUT_FILENO] = dup(STDOUT_FILENO);
 	if (shell->fd_copies[STDOUT_FILENO] == -1)
-	{
-		// ensure that fd_in and fd_out for cmd are closed here
-		// also, reset io
-		close(shell->fd_copies[STDIN_FILENO]);
-		return (perror("execute_single_builtin: could not duplicate STDOUT"));
-	}
-	if (shell->cmd->fd_in > 2)
-	{
-		// should probably close fd_copies if these fail
-		if (dup2(shell->cmd->fd_in, STDIN_FILENO) == -1)
-		{
-			// close(shell->cmd->fd_in);
-			close(shell->fd_copies[STDIN_FILENO]);
-			close(shell->fd_copies[STDOUT_FILENO]);
-			return (perror("execute_single_builtin: dup2 to STDIN failed"));
-		}
-		close(shell->cmd->fd_in);
-	}
-	if (shell->cmd->fd_out > 2)
-	{
-		// should we close fd_in as well if it's set, and this dup2 fails?
-		if (dup2(shell->cmd->fd_out, STDOUT_FILENO) == -1)
-		{
-			close(shell->fd_copies[STDIN_FILENO]);
-			close(shell->fd_copies[STDOUT_FILENO]);
-			// close(shell->cmd->fd_out);
-			return (perror("execute_single_builtin: dup2 to STDOUT failed"));
-		}
-		close(shell->cmd->fd_out);
-	}
+		(close(shell->fd_copies[STDIN_FILENO]), error_exit(shell, NO_DUP,
+				"execute_single_builtin", EXIT_FAILURE));
+	link_fds_for_builtin(shell);
 	builtin = get_builtin(type);
 	if (builtin != NULL)
 		builtin(shell, shell->cmd);

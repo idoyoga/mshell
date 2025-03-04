@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 20:39:01 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:48:34 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ typedef enum e_error
 	NO_REMOVE,
 	NO_EXPAND,
 	NO_PIPE,
+	NO_DUP,
 	NO_DUP2,
 	BAD_EXEC,
 	BAD_WAIT,

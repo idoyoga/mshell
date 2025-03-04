@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 20:37:55 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:48:24 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,6 +134,7 @@ static const char	*g_error_msgs[TOTAL] = {"Too many arguments (max 1)",
 	"Pointer not found in allocation tracker",
 	"Failed to expand variable",
 	"Pipe could not be acquired",
+	"File descriptor could not be duplicated (1)",
 	"File descriptor could not be duplicated (2)",
 	"Execution unsuccessful",
 	"Waiting for subprocess unsuccessful",
