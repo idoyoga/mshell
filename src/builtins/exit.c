@@ -6,33 +6,59 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:54:56 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 12:43:29 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 13:31:21 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static bool	is_valid_exit_arg(char *arg)
+static const char	g_max_positive[] = "9223372036854775807";
+static const char	g_max_negative[] = "9223372036854775808";
+
+static int	count_digits(char *str)
 {
 	int	i;
 
 	i = 0;
+	if (!str || !str[0])
+		return (i);
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i]))
+			return (-1);
+		i++;
+	}
+	return (i);
+}
+
+static bool	is_valid_exit_arg(char *arg)
+{
+	bool	is_negative;
+	int		start;
+	int		digits;
+
+	start = 0;
 	if (arg == NULL)
 		return (false);
-	if (arg[i] == '\0')
+	if (arg[start] == '\0')
 		return (false);
-	if (arg[i] == '-' || arg[i] == '+')
-		i++;
-	while (arg[i])
+	is_negative = arg[start] == '-';
+	if (arg[start] == '-' || arg[start] == '+')
+		start++;
+	digits = count_digits(arg + start);
+	if (digits == -1 || digits > 19)
+		return (false);
+	printf("digits %d\n", digits);
+	if (digits == 19)
 	{
-		if (!ft_isdigit(arg[i]))
+		if (is_negative && ft_strncmp(arg + start, g_max_negative, 19) > 0)
 			return (false);
-		i++;
+		if (!is_negative && ft_strncmp(arg + start, g_max_positive, 19) > 0)
+			return (false);
 	}
 	return (true);
 }
 
-// TODO: handle extreme overflow (9223372036854775808, treat as non-number (2)))
 void	builtin_exit(t_shell *shell, t_cmd *cmd)
 {
 	size_t	count;
