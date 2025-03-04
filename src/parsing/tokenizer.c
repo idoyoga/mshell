@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 21:38:49 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 03:04:06 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,46 +19,25 @@
 
 static bool	invalid_syntax(char *input)
 {
+	t_qstat	quote;
+
+	quote = QUOTE_NONE;
 	while (*input)
 	{
-		if (*input == '\\' && (*(input + 1) == '$' || *(input + 1) == '\0'))
-			return (error(BACKSLASH, true));
-		if (*input == ';' && (*(input + 1) == ' ' || *(input + 1) == '\0'))
-			return (error(SEMICOLON, true));
+		if (quote == QUOTE_NONE && is_quote(*input))
+			quote = *input;
+		else if (quote != QUOTE_NONE && *input == quote)
+			quote = QUOTE_NONE;
+		else if (quote == QUOTE_NONE)
+		{
+			if (*input == '\\' && (*(input + 1) == '$' || *(input + 1) == '\0'))
+				return (error(BACKSLASH, true));
+			if (*input == ';' && (*(input + 1) == ' ' || *(input + 1) == '\0'))
+				return (error(SEMICOLON, true));
+		}
 		input++;
 	}
 	return (false);
-}
-
-/*
-**	Remove quotes from a string while preserving the content.
-*/
-
-char	*trim_quotes(t_shell *shell, char *input, int len)
-{
-	char	*content;
-	char	quote;
-	int		i;
-	int		j;
-
-	content = safe_malloc(shell, len + 1);
-	i = 0;
-	j = 0;
-	while (i < len)
-	{
-		if (input[i] == '\'' || input[i] == '"')
-		{
-			quote = input[i++];
-			while (i < len && input[i] != quote)
-				content[j++] = input[i++];
-			if (i < len)
-				i++;
-		}
-		else
-			content[j++] = input[i++];
-	}
-	content[j] = '\0';
-	return (content);
 }
 
 /*
@@ -104,15 +83,15 @@ bool	tokenize_input(t_shell *shell, char *input)
 {
 	input = shell->cmd_input;
 	if (invalid_syntax(input) || check_unclosed_quotes(shell, input))
-		return (false);
+		return (shell->status = 2,false);
 	if (!tokenize(shell, &shell->tokens, input))
-		return (false);
+		return (shell->status = 2,false);
 	if (!expand_dilla_variables(shell))
-		return (false);
+		return (shell->status = 2,false);
 	if (invalid_redirection(shell->tokens))
-		return (error_token(shell, shell->tokens));
+		return (shell->status = 2,error_token(shell, shell->tokens));
 	if (validate_tokens(shell->tokens))
-		return (false);
+		return (shell->status = 2, false);
 	if (!remove_quotes(shell))
 		return (false);
 	if (!parse_commands(shell))

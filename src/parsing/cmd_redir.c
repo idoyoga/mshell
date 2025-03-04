@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 18:18:38 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 00:33:40 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,8 +106,7 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		if (new_fd == -1)
 		{
 			cmd->skip = true;
-			return (error_cmd(shell, token->next->content), false);
-			return (false);
+			return (strerror_cmd(token->next->content), false);
 		}
 		close(new_fd);
 		return (true);
@@ -126,7 +125,7 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 	if (new_fd == -1)
 	{
 		cmd->skip = true;
-		error_cmd(shell, token->next->content);
+		strerror_cmd(token->next->content);
 		return (false);
 	}
 	if (*fd != -2)

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 19:45:00 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 12:36:40 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ typedef enum e_error
 	CD_TOO_MANY_ARGUMENTS,
 	CD_NO_HOME,
 	EXEC_NOT_FOUND,
+	EXEC_NO_FILE,
 	EXEC_IS_DIRECTORY,
 	EXEC_PERMISSION_DENIED,
 	TOTAL
@@ -251,10 +252,16 @@ bool							remove_env_variable(t_shell *shell, t_env **lst,
 
 // --------------  error  ------------------------------------------------- //
 bool							error(t_error err, int status);
+bool							error_context(t_error err, char *context,
+									int status);
 void							error_exit(t_shell *shell, t_error err,
 									char *context, int status);
+void							error_exit_s(t_shell *shell, t_error err,
+									char *context, int status);
 bool							error_token(t_shell *shell, t_tok *token);
-void							error_cmd(t_shell *shell, const char *cmd_name);
+void							strerror_cmd(const char *cmd_name);
+void							error_cmd_str(const char *command,
+									const char *message);
 
 // --------------  expander  ---------------------------------------------- //
 bool							expand_dollar_variables(t_shell *shell,
@@ -295,8 +302,6 @@ bool							tokenize(t_shell *shell, t_tok **lst,
 									char *input);
 
 // --------------  tokenizer  --------------------------------------------- //
-char							*trim_quotes(t_shell *shell, char *src,
-									int len);
 void							update_quote_state(bool *d_quote, bool *s_quote,
 									char c);
 bool							tokenize_input(t_shell *shell, char *input);
