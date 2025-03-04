@@ -6,11 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-<<<<<<< Updated upstream
-/*   Updated: 2025/03/04 20:34:01 by xgossing         ###   ########.fr       */
-=======
-/*   Updated: 2025/03/04 20:28:38 by dplotzl          ###   ########.fr       */
->>>>>>> Stashed changes
+/*   Updated: 2025/03/04 21:10:20 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,11 +27,7 @@ static void	print_eof_warning(int line_count, const char *delimiter)
 }
 
 static void	read_heredoc_loop(t_shell *shell, const char *delimiter, int fd,
-<<<<<<< Updated upstream
 		bool is_quoted)
-=======
-				bool is_quoted)
->>>>>>> Stashed changes
 {
 	char	*line;
 	int		line_count;
