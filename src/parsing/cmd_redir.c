@@ -6,42 +6,12 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 00:33:40 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 19:16:48 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/*
-**	Check if a redirection is incorrectly formatted
-**	A redirection is invalid if:
-**	- It is the last token with no argument following it ('echo >' or 'cat <').
-**	- It is followed by a token that is not an argument (e.g., 'echo > | wc').
-**	- A 'HEREDOC' ('<<') or 'APPEND' ('>>') does not have an argument after it.
-*/
-
-bool	invalid_redirection(t_tok *token)
-{
-	t_tok	*current;
-
-	if (!token)
-		return (true);
-	current = token;
-	while (current)
-	{
-		if (!current->next)
-			return (true);
-		if ((current->type == REDIR_IN || current->type == REDIR_OUT
-				|| current->type == HEREDOC || current->type == REDIR_APPEND
-				|| current->type == REDIR_APPEND)
-			&& (current->next->type != ARG))
-			return (true);
-		current = current->next;
-		if (current == token)
-			break ;
-	}
-	return (false);
-}
 /*
 **	Return the appropriate flags for open():
 **	- '>' -> Truncate the file and write ('O_TRUNC | O_WRONLY | O_CREAT').
@@ -83,6 +53,24 @@ static int	open_redirection_file(char *file, t_t_typ type)
 	return (new_fd);
 }
 
+static bool	handle_null_command(t_shell *shell, t_tok *token)
+{
+	int	new_fd;
+
+	if (token->type == HEREDOC)
+		new_fd = handle_heredoc(shell, token->next->content,
+				token->next->is_quoted);
+	else
+		new_fd = open_redirection_file(token->next->content, token->type);
+	if (new_fd == -1)
+	{
+		shell->cmd->skip = true;
+		return (strerror_cmd(token->next->content), false);
+	}
+	close(new_fd);
+	return (true);
+}
+
 /*
 **	Process each redirection token:
 **	- Assign correct file descriptors for input/output.
@@ -97,26 +85,11 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 	int	new_fd;
 
 	if (cmd == NULL)
-	{
-		if (token->type == HEREDOC)
-			new_fd = handle_heredoc(shell, token->next->content,
-					token->next->is_quoted);
-		else
-			new_fd = open_redirection_file(token->next->content, token->type);
-		if (new_fd == -1)
-		{
-			cmd->skip = true;
-			return (strerror_cmd(token->next->content), false);
-		}
-		close(new_fd);
-		return (true);
-	}
+		return (handle_null_command(shell, token));
 	if (token->type == REDIR_IN || token->type == HEREDOC)
 		fd = &cmd->fd_in;
 	else if (token->type == REDIR_OUT || token->type == REDIR_APPEND)
 		fd = &cmd->fd_out;
-	else
-		return (false);
 	if (token->type == HEREDOC)
 		new_fd = handle_heredoc(shell, token->next->content,
 				token->next->is_quoted);

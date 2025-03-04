@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 18:53:52 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 19:24:27 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,13 +198,9 @@ static void	handy_expandy(t_shell *shell, char *str, char **dest, int *index)
 	alloc_tracker_add(&shell->alloc_tracker, variable, 0);
 	check_res = env_variable_exists(shell, variable);
 	if (check_res == true)
-	{
 		expand_env_variable(shell, dest, variable, index);
-	}
 	else
-	{
 		expand_noop(shell, dest, variable, index);
-	}
 }
 
 void	xpand(t_shell *shell, t_tok *token)
@@ -317,7 +313,8 @@ bool	expand_dilla_variables(t_shell *shell)
 		{
 			if (current_token->content != NULL)
 			{
-				length_without_quotes = get_length_without_quotes(current_token->content);
+				length_without_quotes = get_length_without_quotes
+					(current_token->content);
 				new_content = safe_calloc(shell, length_without_quotes + 1,
 						sizeof(char));
 				strip_quotes_from_token(current_token->content, new_content);
@@ -325,9 +322,7 @@ bool	expand_dilla_variables(t_shell *shell)
 			}
 		}
 		else
-		{
 			xpand(shell, current_token);
-		}
 		current_token = current_token->next;
 		if (current_token == shell->tokens)
 			break ;
