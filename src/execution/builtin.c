@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:51:59 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/01 15:16:11 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 03:19:27 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 // also close STDOUT_COPY when first dup2 fails?
 // what could cause it to fail, what's the situation then
 // and can we recover at all?
+// TODO: inspect
 static void	reset_io(int *fd_copies)
 {
 	if (dup2(fd_copies[STDIN_FILENO], STDIN_FILENO) == -1)
@@ -54,7 +55,10 @@ void	execute_single_builtin(t_shell *shell, t_b_typ type)
 	void	(*builtin)(t_shell *, t_cmd *);
 
 	if (shell->cmd->skip)
+	{
+		shell->status = 1;
 		return ;
+	}
 	shell->fd_copies[STDIN_FILENO] = dup(STDIN_FILENO);
 	if (shell->fd_copies[STDIN_FILENO] == -1)
 	{

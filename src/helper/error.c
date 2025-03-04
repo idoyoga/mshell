@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 19:38:00 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 12:10:24 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static const char	*g_error_msgs[TOTAL];
 /*
 **	Print an error message to stderr and return true if status is not 0.
 **	- If error code is valid, print 'minishell: ' followed by the corresponding
-**	  error message from 'g_error_msgs' to stderr.
+**		error message from 'g_error_msgs' to stderr.
 **	- Return 'true' if 'status != 0', otherwise return 'false'.
 */
 
@@ -26,6 +26,20 @@ bool	error(t_error err, int status)
 	if (err < 0 || err >= TOTAL)
 		return (false);
 	ft_putstr_fd("minishell: ", 2);
+	ft_putendl_fd((char *)g_error_msgs[err], 2);
+	return (status != 0);
+}
+
+bool	error_context(t_error err, char *context, int status)
+{
+	if (err < 0 || err >= TOTAL)
+		return (false);
+	ft_putstr_fd("minishell: ", 2);
+	if (context && *context)
+	{
+		ft_putstr_fd(context, 2);
+		ft_putstr_fd(": ", 2);
+	}
 	ft_putendl_fd((char *)g_error_msgs[err], 2);
 	return (status != 0);
 }
@@ -57,10 +71,26 @@ void	error_exit(t_shell *shell, t_error err, char *context, int status)
 	exit(status);
 }
 
+void	error_exit_s(t_shell *shell, t_error err, char *context, int status)
+{
+	if (err < 0 || err >= TOTAL)
+		return ;
+	ft_putstr_fd("minishell: ", 2);
+	if (context && *context)
+	{
+		ft_putstr_fd(context, 2);
+		ft_putstr_fd(": ", 2);
+	}
+	ft_putendl_fd((char *)g_error_msgs[err], 2);
+	if (shell)
+		clean_shell(shell);
+	exit(status);
+}
+
 /*
 **	Print a syntax error message for an unexpected token
 **	1. If the next token is `shell->tokens` (indicating the end of input),
-**	   it prints `newline`, signaling a missing argument.
+**		it prints `newline`, signaling a missing argument.
 **	2. Otherwise, it prints the unexpected token's content.
 */
 
@@ -78,15 +108,26 @@ bool	error_token(t_shell *shell, t_tok *token)
 **	Print an error message for a command that failed to execute.
 */
 
-void	error_cmd(t_shell *shell, const char *cmd_name)
+void	strerror_cmd(const char *cmd_name)
 {
 	char	*err_msg;
 
 	err_msg = ft_strjoin_four("minishell: ", cmd_name, ": ", strerror(errno));
-	alloc_tracker_add(&shell->alloc_tracker, err_msg, 0);
 	if (!err_msg)
 		error(NO_MEM, false);
 	ft_putendl_fd(err_msg, 2);
+	free(err_msg);
+}
+
+void	error_cmd_str(const char *command, const char *message)
+{
+	char	*err_msg;
+
+	err_msg = ft_strjoin_four("minishell: ", command, ": ", message);
+	if (!err_msg)
+		error(NO_MEM, false);
+	ft_putendl_fd(err_msg, 2);
+	free(err_msg);
 }
 
 /*
@@ -95,43 +136,42 @@ void	error_cmd(t_shell *shell, const char *cmd_name)
 **	- Each message corresponds to an enum error code ('t_error').
 */
 
-static const char	*g_error_msgs[TOTAL] = {
-	"Too many arguments (max 1)",
-	"Shell initialization failed",
-	"Memory allocation failed",
-	"Failed to initialize environment",
-	"Failed to get current working directory",
-	"Failed to get working directory",
-	"Failed to create prompt",
-	"Failed to get user",
-	"Failed to get home directory",
-	"Failed to add allocation",
-	"Quotes not closed",
-	"Failed to resize allocation tracker",
-	"Failed to initialize allocation tracker",
-	"Input cannot start with pipe",
-	"Input cannot end with pipe",
-	"Consecutive pipes not allowed",
-	"Consecutive redirections not allowed",
-	"No command to execute",
-	"Backslash is not interpreted",
-	"Semicolon is not interpreted",
-	"Failed to open file",
-	"Syntax error",
-	"Invalid redirection type",
-	"Pointer not found in allocation tracker",
-	"Failed to expand variable",
-	"Pipe could not be acquired",
-	"File descriptor could not be duplicated (2)",
-	"Execution unsuccessful",
-	"Waiting for subprocess unsuccessful",
-	"Fork unsuccessful",
-	"Numeric argument required",
-	"Too many arguments",
-	"Failed to run getcwd",
-	"Too many arguments",
-	"HOME not set",
-	"Command not found",
-	"Is a directory",
-	"Permission denied"
-};
+static const char	*g_error_msgs[TOTAL] = {"Too many arguments (max 1)",
+											"Shell initialization failed",
+											"Memory allocation failed",
+											"Failed to initialize environment",
+											"Failed to get current working directory",
+											"Failed to get working directory",
+											"Failed to create prompt",
+											"Failed to get user",
+											"Failed to get home directory",
+											"Failed to add allocation",
+											"Quotes not closed",
+											"Failed to resize allocation tracker",
+											"Failed to initialize allocation tracker",
+											"Input cannot start with pipe",
+											"Input cannot end with pipe",
+											"Consecutive pipes not allowed",
+											"Consecutive redirections not allowed",
+											"No command to execute",
+											"Backslash is not interpreted",
+											"Semicolon is not interpreted",
+											"Failed to open file",
+											"Syntax error",
+											"Invalid redirection type",
+											"Pointer not found in allocation tracker",
+											"Failed to expand variable",
+											"Pipe could not be acquired",
+											"File descriptor could not be duplicated (2)",
+											"Execution unsuccessful",
+											"Waiting for subprocess unsuccessful",
+											"Fork unsuccessful",
+											"Numeric argument required",
+											"too many arguments",
+											"Failed to run getcwd",
+											"too many arguments",
+											"HOME not set",
+											"command not found",
+											"No such file or directory",
+											"Is a directory",
+											"Permission denied"};

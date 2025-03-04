@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 18:18:57 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 12:33:33 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 			if (!handle_redirection(shell, *token, *cmd))
 			{
 				(*cmd)->skip = true;
+				shell->status = 1;
 				return (false);
 			}
 			*redir = true;
@@ -111,7 +112,6 @@ bool	parse_commands(t_shell *shell)
 	t_tok		*current;
 	t_cmd		*cmd;
 	bool		redirected;
-	static int	i = 0;
 
 	cmd = NULL;
 	shell->cmd = NULL;
@@ -143,8 +143,6 @@ bool	parse_commands(t_shell *shell)
 		else
 			current = current->next;
 		if (current == shell->tokens)
-			break ;
-		if (++i > 50) // debug
 			break ;
 	}
 	return (true);

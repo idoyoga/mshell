@@ -6,12 +6,13 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:56:12 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/03 19:10:35 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 10:26:49 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+// TODO: value should be enclosed in double quotes KEY="VALUE"
 static void	export_print(t_env *env)
 {
 	t_env	*current;
@@ -71,6 +72,7 @@ void	builtin_export(t_shell *shell, t_cmd *cmd)
 	size_t	argument_count;
 	size_t	i;
 
+	shell->status = 0;
 	argument_count = count_cmd_args(cmd);
 	if (argument_count == 1)
 		return (export_print(shell->env));
@@ -82,11 +84,10 @@ void	builtin_export(t_shell *shell, t_cmd *cmd)
 			ft_putstr_fd("export: `", STDERR_FILENO);
 			ft_putstr_fd(cmd->args[i], STDERR_FILENO);
 			ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+			shell->status = 1;
 		}
 		else
-		{
 			export_goods(shell, cmd->args[i]);
-		}
 		i++;
 	}
 }

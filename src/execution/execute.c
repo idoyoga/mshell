@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/03 00:49:19 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 12:37:29 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,50 +30,56 @@ static void	redirect_command(t_shell *shell, t_cmd *command)
 	}
 }
 
+static void	handle_access_status_error(t_shell *shell, t_cmd *cmd,
+		t_acc_t status)
+{
+	if (status == A_NOOP)
+	{
+		clean_shell(shell);
+		exit(shell->status);
+	}
+	if (status == A_NOT_FOUND)
+	{
+		shell->status = 127;
+		if (is_path(cmd->args[0]))
+			error_exit_s(shell, EXEC_NO_FILE, cmd->cmd, shell->status);
+		error_exit_s(shell, EXEC_NOT_FOUND, cmd->args[0], shell->status);
+	}
+	if (status == A_IS_DIRECTORY)
+	{
+		shell->status = 126;
+		error_exit_s(shell, EXEC_IS_DIRECTORY, cmd->cmd, shell->status);
+	}
+	if (status == A_PERMISSION_DENIED)
+	{
+		shell->status = 126;
+		error_exit_s(shell, EXEC_PERMISSION_DENIED, cmd->cmd, shell->status);
+	}
+}
+
 void	execute_command(t_shell *shell, t_cmd *command)
 {
 	t_b_typ	type;
 
-	shell->status = 0;
+	// shell->status = 0;
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	redirect_command(shell, command);
-	if (command->access_status == A_NOOP)
-	{
-		ft_putendl_fd("nooping the heck out",2);
-		clean_shell(shell);
-		exit(0);
-	}
-	if (command->access_status == A_NOT_FOUND)
-	{
-		shell->status = 127;
-		error_exit(shell, EXEC_NOT_FOUND, "execute_command", shell->status);
-	}
-	if (command->access_status == A_IS_DIRECTORY)
-	{
-		shell->status = 126;
-		error_exit(shell, EXEC_IS_DIRECTORY, "execute_command", shell->status);
-	}
-	if (command->access_status == A_PERMISSION_DENIED)
-	{
-		shell->status = 126;
-		error_exit(shell, EXEC_PERMISSION_DENIED, "execute_command",
-			shell->status);
-	}
+	handle_access_status_error(shell, command, command->access_status);
 	type = identify_builtin(command->args[0]);
 	if (type > _NOT_A_BUILTIN)
 		execute_builtin(shell, command, type);
 	shell->status = execve(command->cmd, command->args, shell->env_as_array);
-	printf("execve failed in execute_command! errno is %d\n", errno);
-	error_exit(shell, BAD_EXEC, "execute_command", shell->status);
+	error_exit_s(shell, BAD_EXEC, command->cmd, shell->status);
 }
 
-// effectively the same as fork_and_exec()
-// TODO: unify into one function
 static void	execute_without_pipeline(t_shell *shell)
 {
 	if (shell->cmd->skip)
+	{
+		shell->status = 1;
 		return ;
+	}
 	shell->cmd->child_pid = fork();
 	if (shell->cmd->child_pid == -1)
 		error_exit(shell, NO_FORK, "execute_without_pipeline", EXIT_FAILURE);
@@ -90,12 +96,11 @@ void	dispatch(t_shell *shell)
 	int		pipe_fd[2];
 	t_b_typ	type;
 
-	shell->status = 0;
-	printf("cmd count: %lu\n", shell->cmd_count);
+	pipe_fd[0] = -2;
+	pipe_fd[1] = -2;
+	// printf("cmd count: %lu\n", shell->cmd_count);
 	if (shell->cmd_count != 1)
 	{
-		pipe_fd[0] = -2;
-		pipe_fd[1] = -2;
 		execute_with_pipeline(shell, shell->cmd, pipe_fd);
 		return ;
 	}

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:56:21 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/03 19:39:26 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 00:49:48 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ static void	change_directory(t_shell *shell, char *directory)
 	// set new PWD
 	// update shell prompt
 	// set success status code?
+	shell->status = 0;
 	free(working_directory);
 }
 

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/03 16:20:54 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 00:22:30 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ static t_acc_t	get_file_access_status(const char *path)
 	if (S_ISDIR(file_stat.st_mode))
 		return (A_IS_DIRECTORY);
 	if (access(path, X_OK) == -1)
+		return (A_PERMISSION_DENIED);
+	if (!(file_stat.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)))
 		return (A_PERMISSION_DENIED);
 	return (A_CAN_EXECUTE);
 }

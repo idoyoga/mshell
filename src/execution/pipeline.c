@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:54:23 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/02 22:30:02 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 00:53:21 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ int	wait_for_children(t_shell *shell, t_cmd *cmd)
 				error_exit(shell, BAD_WAIT, "waitpid", EXIT_FAILURE);
 		}
 		receive_exit_status(&status_code);
+		// printf("child %ld exited with status_code %d\n", i, status_code);
 		cmd = cmd->next;
 		i++;
 	}
@@ -77,6 +78,19 @@ static void	link_the_child(int *prev_fd, int *pipe_fds, bool is_not_last,
 		error_exit(shell, NO_DUP2, "(child) dup2", EXIT_FAILURE);
 }
 
+static void	fork_process(t_shell *shell, t_cmd *command, int *prev_fd,
+		int *pipe_fd)
+{
+	command->child_pid = fork();
+	if (command->child_pid == -1)
+	{
+		reset_fd(prev_fd);
+		reset_fd(pipe_fd);
+		reset_fd(pipe_fd + 1);
+		error_exit(shell, NO_FORK, "fork", EXIT_FAILURE);
+	}
+}
+
 void	execute_with_pipeline(t_shell *shell, t_cmd *command, int *pipe_fd)
 {
 	int		prev_fd;
@@ -84,19 +98,17 @@ void	execute_with_pipeline(t_shell *shell, t_cmd *command, int *pipe_fd)
 
 	prev_fd = -2;
 	i = 0;
-	if (!command)
-		return ;
 	while (i < shell->cmd_count)
 	{
 		if (i < shell->cmd_count - 1 && pipe(pipe_fd) == -1)
-			(reset_fd(&prev_fd), error_exit(shell, NO_PIPE, "pipeline", 1));
-		command->child_pid = fork();
-		if (command->child_pid == -1)
-			(reset_fd(&prev_fd), reset_fd(pipe_fd), reset_fd(pipe_fd + 1),
-				error_exit(shell, NO_FORK, "fork", EXIT_FAILURE));
+			(reset_fd(&prev_fd), error_exit(shell, NO_PIPE, NULL, EXIT_FAILURE));
+		fork_process(shell, command, &prev_fd, pipe_fd);
 		if (command->child_pid == 0)
-			(link_the_child(&prev_fd, pipe_fd, i < shell->cmd_count - 1, shell),
-				execute_command(shell, command));
+		{
+			link_the_child(&prev_fd, pipe_fd, i < shell->cmd_count - 1, shell);
+			execute_command(shell, command);
+		}
+		(reset_fd(&command->fd_in), reset_fd(&command->fd_out));
 		(reset_fd(&prev_fd), reset_fd(pipe_fd + 1));
 		prev_fd = pipe_fd[0];
 		pipe_fd[0] = -2;

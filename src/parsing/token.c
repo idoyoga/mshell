@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 12:41:04 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 22:10:12 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 12:47:55 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,7 @@ bool	tokenize(t_shell *shell, t_tok **lst, char *input)
 			return (false);
 		if ((*lst)->type == CMD)
 			(*lst)->first_cmd = true;
+		// TODO: never true? because we always check first token
 		if ((*lst)->type == PIPE)
 			(*lst)->first_cmd = false;
 	}

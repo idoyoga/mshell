@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:56:17 by xgossing          #+#    #+#             */
-/*   Updated: 2025/02/27 15:11:47 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 00:50:15 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,4 +26,5 @@ void	builtin_env(t_shell *shell, t_cmd *cmd)
 		if (current == shell->env)
 			break ;
 	}
+	shell->status = 0;
 }
