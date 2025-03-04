@@ -16,3 +16,9 @@
     ...
     obj:*/ls
 }
+{
+    leak /usr/bin/cat
+    Memcheck:Leak
+    ...
+    obj:*/cat
+}

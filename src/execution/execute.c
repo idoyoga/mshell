@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 12:37:29 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 18:50:51 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ void	execute_command(t_shell *shell, t_cmd *command)
 {
 	t_b_typ	type;
 
-	// shell->status = 0;
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	redirect_command(shell, command);
@@ -98,7 +97,6 @@ void	dispatch(t_shell *shell)
 
 	pipe_fd[0] = -2;
 	pipe_fd[1] = -2;
-	// printf("cmd count: %lu\n", shell->cmd_count);
 	if (shell->cmd_count != 1)
 	{
 		execute_with_pipeline(shell, shell->cmd, pipe_fd);

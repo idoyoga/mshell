@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 14:23:32 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 18:51:19 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ static void	find_absolute_path(t_shell *shell, t_cmd *cmd)
 	size_t	i;
 
 	if (!cmd->args || !cmd->args[0] || cmd->skip)
-	// TODO: loop through all args & if all of them are NULL, set NOOP
 	{
 		cmd->cmd = NULL;
 		cmd->access_status = A_NOOP;

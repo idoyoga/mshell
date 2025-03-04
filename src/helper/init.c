@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 19:33:39 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 18:54:42 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,20 +76,9 @@ static bool	init_work_dirs(t_shell *shell)
 {
 	char	*cwd;
 
-	/* char	*tmp; */
-	/* tmp = safe_strdup(shell, "OLDPWD"); */
-	/* if (!tmp) */
-	/* 	return (error(NO_MEM, false)); */
-	/* if (!add_env_variable(shell, &shell->env, tmp)) */
-	/* 	return (error(NO_MEM, false)); */
 	cwd = getcwd(NULL, 0);
 	if (!cwd || !alloc_tracker_add(&shell->alloc_tracker, cwd, 0))
 		return (error(GETCWD, false));
-	/* tmp = safe_strjoin(shell, "PWD=", cwd); */
-	/* if (!tmp) */
-	/* 	return (error(NO_MEM, false)); */
-	/* if (!add_env_variable(shell, &shell->env, tmp)) */
-	/* 	return (error(NO_MEM, false)); */
 	shell->work_dir = safe_strdup(shell, cwd);
 	if (!shell->work_dir)
 		return (error(NO_MEM, false));

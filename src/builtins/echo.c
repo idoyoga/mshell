@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 18:54:38 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 00:49:36 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 18:49:25 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,4 @@ void	builtin_echo(t_shell *shell, t_cmd *cmd)
 	if (!has_n)
 		printf("\n");
 	shell->status = 0;
-	// else
-	// 	fflush(STDOUT_FILENO); // fflush is not allowed,
-	// however without printing a newline, printf won't flush by itself
-	// this should probably happen as soon as the next prompt appears...
 }

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 16:02:28 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 18:53:52 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,24 +190,19 @@ static void	handy_expandy(t_shell *shell, char *str, char **dest, int *index)
 	int		i;
 
 	i = 0;
-	// +1 to skip the '$'
 	while (str[*index + i + 1] && is_valid_var_char(str[*index + i + 1], i))
 		i++;
 	variable = ft_substr(str, (*index) + 1, i);
-	// substr of only the valid chars
 	if (!variable)
 		error_exit(shell, NO_MEM, "handy_expandy", EXIT_FAILURE);
-	// printf("looking for variable `%s`\n", variable);
 	alloc_tracker_add(&shell->alloc_tracker, variable, 0);
 	check_res = env_variable_exists(shell, variable);
 	if (check_res == true)
 	{
-		// printf("found value for `%s`, expanding\n", variable);
 		expand_env_variable(shell, dest, variable, index);
 	}
 	else
 	{
-		// printf("found nothing for `%s`, noop-ing\n", variable);
 		expand_noop(shell, dest, variable, index);
 	}
 }
@@ -232,15 +227,12 @@ void	xpand(t_shell *shell, t_tok *token)
 		if (quote == QUOTE_NONE && is_quote(token->content[i]))
 		{
 			quote = token->content[i];
-			// append_char_to_str(shell, &expanded_content, &i,
-			// 	&token->content[i]);
 			i++;
 		}
-		else if (quote != QUOTE_NONE && (unsigned char)token->content[i] == quote)
+		else if (quote != QUOTE_NONE
+			&& (unsigned char)token->content[i] == quote)
 		{
 			quote = QUOTE_NONE;
-			// append_char_to_str(shell, &expanded_content, &i,
-			// 	&token->content[i]);
 			i++;
 		}
 		else if (quote != QUOTE_SINGLE && token->content[i] == '$'
@@ -331,7 +323,6 @@ bool	expand_dilla_variables(t_shell *shell)
 				strip_quotes_from_token(current_token->content, new_content);
 				current_token->content = new_content;
 			}
-			// remove quotes and do nothing else
 		}
 		else
 		{
