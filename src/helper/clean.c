@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/22 14:10:12 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/26 19:11:41 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 18:20:08 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,15 @@ void	cleanup_fds(t_cmd *cmd)
 	}
 }
 
+static void	clean_alloc_tracker(t_alloc *tracker)
+{
+	if (!tracker)
+		return ;
+	free(tracker->allocs);
+	free(tracker->is_array);
+	*tracker = (t_alloc){0};
+}
+
 /*
 **	Clean up the shell struct and free all allocated memory.
 **	- I guess we can add more cleanup functions here if needed.
@@ -57,5 +66,7 @@ void	clean_shell(t_shell *shell)
 		close(shell->fd_copies[STDIN_FILENO]);
 	if (shell->fd_copies[STDOUT_FILENO] != -2)
 		close(shell->fd_copies[STDOUT_FILENO]);
-	free_allocs(&shell->alloc_tracker);
+	if (shell->alloc_tracker.allocs)
+		free_allocs(&shell->alloc_tracker);
+	clean_alloc_tracker(&shell->alloc_tracker);
 }
