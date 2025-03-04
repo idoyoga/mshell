@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 20:34:30 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:39:01 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,10 +258,7 @@ void							error_exit(t_shell *shell, t_error err,
 									char *context, int status);
 void							error_exit_s(t_shell *shell, t_error err,
 									char *context, int status);
-bool							error_token(t_shell *shell, t_tok *token);
 void							strerror_cmd(const char *cmd_name);
-void							error_cmd_str(const char *command,
-									const char *message);
 
 // --------------  expander  ---------------------------------------------- //
 bool							expand_dollar_variables(t_shell *shell,
@@ -351,7 +348,7 @@ size_t							count_cmd_args(t_cmd *cmd);
 
 // --------------  builtins  ---------------------------------------------- //
 t_b_typ							identify_builtin(char *str);
-void	(*get_builtin(t_b_typ type))(t_shell *, t_cmd *);
+void						(*get_builtin(t_b_typ type))(t_shell *, t_cmd *);
 void							builtin_echo(t_shell *shell, t_cmd *cmd);
 void							builtin_cd(t_shell *shell, t_cmd *cmd);
 void							builtin_pwd(t_shell *shell, t_cmd *cmd);

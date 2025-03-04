@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/26 18:09:55 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 18:47:05 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:37:55 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,23 +88,6 @@ void	error_exit_s(t_shell *shell, t_error err, char *context, int status)
 }
 
 /*
-**	Print a syntax error message for an unexpected token
-**	1. If the next token is `shell->tokens` (indicating the end of input),
-**		it prints `newline`, signaling a missing argument.
-**	2. Otherwise, it prints the unexpected token's content.
-*/
-
-bool	error_token(t_shell *shell, t_tok *token)
-{
-	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
-	if (token->next == shell->tokens)
-		ft_putendl_fd("newline'", 2);
-	else
-		ft_putendl_fd(token->next->content, 2);
-	return (false);
-}
-
-/*
 **	Print an error message for a command that failed to execute.
 */
 
@@ -113,17 +96,6 @@ void	strerror_cmd(const char *cmd_name)
 	char	*err_msg;
 
 	err_msg = ft_strjoin_four("minishell: ", cmd_name, ": ", strerror(errno));
-	if (!err_msg)
-		error(NO_MEM, false);
-	ft_putendl_fd(err_msg, 2);
-	free(err_msg);
-}
-
-void	error_cmd_str(const char *command, const char *message)
-{
-	char	*err_msg;
-
-	err_msg = ft_strjoin_four("minishell: ", command, ": ", message);
 	if (!err_msg)
 		error(NO_MEM, false);
 	ft_putendl_fd(err_msg, 2);

@@ -6,11 +6,28 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 19:04:47 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 20:38:03 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+/*
+**	Print a syntax error message for an unexpected token
+**	1. If the next token is `shell->tokens` (indicating the end of input),
+**		it prints `newline`, signaling a missing argument.
+**	2. Otherwise, it prints the unexpected token's content.
+*/
+
+static bool	error_token(t_shell *shell, t_tok *token)
+{
+	ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
+	if (token->next == shell->tokens)
+		ft_putendl_fd("newline'", 2);
+	else
+		ft_putendl_fd(token->next->content, 2);
+	return (false);
+}
 
 /*
 **	Check for "\" and ";" in the input string and give an error if found.
