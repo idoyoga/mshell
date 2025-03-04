@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 19:14:26 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 19:43:31 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,8 +208,6 @@ void							alloc_tracker_remove(t_alloc *tracker,
 void							free_allocs(t_alloc *tracker);
 
 // --------------  alloc_helper  ------------------------------------------ //
-void							*alloc_tracker_replace(t_alloc *tracker,
-									void *old_ptr, void *new_ptr);
 void							*safe_malloc(t_shell *shell, size_t size);
 void							*safe_calloc(t_shell *shell, size_t count,
 									size_t size);
@@ -219,6 +217,10 @@ char							*safe_strndup(t_shell *shell, const char *src,
 char							*safe_strjoin(t_shell *shell, const char *s1,
 									const char *s2);
 
+// --------------  alloc_helper  ------------------------------------------ //
+void							*alloc_tracker_replace(t_alloc *tracker,
+									void *old_ptr, void *new_ptr);
+
 // --------------  clean  ------------------------------------------------- //
 void							cleanup_fds(t_cmd *cmd);
 void							clean_shell(t_shell *shell);
@@ -227,7 +229,6 @@ void							clean_shell(t_shell *shell);
 bool							parse_commands(t_shell *shell);
 
 // --------------  cmd_redir  --------------------------------------------- //
-bool							invalid_redirection(t_tok *token);
 bool							handle_redirection(t_shell *shell, t_tok *token,
 									t_cmd *cmd);
 
@@ -287,6 +288,7 @@ int								handle_heredoc(t_shell *shell,
 bool							init_shell(t_shell *shell, char **env);
 
 // --------------  parser_utils  ------------------------------------------ //
+bool							invalid_redirection(t_tok *token);
 int								validate_tokens(t_tok *tokens);
 
 // --------------  signal  ------------------------------------------------ //

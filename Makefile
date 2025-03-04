@@ -6,14 +6,14 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/03/04 19:20:10 by xgossing         ###   ########.fr        #
+#    Updated: 2025/03/04 19:43:57 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= minishell
 
 CC		= cc
-CFLAGS	= -Werror -Wall -Wextra -g
+CFLAGS	= -Werror -Wall -Wextra
 
 SRC_DIR	=	src/
 OBJ_DIR	=	obj/
@@ -24,6 +24,7 @@ HEADER 	=	inc/minishell.h
 
 SRC		=	helper/alloc.c \
 			helper/alloc_helper.c \
+			helper/alloc_utils.c \
 			helper/clean.c \
 			helper/cmd_utils.c \
 			helper/env_helper.c \
