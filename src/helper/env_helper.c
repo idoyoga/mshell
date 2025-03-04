@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 18:07:01 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 19:04:44 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 19:08:19 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,15 @@ char	**create_default_env(t_shell *shell)
 	return (env);
 }
 
+static char	*join_key_value_pair(t_shell *shell, char *key, char *value)
+{
+	char	*key_value_string;
+
+	key_value_string = safe_strjoin(shell, key, "=");
+	key_value_string = safe_strjoin(shell, key_value_string, value);
+	return (key_value_string);
+}
+
 /*
 **	Upsert an environment variable.
 */
@@ -78,9 +87,7 @@ bool	upsert_env_variable(t_shell *shell, t_env **lst, char *key,
 			len = match_env_variable(key, node->data);
 			if (len > 0)
 			{
-				updated_value = safe_strjoin(shell, key, "=");
-				updated_value = safe_strjoin(shell, updated_value, new_value);
-				node->data = updated_value;
+				node->data = join_key_value_pair(shell, key, new_value);
 				return (true);
 			}
 			node = node->next;
@@ -88,7 +95,6 @@ bool	upsert_env_variable(t_shell *shell, t_env **lst, char *key,
 				break ;
 		}
 	}
-	updated_value = safe_strjoin(shell, key, "=");
-	updated_value = safe_strjoin(shell, updated_value, new_value);
+	updated_value = join_key_value_pair(shell, key, new_value);
 	return (add_env_variable(shell, lst, updated_value) != NULL);
 }

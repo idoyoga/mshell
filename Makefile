@@ -6,7 +6,7 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/03/02 20:36:27 by xgossing         ###   ########.fr        #
+#    Updated: 2025/03/04 19:20:10 by xgossing         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,6 +45,7 @@ SRC		=	helper/alloc.c \
 			execution/builtin.c \
 			execution/pipeline.c \
 			execution/setup.c \
+			execution/setup_access.c \
 			execution/teardown.c \
 			execution/utils.c \
 			builtins/dispatch.c \
@@ -90,7 +91,7 @@ re: fclean
 	$(MAKE) all
 
 leak: 
-	valgrind --leak-check=full --show-leak-kinds=all --suppressions=suppression.txt --track-fds=yes --trace-children=yes ./$(NAME)
+	(ulimit -v 140000; valgrind --leak-check=full --show-leak-kinds=all --suppressions=suppression.txt --track-fds=yes --trace-children=yes ./$(NAME))
 
 .PHONY: all clean fclean re
 

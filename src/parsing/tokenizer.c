@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/08 21:08:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 16:08:40 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 19:04:47 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ static bool	invalid_syntax(char *input)
 			quote = QUOTE_NONE;
 		else if (quote == QUOTE_NONE)
 		{
-			if (*input == '\\' && (*(input + 1) == '$' || *(input + 1) == '\0'))
+			if (*input == '\\' && (*(input + 1) == '$' || *(input + 1) \
+				== '\0'))
 				return (error(BACKSLASH, true));
 			if (*input == ';' && (*(input + 1) == ' ' || *(input + 1) == '\0'))
 				return (error(SEMICOLON, true));

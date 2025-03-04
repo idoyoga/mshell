@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 21:51:59 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 03:19:27 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 19:27:42 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ static void	reset_io(int *fd_copies)
 {
 	if (dup2(fd_copies[STDIN_FILENO], STDIN_FILENO) == -1)
 	{
-		// close all unnecessary garbage
 		close(fd_copies[STDIN_FILENO]);
 		fd_copies[STDIN_FILENO] = -2;
 		return (perror("reset_stdio: couldn't reset STDIN"));
@@ -30,7 +29,6 @@ static void	reset_io(int *fd_copies)
 	fd_copies[STDIN_FILENO] = -2;
 	if (dup2(fd_copies[STDOUT_FILENO], STDOUT_FILENO) == -1)
 	{
-		// also, reset io
 		close(fd_copies[STDOUT_FILENO]);
 		fd_copies[STDOUT_FILENO] = -2;
 		return (perror("reset_stdio: couldn't reset STDOUT"));

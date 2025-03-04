@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 18:50:51 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 19:30:17 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,7 @@ void	dispatch(t_shell *shell)
 
 	pipe_fd[0] = -2;
 	pipe_fd[1] = -2;
+	prepare_execution(shell);
 	if (shell->cmd_count != 1)
 	{
 		execute_with_pipeline(shell, shell->cmd, pipe_fd);

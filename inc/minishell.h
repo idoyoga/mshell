@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 18:20:26 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 19:14:26 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -330,6 +330,7 @@ int								wait_for_children(t_shell *shell,
 void							prepare_execution(t_shell *shell);
 void							postpare_execution(t_shell *shell);
 char							**get_env_array(t_shell *shell);
+void							get_absolute_paths(t_shell *shell);
 
 bool							is_path(char *str);
 size_t							count_cmd_args(t_cmd *cmd);
