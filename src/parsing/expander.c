@@ -6,81 +6,11 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:37:00 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 19:24:27 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 20:29:04 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-/*
-**	Expand a given environment variable ($VAR) by replacing it with its value.
-*/
-
-static bool	expand_env_variable(t_shell *shell, char **output, char *input,
-		int *index)
-{
-	char	*var_value;
-	char	*new_output;
-
-	var_value = get_env_value(shell, input);
-	new_output = safe_strjoin(shell, *output, var_value);
-	*output = new_output;
-	*index += ft_strlen(input) + 1;
-	return (true);
-}
-
-/*
-**	Expand $?, replacing it with the exit status of the last command.
-*/
-
-static bool	expand_exit_status(t_shell *shell, char **output, char *input,
-		int *index)
-{
-	char	*status_str;
-	char	*new_str;
-
-	(void)input;
-	status_str = ft_itoa(shell->status);
-	if (!status_str)
-		error_exit(shell, NO_MEM, "expand_exit_status", EXIT_FAILURE);
-	alloc_tracker_add(&shell->alloc_tracker, status_str, 0);
-	new_str = safe_strjoin(shell, *output, status_str);
-	*output = new_str;
-	(*index) += 2;
-	return (true);
-}
-
-static bool	expand_noop(t_shell *shell, char **output, char *input, int *index)
-{
-	(void)shell;
-	(void)output;
-	(*index) += ft_strlen(input) + 1;
-	return (true);
-}
-
-/*
-**	Handle expanding a $-variable found in the input string:
-**	- If result == 1: expand the environment variable using expand_env_variable.
-**	- If result == 2: expand the exit status using expand_exit_status.
-**	- If result == 0: skip expansion, as the variable does not exist.
-*/
-
-static bool	handle_expansion(t_shell *shell, char **output, char *input,
-		int *index)
-{
-	t_expander	expander[3];
-	int			result;
-
-	if (!input)
-		return (false);
-	expander[0] = expand_noop;
-	expander[1] = expand_env_variable;
-	expander[2] = expand_exit_status;
-	result = find_or_check_env(shell, input, index, false);
-	if (result == 0 || result == 1 || result == 2)
-		return (expander[result](shell, output, &input[*index + 1], index));
-	return (true);
-}
 
 /*
 **	Helper to check if the dollar sign should trigger variable expansion:
@@ -99,8 +29,7 @@ static bool	handle_expansion(t_shell *shell, char **output, char *input,
 ** 	- Returns false if the environment variable does not exist.
 */
 
-static bool	should_expand_dollar(t_shell *shell, char *input, int i,
-		bool s_quote)
+bool	should_expand_dollar(char *input, int i, bool s_quote)
 {
 	int	j;
 	int	k;
@@ -126,40 +55,6 @@ static bool	should_expand_dollar(t_shell *shell, char *input, int i,
 		return (true);
 	if (!input[i + 1] || (!ft_isalpha(input[i + 1]) && input[i + 1] != '_'))
 		return (false);
-	if (find_or_check_env(shell, &input[i + 1], NULL, true) == 0)
-		return (false);
-	return (true);
-}
-
-/*
-**	Expand all $-variables in the user input. Allows dynamic substitition
-**	of environment variables before command execution.
-*/
-
-bool	expand_dollar_variables(t_shell *shell, char **input)
-{
-	bool	d_quote;
-	bool	s_quote;
-	char	*output;
-	int		i;
-
-	output = safe_strdup(shell, "");
-	d_quote = false;
-	s_quote = false;
-	i = 0;
-	while ((*input)[i])
-	{
-		update_quote_state(&d_quote, &s_quote, (*input)[i]);
-		if (should_expand_dollar(shell, *input, i, s_quote))
-		{
-			if (!handle_expansion(shell, &output, *input, &i))
-				return (false);
-			continue ;
-		}
-		if (!append_char_to_str(shell, &output, &i, &(*input)[i]))
-			return (false);
-	}
-	*input = output;
 	return (true);
 }
 
@@ -203,28 +98,15 @@ static void	handy_expandy(t_shell *shell, char *str, char **dest, int *index)
 		expand_noop(shell, dest, variable, index);
 }
 
-void	xpand(t_shell *shell, t_tok *token)
+static void	xpand(t_shell *shell, t_tok *token, char *expanded, int i)
 {
-	char	*expanded_content;
-	int		i;
 	t_qstat	quote;
 
-	if (is_empty_variable(shell, token->content))
-	{
-		token->content = NULL;
-		token->is_null = true;
-		return ;
-	}
-	i = 0;
-	expanded_content = safe_strdup(shell, "");
 	quote = QUOTE_NONE;
 	while (token->content[i])
 	{
 		if (quote == QUOTE_NONE && is_quote(token->content[i]))
-		{
-			quote = token->content[i];
-			i++;
-		}
+			quote = token->content[i++];
 		else if (quote != QUOTE_NONE
 			&& (unsigned char)token->content[i] == quote)
 		{
@@ -233,74 +115,19 @@ void	xpand(t_shell *shell, t_tok *token)
 		}
 		else if (quote != QUOTE_SINGLE && token->content[i] == '$'
 			&& token->content[i + 1] == '?')
-		{
-			expand_exit_status(shell, &expanded_content, token->content + i,
-				&i);
-		}
+			expand_exit_status(shell, &expanded, token->content + i, &i);
 		else if (quote != QUOTE_SINGLE && token->content[i] == '$'
 			&& token->content[i + 1] && is_valid_var_char(token->content[i + 1],
 				0))
-		{
-			handy_expandy(shell, token->content, &expanded_content, &i);
-		}
+			handy_expandy(shell, token->content, &expanded, &i);
 		else
-			append_char_to_str(shell, &expanded_content, &i,
-				&token->content[i]);
+			append_char_to_str(shell, &expanded, &i, &token->content[i]);
 	}
-	token->content = expanded_content;
-}
-
-static size_t	get_length_without_quotes(char *token)
-{
-	size_t	length_without_quotes;
-	size_t	i;
-	t_qstat	quote;
-
-	length_without_quotes = 0;
-	i = 0;
-	quote = QUOTE_NONE;
-	while (token[i])
-	{
-		if (quote == QUOTE_NONE && is_quote(token[i]))
-			quote = token[i];
-		else if (quote != QUOTE_NONE && (unsigned char)token[i] == quote)
-			quote = QUOTE_NONE;
-		else
-			length_without_quotes++;
-		i++;
-	}
-	return (length_without_quotes);
-}
-
-static void	strip_quotes_from_token(char *token, char *destination)
-{
-	size_t	i;
-	size_t	ti;
-	t_qstat	quote;
-
-	i = 0;
-	ti = 0;
-	quote = QUOTE_NONE;
-	while (token[ti])
-	{
-		if (quote == QUOTE_NONE && is_quote(token[ti]))
-			quote = token[ti];
-		else if (quote != QUOTE_NONE && (unsigned char)token[ti] == quote)
-			quote = QUOTE_NONE;
-		else
-		{
-			destination[i] = token[ti];
-			i++;
-		}
-		ti++;
-	}
-	destination[i] = '\0';
+	token->content = expanded;
 }
 
 bool	expand_dilla_variables(t_shell *shell)
 {
-	size_t	length_without_quotes;
-	char	*new_content;
 	t_tok	*current_token;
 
 	current_token = shell->tokens;
@@ -310,19 +137,14 @@ bool	expand_dilla_variables(t_shell *shell)
 			|| (current_token->prev && current_token->prev->type != CMD
 				&& current_token->prev->type != ARG
 				&& current_token->prev->type != PIPE))
+			strip_redir_token_quotes(shell, current_token);
+		else if (is_empty_variable(shell, current_token->content))
 		{
-			if (current_token->content != NULL)
-			{
-				length_without_quotes = get_length_without_quotes
-					(current_token->content);
-				new_content = safe_calloc(shell, length_without_quotes + 1,
-						sizeof(char));
-				strip_quotes_from_token(current_token->content, new_content);
-				current_token->content = new_content;
-			}
+			current_token->content = NULL;
+			current_token->is_null = true;
 		}
 		else
-			xpand(shell, current_token);
+			xpand(shell, current_token, safe_strdup(shell, ""), 0);
 		current_token = current_token->next;
 		if (current_token == shell->tokens)
 			break ;

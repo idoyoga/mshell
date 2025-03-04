@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 19:43:31 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 20:34:30 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,8 +267,20 @@ void							error_cmd_str(const char *command,
 bool							expand_dollar_variables(t_shell *shell,
 									char **input);
 bool							expand_dilla_variables(t_shell *shell);
+bool							expand_env_variable(t_shell *shell,
+									char **output, char *input, int *index);
+bool							expand_exit_status(t_shell *shell,
+									char **output, char *input, int *index);
+bool							expand_noop(t_shell *shell, char **output,
+									char *input, int *index);
+void							strip_redir_token_quotes(t_shell *shell,
+									t_tok *current_token);
 
-// --------------  expander_utils  ---------------------------------------- //
+bool							should_expand_dollar(char *input, int i,
+									bool s_quote);
+
+// --------------  expander_utils  ----------------------------------------
+//
 int								find_or_check_env(t_shell *shell, char *input,
 									int *index, bool check);
 bool							env_variable_exists(t_shell *shell,

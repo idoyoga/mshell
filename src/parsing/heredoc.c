@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/13 16:06:25 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 20:25:18 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 20:34:01 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static void	print_eof_warning(int line_count, const char *delimiter)
 }
 
 static void	read_heredoc_loop(t_shell *shell, const char *delimiter, int fd,
-			  bool is_quoted)
+		bool is_quoted)
 {
 	char	*line;
 	int		line_count;
