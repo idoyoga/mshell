@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 19:31:28 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 16:51:36 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,7 @@ static bool	init_work_dirs(t_shell *shell)
 	if (shell->old_work_dir)
 		alloc_tracker_remove(&shell->alloc_tracker, shell->old_work_dir);
 	shell->old_work_dir = safe_strdup(shell, "");
+	free(cwd);
 	return (true);
 }
 

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:24:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 19:37:32 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 17:39:25 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,15 +59,11 @@ static bool	alloc_tracker_resize(t_alloc *tracker)
 void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array, int cycle_flag)
 {
 	if (!ptr || !tracker)
-	{
-		printf("⚠️ alloc_tracker_add skipped: ptr=%p, tracker=%p\n", ptr, tracker);
 		return (NULL);
-	}
 	if (tracker->count >= tracker->capacity)
 	{
 		if (!alloc_tracker_resize(tracker))
 		{
-			printf("❌ ERROR: alloc_tracker_resize failed!\n");
 			free(ptr);
 			error_exit(tracker->shell, NO_TRACK, NULL, EXIT_FAILURE);
 		}
@@ -89,32 +85,18 @@ void	*alloc_tracker_add(t_alloc *tracker, void *ptr, int is_array, int cycle_fla
 void	alloc_tracker_remove(t_alloc *tracker, void *ptr)
 {
 	int		i;
-	int		j;
-	char	**array;
 
 	if (!tracker || !ptr || tracker->count == 0)
-	{
-		printf("⚠️ alloc_tracker_remove skipped: tracker=%p, ptr=%p, count=%d\n",
-				tracker, ptr, tracker->count);
 		return ;
-	}
 	i = -1;
 	while (++i < tracker->count)
 	{
 		if (tracker->allocs[i] == ptr)
 		{
+			if (tracker->cycle_only[i])
+				return ;
 			printf("✅ Removing and freeing tracked allocation: %p\n", ptr);
-			if (tracker->is_array[i])
-			{
-				array = (char **)tracker->allocs[i];
-				j = -1;
-				while (array[++j])
-				{
-					printf("🟠 Freeing array element: %p\n", array[j]);
-					free(array[j]);
-				}
-			}
-			free(tracker->allocs[i]);
+			free_tracker_allocs(&tracker->allocs[i], tracker->is_array[i]);
 			tracker->allocs[i] = tracker->allocs[tracker->count - 1];
 			tracker->is_array[i] = tracker->is_array[tracker->count - 1];
 			tracker->allocs[tracker->count - 1] = NULL;
@@ -132,34 +114,27 @@ void	alloc_tracker_remove(t_alloc *tracker, void *ptr)
 **	If 'is_array' is set, frees each element before freeing the main pointer.
 */
 
-void	free_tracker_allocs(void *alloc, int is_array, int cycle_only)
+void	free_tracker_allocs(void **alloc, int is_array)
 {
 	int		i;
 	char	**array;
 
-	(void)cycle_only;
-	if (!alloc)
-	{
-		printf("⚠️ free_tracker_allocs called with NULL pointer!\n");
+	if (!alloc) 
 		return ;
-	}
-	/* if (cycle_only) */
-	/* { */
-	/* 	printf("⏩ Skipping free (cycle_only active): %p\n", alloc); */
-	/* 	return ; */
-	/* } */
 	if (is_array)
 	{
-		array = (char **)alloc;
+		array = (char **)*alloc;
 		i = -1;
 		while (array[++i])
 		{
 			printf("🟠 Freeing array element in free_tracker_allocs: %p\n", array[i]);
 			free(array[i]);
+			array[i] = NULL;
 		}
 	}
 	printf("🟢 Freeing allocation in free_tracker_allocs: %p\n", alloc);
-	free(alloc);
+	free(*alloc);
+	*alloc = NULL;
 }
 
 /*
@@ -173,22 +148,17 @@ void	free_allocs(t_alloc *tracker)
 	if (!tracker || !tracker->allocs)
 		return ;
 	printf("🧹 Calling free_allocs()...\n");
-	/* if (tracker->shell->env_as_array) */
-	/* { */
-	/* 	printf("🟡 Freeing env_as_array: %p\n", tracker->shell->env_as_array); */
-	/* 	alloc_tracker_remove(tracker, tracker->shell->env_as_array); */
-	/* 	tracker->shell->env_as_array = NULL; */
-	/* } */
 	i = 0;
 	while (i < tracker->count)
 	{
 		if (tracker->allocs[i] && !tracker->cycle_only[i])
 		{
 			printf("🟢 Freeing allocation in free_allocs: %p\n", tracker->allocs[i]);
-			free_tracker_allocs(tracker->allocs[i], tracker->is_array[i], tracker->cycle_only[i]);
-			/* tracker->allocs[i] = NULL; */
-			/* tracker->is_array[i] = 0; */
-			/* tracker->cycle_only[i] = 0; */
+			alloc_tracker_remove(tracker, tracker->allocs[i]);
+			free_tracker_allocs(&tracker->allocs[i], tracker->is_array[i]);
+			tracker->allocs[i] = NULL;
+			tracker->is_array[i] = 0;
+			tracker->cycle_only[i] = 0;
 		}
 		i++;
 	}

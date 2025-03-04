@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 17:02:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/03 19:27:44 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 14:25:38 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ char	**get_env_array(t_shell *shell)
 	int		i;
 
 	envp = safe_calloc(shell, shell->env_count + 1, sizeof(char *));
+	if (!envp)
+		return (NULL);
 	i = 0;
 	current_env = shell->env;
 	while (i < shell->env_count)

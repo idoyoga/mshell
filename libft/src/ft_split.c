@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/16 11:55:39 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/02/25 18:43:32 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 17:13:45 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,13 @@ void	libft_safe_malloc(char **word_arr, size_t pos)
 {
 	size_t	i;
 
+	if (!word_arr)
+		return ;
 	i = 0;
 	while (i < pos)
 	{
 		free(word_arr[i]);
+		word_arr[i] = NULL;
 		i++;
 	}
 	free(word_arr);
@@ -87,10 +90,12 @@ char	**ft_split(char const *s, char c)
 	word_arr = (char **)malloc((words) * sizeof(char *));
 	if (!word_arr)
 		return (NULL);
-	word_arr = fill(word_arr, s, c);
-	if (!word_arr)
+	if (!fill(word_arr, s, c))
+	{
+		libft_safe_malloc(word_arr, words - 1);
 		return (NULL);
-	word_arr[words - 1] = 0;
+	}
+	word_arr[words - 1] = NULL;
 	return (word_arr);
 }
 

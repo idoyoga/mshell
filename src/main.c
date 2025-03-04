@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 15:23:26 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 17:47:13 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,42 +135,79 @@ void	print_cmd(t_cmd *cmd)
 	print_tab(tmp->args);
 	printf("\n");
 }
+
+static void	free_cycle(void **alloc, int is_array)
+{
+	int		i;
+	char	**array;
+
+	if (!alloc || !*alloc)
+		return ;
+	if (is_array)
+	{
+		array = (char **)*alloc;
+		i = 0;
+		while (array[i])
+		{
+			printf("🟠 Freeing cycle array element: %p\n", array[i]);
+			free(array[i]);
+			i++;
+		}
+	}
+	printf("🟢 Freeing cycle allocation: %p\n", *alloc);
+	free(*alloc);
+	*alloc = NULL;
+}
+
+void	free_cycle_allocs(t_alloc *tracker)
+{
+	int	i;
+
+	if (!tracker || !tracker->allocs)
+		return ;
+	printf("🔄 Calling free_cycle_allocs()...\n");
+	i = 0;
+	while (i < tracker->count)
+	{
+		if (tracker->cycle_only[i] && tracker->allocs[i])
+		{
+			alloc_tracker_remove(tracker, tracker->allocs[i]);
+			free_cycle(&tracker->allocs[i], tracker->is_array[i]);
+			tracker->allocs[i] = NULL;
+			tracker->is_array[i] = 0;
+			tracker->cycle_only[i] = 0;
+		}
+		i++;
+	}
+	free(tracker->allocs);
+	free(tracker->is_array);
+	free(tracker->cycle_only);
+	*tracker = (t_alloc){0};
+}
+
 static void alloc_tracker_purge_cycle(t_alloc *tracker)
 {
-    int i = 0;
-    int j = 0;
+	int i;
+	int j;
 
-    if (!tracker || tracker->count == 0)
-        return;
-
-    while (i < tracker->count)
-    {
-        if (tracker->cycle_only[i])
-        {
-			if (tracker->allocs[i] == tracker->shell->prompt)
-			{
-				printf("⏩ Skipping free for prompt: %p\n", tracker->allocs[i]);
-				i++;
-				continue;
-			}
-            printf("🛑 Freeing cycle allocation: %p\n", tracker->allocs[i]);
-            free_tracker_allocs(tracker->allocs[i], tracker->is_array[i], 
-				tracker->cycle_only[i]);
-            tracker->allocs[i] = NULL;
-        }
-        i++;
-    }
-    for (i = 0; i < tracker->count; i++)
-    {
-        if (tracker->allocs[i] != NULL)
-        {
-            tracker->allocs[j] = tracker->allocs[i];
-            tracker->is_array[j] = tracker->is_array[i];
-            tracker->cycle_only[j] = tracker->cycle_only[i];
-            j++;
-        }
-    }
-    tracker->count = j;  // Update the count after cleanup
+	if (!tracker || tracker->count == 0)
+		return;
+	printf("🧹 Calling alloc_tracker_purge_cycle()...\n");
+	free_cycle_allocs(tracker);
+	i = 0;
+	j = 0;
+	while (i < tracker->count)
+	{
+		if (tracker->allocs[i] != NULL)
+		{
+			tracker->allocs[j] = tracker->allocs[i];
+			tracker->is_array[j] = tracker->is_array[i];
+			tracker->cycle_only[j] = tracker->cycle_only[i];
+			j++;
+		}
+		i++;
+	}
+	tracker->count = j;
 }
 
 /*
@@ -181,6 +218,7 @@ static void	minishell(t_shell *shell)
 {
 	while (1)
 	{
+		shell->cmd = NULL;
 		setup_signals(handle_sigint, SIG_IGN);
 		g_signal = 0;
 		shell->abort = false;

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/03 19:26:32 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 17:28:45 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,8 +68,17 @@ static void	set_path_segments(t_shell *shell)
 	path_variable = get_env_value(shell, "PATH");
 	if (path_variable == NULL)
 	{
-		shell->path_segments = NULL;
+		if (shell->path_segments)
+		{
+			alloc_tracker_remove(&shell->alloc_tracker, shell->path_segments);
+			shell->path_segments = NULL;
+		}
 		return ;
+	}
+	if (shell->path_segments)
+	{
+		alloc_tracker_remove(&shell->alloc_tracker, shell->path_segments);
+		shell->path_segments = NULL;
 	}
 	shell->path_segments = ft_split(path_variable, ':');
 	if (!shell->path_segments)
@@ -86,17 +95,17 @@ static void	set_env_as_array(t_shell *shell)
 	new_env_array = get_env_array(shell);
 	if (!new_env_array)
 		error_exit(shell, NO_ALLOC, "set_env_as_array", EXIT_FAILURE);
+
 	printf("🔍 Old env_as_array: %p\n", shell->env_as_array);
 	if (shell->env_as_array)
 	{
 		printf("🔍 Attempting to remove old env_as_array: %p\n", shell->env_as_array);
 		alloc_tracker_remove(&shell->alloc_tracker, shell->env_as_array);
-		free(shell->env_as_array);
 		shell->env_as_array = NULL;
 	}
+
 	printf("✅ Setting new env_as_array: %p\n", shell->env_as_array);
 	shell->env_as_array = new_env_array;
-	/* alloc_tracker_add(&shell->alloc_tracker, shell->env_as_array, 1, 0); */
 }
 
 static void	set_cmd_count(t_shell *shell)
@@ -127,4 +136,9 @@ void	prepare_execution(t_shell *shell)
 	set_path_segments(shell);
 	get_absolute_paths(shell);
 	set_env_as_array(shell);
+	if (shell->path_segments)
+	{
+		alloc_tracker_remove(&shell->alloc_tracker, shell->path_segments);
+		shell->path_segments = NULL;
+	}
 }

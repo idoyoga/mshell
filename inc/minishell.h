@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:51:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 17:36:43 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 15:55:38 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,8 +185,7 @@ void							*alloc_tracker_add(t_alloc *tracker, void *ptr,
 									int is_array, int cycle_only);
 void							alloc_tracker_remove(t_alloc *tracker,
 									void *ptr);
-void							free_tracker_allocs(void *alloc, int is_array,
-									int cycle_only);
+void							free_tracker_allocs(void **alloc, int is_array);
 void							free_allocs(t_alloc *tracker);
 
 // --------------  alloc_helper  ------------------------------------------ //
