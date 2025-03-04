@@ -26,7 +26,7 @@ static bool	invalid_syntax(char *input)
 	{
 		if (quote == QUOTE_NONE && is_quote(*input))
 			quote = *input;
-		else if (quote != QUOTE_NONE && *input == quote)
+		else if (quote != QUOTE_NONE && (unsigned char)(*input) == quote)
 			quote = QUOTE_NONE;
 		else if (quote == QUOTE_NONE)
 		{

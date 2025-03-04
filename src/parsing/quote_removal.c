@@ -30,7 +30,7 @@ static size_t	get_length_without_quotes(char *token)
 	{
 		if (quote == QUOTE_NONE && is_quote(token[i]))
 			quote = token[i];
-		else if (quote != QUOTE_NONE && token[i] == quote)
+		else if (quote != QUOTE_NONE && (unsigned char)token[i] == quote)
 			quote = QUOTE_NONE;
 		else
 			length_without_quotes++;
@@ -52,7 +52,7 @@ static void	strip_quotes_from_token(char *token, char *destination)
 	{
 		if (quote == QUOTE_NONE && is_quote(token[ti]))
 			quote = token[ti];
-		else if (quote != QUOTE_NONE && token[ti] == quote)
+		else if (quote != QUOTE_NONE && (unsigned char)token[ti] == quote)
 			quote = QUOTE_NONE;
 		else
 		{

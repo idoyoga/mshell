@@ -58,13 +58,13 @@ int	get_token_length(char *input)
 	len = 0;
 	while (input[len])
 	{
-		if (quote == QUOTE_NONE && ft_isblank(input[len]))
+		if ((unsigned char)quote == QUOTE_NONE && ft_isblank(input[len]))
 			break ;
-		if (quote == QUOTE_NONE && get_special_length(input + len) != 0)
+		if ((unsigned char)quote == QUOTE_NONE && get_special_length(input + len) != 0)
 			break ;
-		if (quote == QUOTE_NONE && is_quote(input[len]))
+		if ((unsigned char)quote == QUOTE_NONE && is_quote(input[len]))
 			quote = input[len];
-		else if (quote != QUOTE_NONE && (input[len]) == quote)
+		else if (quote != QUOTE_NONE && (unsigned char)(input[len]) == quote)
 			quote = QUOTE_NONE;
 		len++;
 	}
