@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/31 20:39:27 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/03 19:09:58 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 22:07:04 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,8 @@ bool	append_char_to_str(t_shell *shell, char **output, int *index, char *c)
 	new_str = safe_strjoin(shell, *output, char_str);
 	if (!new_str)
 		return (error(NO_MEM, false));
+	alloc_tracker_remove(&shell->alloc_tracker, *output);
+	free(*output);
 	*output = new_str;
 	(*index)++;
 	return (true);

@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/28 13:48:13 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 19:30:46 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 22:31:24 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,39 @@ static bool	blank_line(char *input)
 		input++;
 	}
 	return (true);
+}
+
+static void	scrub_command(t_shell *shell, t_cmd *command)
+{
+	size_t	i;
+
+	i = 0;
+	while (command->args && command->args[i])
+	{
+		alloc_tracker_remove(&shell->alloc_tracker, command->args[i]);
+		free(command->args[i]);
+		i++;
+	}
+	alloc_tracker_remove(&shell->alloc_tracker, command->args);
+	free(command->args);
+	command->args = NULL;
+	if (command->cmd)
+	{
+		alloc_tracker_remove(&shell->alloc_tracker, command->cmd);
+		free(command->cmd);
+		command->cmd = NULL;
+	}
+}
+
+static void	scrub_commands(t_shell *shell, t_cmd *current_command)
+{
+	while (current_command)
+	{
+		scrub_command(shell, current_command);
+		current_command = current_command->next;
+		if (current_command == shell->cmd)
+			break ;
+	}
 }
 
 /*
@@ -54,9 +87,8 @@ static void	minishell(t_shell *shell)
 		if (!tokenize_input(shell, shell->cmd_input))
 			continue ;
 		if (shell->cmd != NULL && !shell->abort)
-		{
 			(dispatch(shell), postpare_execution(shell));
-		}
+		scrub_commands(shell, shell->cmd);
 	}
 }
 

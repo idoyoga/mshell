@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 18:07:01 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 19:08:19 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/04 22:05:44 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,12 @@ char	**create_default_env(t_shell *shell)
 static char	*join_key_value_pair(t_shell *shell, char *key, char *value)
 {
 	char	*key_value_string;
+	char	*temp;
 
-	key_value_string = safe_strjoin(shell, key, "=");
-	key_value_string = safe_strjoin(shell, key_value_string, value);
+	temp = safe_strjoin(shell, key, "=");
+	key_value_string = safe_strjoin(shell, temp, value);
+	alloc_tracker_remove(&shell->alloc_tracker, temp);
+	free(temp);
 	return (key_value_string);
 }
 
