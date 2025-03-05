@@ -6,7 +6,7 @@
 #    By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/05 17:52:33 by dplotzl           #+#    #+#              #
-#    Updated: 2025/03/04 20:17:45 by xgossing         ###   ########.fr        #
+#    Updated: 2025/03/05 12:38:16 by dplotzl          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -96,5 +96,4 @@ re: fclean
 leak: 
 	(ulimit -v 140000; valgrind --leak-check=full --show-leak-kinds=all --suppressions=suppression.txt --track-fds=yes --trace-children=yes ./$(NAME))
 
-.PHONY: all clean fclean re
-
+.PHONY: all clean fclean re leak
