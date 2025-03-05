@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/06 23:19:30 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 19:16:48 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/05 11:25:20 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,9 @@ static bool	handle_null_command(t_shell *shell, t_tok *token)
 	if (new_fd == -1)
 	{
 		shell->cmd->skip = true;
-		return (strerror_cmd(token->next->content), false);
+		if (token->type != HEREDOC)
+			strerror_cmd(token->next->content);
+		return (false);
 	}
 	close(new_fd);
 	return (true);
@@ -97,8 +99,9 @@ static bool	process_redirection(t_shell *shell, t_cmd *cmd, t_tok *token)
 		new_fd = open_redirection_file(token->next->content, token->type);
 	if (new_fd == -1)
 	{
+		if (token->type != HEREDOC)
+			strerror_cmd(token->next->content);
 		cmd->skip = true;
-		strerror_cmd(token->next->content);
 		return (false);
 	}
 	if (*fd != -2)

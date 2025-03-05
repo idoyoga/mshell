@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/23 21:15:51 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 20:04:51 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/05 11:47:41 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,8 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 			if (!handle_redirection(shell, *token, *cmd))
 			{
 				(*cmd)->skip = true;
-				shell->status = 1;
+				if (shell->status == 0)
+					shell->status = 1;
 				return (false);
 			}
 			*redir = true;
@@ -96,15 +97,6 @@ static bool	process_token(t_shell *shell, t_tok **token, t_cmd **cmd,
 	}
 	return (true);
 }
-
-// static bool	setup_new_command(t_shell *shell, t_tok **token, t_cmd **cmd)
-// {
-// 	*cmd = add_cmd(shell, &shell->cmd);
-// 	(*cmd)->argc = count_args(shell, *token);
-// 	(*cmd)->args = safe_calloc(shell, (*cmd)->argc + 1, sizeof(char *));
-// 	(*cmd)->argc = 0;
-// 	return (true);
-// }
 
 /*
 **	Iterate through the tokenized input and build a linked list of commands.

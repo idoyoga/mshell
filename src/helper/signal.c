@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 10:47:06 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/02 15:07:32 by xgossing         ###   ########.fr       */
+/*   Updated: 2025/03/05 02:34:15 by xgossing         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ void	handle_heredoc_sigint(int sig)
 	{
 		g_signal = sig;
 		ioctl(STDIN_FILENO, TIOCSTI, &cr);
+		rl_replace_line("", 0);
+		rl_on_new_line();
 	}
 }
 
