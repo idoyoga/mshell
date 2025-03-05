@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 17:26:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/03 15:53:26 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/04 21:59:30 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,9 @@ void	execute_command(t_shell *shell, t_cmd *command)
 	if (shell->status == -1)
 	{
 		printf("execve failed in execute_command! errno is %d\n", errno);
-		free(shell->env_as_array);
-		shell->env_as_array = NULL;
+		/* free(shell->env_as_array); */
+		/* shell->env_as_array = NULL; */
+		alloc_tracker_remove(&shell->alloc_tracker, shell->env_as_array);
 		error_exit(shell, BAD_EXEC, "execute_command", shell->status);
 	}
 }

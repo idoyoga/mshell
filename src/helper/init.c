@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/04 12:12:50 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 16:51:36 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/05 01:07:49 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,11 +63,8 @@ static bool	init_environment(t_shell *shell, char **env)
 		tmp = safe_strdup(shell, env[i]);
 		if (!tmp)
 			return (error(NO_MEM, false));
-		if (!add_env_variable(shell, &lst, tmp))
-		{
-			alloc_tracker_remove(&shell->alloc_tracker, tmp);
-			return (error(NO_MEM, false));
-		}
+		add_env_variable(shell, &lst, tmp);
+		alloc_tracker_remove(&shell->alloc_tracker, tmp);
 	}
 	shell->env = lst;
 	shell->env_count = i;

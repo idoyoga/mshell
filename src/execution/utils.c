@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 17:02:32 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 14:25:38 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/05 00:37:11 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,12 @@ char	**get_env_array(t_shell *shell)
 		envp[i] = safe_strdup(shell, current_env->data);
 		if (!envp[i])
 			return (NULL);
+		/* printf("✅ Allocated envp[%d]: %p (%s)\n", i, envp[i], envp[i]); */
 		current_env = current_env->next;
 		i++;
 	}
 	envp[i] = NULL;
+	/* printf("🟢 Final envp[%d] (NULL Terminator): %p\n", i, envp[i]); */
 	return (envp);
 }
 

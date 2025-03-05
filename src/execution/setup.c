@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 19:55:42 by xgossing          #+#    #+#             */
-/*   Updated: 2025/03/04 17:28:45 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/05 00:33:29 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,23 +89,49 @@ static void	set_path_segments(t_shell *shell)
 static void	set_env_as_array(t_shell *shell)
 {
 	char	**new_env_array;
+	char	**old_env_array;
+	int		i;
 
-	printf("🔵 set_env_as_array() called! Current env_as_array: %p\n",
+	printf("🔵 set_env_as_array() called! Current shell->env_as_array: %p\n",
 		shell->env_as_array);
 	new_env_array = get_env_array(shell);
 	if (!new_env_array)
 		error_exit(shell, NO_ALLOC, "set_env_as_array", EXIT_FAILURE);
 
-	printf("🔍 Old env_as_array: %p\n", shell->env_as_array);
-	if (shell->env_as_array)
+	old_env_array = shell->env_as_array;
+	printf("🔍 Old env_as_array: %p\n", old_env_array);
+
+	shell->env_as_array = new_env_array;
+	printf("✅ Setting new env_as_array: %p\n", shell->env_as_array);
+
+	if (old_env_array)
 	{
-		printf("🔍 Attempting to remove old env_as_array: %p\n", shell->env_as_array);
-		alloc_tracker_remove(&shell->alloc_tracker, shell->env_as_array);
-		shell->env_as_array = NULL;
+		printf("🔍 Freeing old env_as_array: %p\n", old_env_array);
+		i = 0;
+		while (old_env_array[i])
+		{
+			printf("🟠 Freeing env_as_array element: %p\n", old_env_array[i]);
+			free(old_env_array[i]);
+			i++;
+		}
+		printf("🟢 Freeing env_as_array itself: %p\n", old_env_array);
+		free(old_env_array);
 	}
 
-	printf("✅ Setting new env_as_array: %p\n", shell->env_as_array);
-	shell->env_as_array = new_env_array;
+	/* if (!alloc_tracker_add(&shell->alloc_tracker, shell->env_as_array, 1, 0)) */
+	/* { */
+	/* 	printf("❌ ERROR: Failed to track env_as_array at %p!\n", shell->env_as_array); */
+	/* 	free(shell->env_as_array); */
+	/* 	shell->env_as_array = NULL; */
+	/* } */
+
+	/* if (shell->env_as_array) */
+	/* { */
+	/* 	printf("🔍 Attempting to remove old env_as_array: %p\n", shell->env_as_array); */
+	/* 	alloc_tracker_remove(&shell->alloc_tracker, shell->env_as_array); */
+	/* 	shell->env_as_array = NULL; */
+	/* } */
+
 }
 
 static void	set_cmd_count(t_shell *shell)

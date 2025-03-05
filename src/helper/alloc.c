@@ -6,7 +6,7 @@
 /*   By: xgossing <xgossing@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:24:24 by dplotzl           #+#    #+#             */
-/*   Updated: 2025/03/04 17:39:25 by dplotzl          ###   ########.fr       */
+/*   Updated: 2025/03/05 01:06:30 by dplotzl          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,8 @@ void	alloc_tracker_remove(t_alloc *tracker, void *ptr)
 
 	if (!tracker || !ptr || tracker->count == 0)
 		return ;
-	i = -1;
-	while (++i < tracker->count)
+	i = 0;
+	while (i < tracker->count)
 	{
 		if (tracker->allocs[i] == ptr)
 		{
@@ -99,11 +99,14 @@ void	alloc_tracker_remove(t_alloc *tracker, void *ptr)
 			free_tracker_allocs(&tracker->allocs[i], tracker->is_array[i]);
 			tracker->allocs[i] = tracker->allocs[tracker->count - 1];
 			tracker->is_array[i] = tracker->is_array[tracker->count - 1];
+			tracker->cycle_only[i] = tracker->cycle_only[tracker->count - 1];
 			tracker->allocs[tracker->count - 1] = NULL;
 			tracker->is_array[tracker->count - 1] = 0;
+			tracker->cycle_only[tracker->count - 1] = 0;
 			tracker->count--;
 			return ;
 		}
+		i++;
 	}
 	printf("❌ ERROR: Pointer %p NOT FOUND in alloc_tracker_remove!\n", ptr);
 	error(NO_REMOVE, false);
